@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    .node {
+        stroke-width: 1.5px;
+    }
+</style>
+
+<body>
+    <script src="//d3js.org/d3.v3.min.js"></script>
+    <script>
+        var width = 1360,
+            height = 1080;
+        var fill = d3.scale.category10();
+        var nodes = [],
+            foci = {
+                India: { x: 150, y: 150, color: 'red' },
+                Russia: { x: 300, y: 300, color: 'blue' },
+                Australia: { x: 550, y: 550, color: 'yellow' },
+                Germany: { x: 750, y: 750, color: 'black' }
+            };
+        // var tooltip = d3.select("body").append("div")
+        //     .attr("class", "tooltip")
+        //     .style("opacity", 0);
+        var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        var force = d3.layout.force()
+            .nodes(nodes)
+            .links([])
+            .gravity(0)
+            .size([width, height])
+            .on("tick", tick);
+
+        var node = svg.selectAll("circle");
+        // node.on("mouseover", _mouseover).on("mouseout", _mouseout);
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = _onStateChange;
+
+        function _onStateChange() {
+            if (this.readyState === 4 && this.status === 200) {
+                var res = JSON.parse(this.response);
+                if (res.rows) {
+                    // if (node.exit) {
+                    //     console.log('ex')
+                    //     node.data(nodes);
+                    //     node.exit().remove();
+                    //     force.resume();
+                    //     nodes = [];
+                    // }
+                    for (var i = 0; i < res.rows.length; i++) {
+                        for (var j = 0; j < parseInt(res.rows[i][7], 10); j++) {
+                            nodes.push({ country: res.rows[i][2], color: foci[res.rows[i][2]].color });
+                            force.start();
+                            node = node.data(nodes);
+                            node.enter().append("circle")
+                                .attr("class", "node")
+                                .attr("cx", function (d) { return d.x; })
+                                .attr("cy", function (d) { return d.y; })
+                                .attr("r", 8)
+                                .style("fill", function (d) {
+                                    console.log(d)
+                                    return fill(d.color);
+                                })
+                                .style("stroke", function (d) { return d3.rgb(fill(d.color)).darker(2); })
+                                .call(force.drag);
+                        }
+                    }
+
+                } else {
+                    alert('No User Active Now');
+                }
+            }
+        };
+        function tick(e) {
+            var k = .1 * e.alpha;
+            // Push nodes toward their designated focus.
+            nodes.forEach(function (o, i) {
+                o.y += (foci[o.country].y - o.y) * k;
+                o.x += (foci[o.country].x - o.x) * k;
+            });
+            node
+                .attr("cx", function (d) { return d.x; })
+                .attr("cy", function (d) { return d.y; });
+
+        }
+
+        // function _mouseover(d, i) {
+        //     tooltip.transition().duration(200).style("opacity", .9);
+        //     tooltip.html(nodes[i].country)
+        // }
+
+        // function _mouseout(d, i) {
+        //     tooltip.transition().duration(500).style("opacity", 0);
+        // }
+
+        setInterval(function () {
+            xhttp.open("GET", "getGoogleAnalyticsData", true);
+            xhttp.send();
+        }, 10000);
+    </script>
