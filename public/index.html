@@ -4,72 +4,164 @@
     .node {
         stroke-width: 1.5px;
     }
+    
+    .dashboard {
+        float: right;
+        stroke: black;
+    }
+    
+    .content {
+        float: left;
+    }
+    
+    li {
+        font-size: x-large;
+    }
+    
+    .button {
+        background-color: deepskyblue;
+        border-radius: 5px;
+        color: white;
+        padding: .5em;
+        text-decoration: none;
+    }
+    
+    .button:focus,
+    .button:hover {
+        background-color: darkblue;
+    }
 </style>
 
-<body>
+<body onload="startTime()">
+    <div id="txt" style="float: right;color: gray; "></div>
+    <div class="content">
+        <h1 style="color: gray;"> GA/D3 Connection Test</h1>
+        <ul id="countries" style="list-style: none;">
+        </ul>
+    </div>
+    <a href="#" class="button js-button" role="button" style="float: right;position: absolute; left: 357px; bottom: 8px;">Clear Result</a>
+    <h3 href="#" style="float: right;position: absolute; right: 10px; bottom: 0px; color: gray;">http://damp-spire-52437.herokuapp.com/</h3>
     <script src="//d3js.org/d3.v3.min.js"></script>
     <script>
-        var width = 1360,
-            height = 1080;
+        var width = 1000,
+            height = 565;
         var fill = d3.scale.category10();
-        var nodes = [],
-            foci = {
-                India: { x: 150, y: 150, color: 'red' },
-                Russia: { x: 300, y: 300, color: 'blue' },
-                Australia: { x: 550, y: 550, color: 'yellow' },
-                Germany: { x: 750, y: 750, color: 'black' }
-            };
-        // var tooltip = d3.select("body").append("div")
-        //     .attr("class", "tooltip")
-        //     .style("opacity", 0);
+        var dim = 100, color = 1;
+        var nodes = [];
+        var countryObj = {};
         var svg = d3.select("body").append("svg")
             .attr("width", width)
-            .attr("height", height);
-
+            .attr("height", height)
+            .attr("class", 'dashboard')
+            .attr("border", 1);
+        var borderPath = svg.append("rect")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("height", height)
+            .attr("width", width)
+            .style("stroke", 'black')
+            .style("fill", "none")
+            .style("stroke-width", 1);
         var force = d3.layout.force()
             .nodes(nodes)
             .links([])
             .gravity(0)
             .size([width, height])
             .on("tick", tick);
-
         var node = svg.selectAll("circle");
-        // node.on("mouseover", _mouseover).on("mouseout", _mouseout);
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = _onStateChange;
 
         function _onStateChange() {
             if (this.readyState === 4 && this.status === 200) {
-                var res = JSON.parse(this.response);
-                if (res.rows) {
-                    // if (node.exit) {
-                    //     console.log('ex')
-                    //     node.data(nodes);
-                    //     node.exit().remove();
-                    //     force.resume();
-                    //     nodes = [];
-                    // }
-                    for (var i = 0; i < res.rows.length; i++) {
-                        for (var j = 0; j < parseInt(res.rows[i][7], 10); j++) {
-                            nodes.push({ country: res.rows[i][2], color: foci[res.rows[i][2]].color });
-                            force.start();
-                            node = node.data(nodes);
-                            node.enter().append("circle")
-                                .attr("class", "node")
-                                .attr("cx", function (d) { return d.x; })
-                                .attr("cy", function (d) { return d.y; })
-                                .attr("r", 8)
-                                .style("fill", function (d) {
-                                    console.log(d)
-                                    return fill(d.color);
-                                })
-                                .style("stroke", function (d) { return d3.rgb(fill(d.color)).darker(2); })
-                                .call(force.drag);
+                var res = JSON.parse(this.response); //this.response
+                if (res.rows && res.rows.length !== 0) {
+                    for (country in countryObj) {
+                        if (res.rows.map(function (o) { return o[0] }).indexOf(country) === -1) {
+                            res.rows.push([country, 0])
                         }
                     }
-
+                    for (var i = 0; i < res.rows.length; i++) {
+                        if (!countryObj[res.rows[i][0]])
+                            countryObj[res.rows[i][0]] = {}
+                        if (!countryObj[res.rows[i][0]]['data'])
+                            countryObj[res.rows[i][0]]['data'] = [];
+                        if (!countryObj[res.rows[i][0]]['color'])
+                            countryObj[res.rows[i][0]]['color'] = color; color++;
+                        if (!countryObj[res.rows[i][0]]['x']) {
+                            countryObj[res.rows[i][0]]['x'] = dim;
+                            countryObj[res.rows[i][0]]['y'] = dim;
+                            dim = dim + 100;
+                        }
+                        if (parseInt(res.rows[i][1], 10) - countryObj[res.rows[i][0]]['data'].length > 0) {
+                            var length = countryObj[res.rows[i][0]]['data'].length;
+                            for (var j = 0; j < (parseInt(res.rows[i][1], 10) - length); j++) {
+                                countryObj[res.rows[i][0]]['data'].push({ country: res.rows[i][0], color: countryObj[res.rows[i][0]]['color'] });
+                                nodes.push({ country: res.rows[i][0], color: countryObj[res.rows[i][0]]['color'], color: countryObj[res.rows[i][0]]['color'] });
+                                force.start();
+                                node = node.data(nodes);
+                                node.enter().append("circle")
+                                    .attr("class", "node")
+                                    .attr("cx", function (d) { return d.x || 0; })
+                                    .attr("cy", function (d) { return d.y || 0; })
+                                    .attr("r", 8)
+                                    .style("fill", function (d) {
+                                        return d3.rgb(fill(d.color));
+                                    })
+                                    .style("stroke", function (d) { return d3.rgb(fill(d.color)).darker(2); })
+                                    .call(force.drag);
+                            }
+                        } else if (parseInt(res.rows[i][1], 10) - countryObj[res.rows[i][0]]['data'].length < 0) {
+                            var length = countryObj[res.rows[i][0]]['data'].length;
+                            for (var j = 0; j < length - parseInt(res.rows[i][1], 10); j++) {
+                                countryObj[res.rows[i][0]]['data'].pop();
+                                var Index = nodes.map(function (x) { return x.country }).indexOf(res.rows[i][0]);
+                                if (node[0][Index] && node[0][Index].remove) {
+                                    node[0][Index].remove();
+                                    node[0].splice(Index, 1);
+                                }
+                                nodes.splice(Index, 1);
+                            }
+                        }
+                    }
                 } else {
-                    alert('No User Active Now');
+                    force.start();
+                    for (country in countryObj) {
+                        countryObj[country]['data'] = [];
+                    }
+                    dim = 100;
+                    for (var j = 0; j < nodes.length; j++) {
+                        // node.data([nodes[i]])
+                        // node.exit().call(function () {
+                        //     nodes.forEach(function (o, i) {
+                        //         o.y += (countryObj[o.country].y + o.y) * 0.1;
+                        //         o.x += (countryObj[o.country].x + o.x) * 0.1;
+                        //     });
+                        //     node
+                        //         .attr("cx", function (d) { return d.x; })
+                        //         .attr("cy", function (d) { return d.y; });
+                        // })
+                        if (node[0][j] && node[0][j].remove) {
+                            node[0][j].remove();
+                        }
+                    }
+                    node = node.data(nodes);
+                    //   node[0] = []
+                }
+                document.getElementById("countries").innerHTML = ''
+                var flag = false;
+                for (country in countryObj) {
+                    if (countryObj[country].data.length) {
+                        flag = true;
+                        var countryName = document.createElement("LI");
+                        countryName.innerHTML = '<span style="border-radius: 10px; color : ' + d3.rgb(fill(countryObj[country].color)) + ';' + 'background-color : ' + d3.rgb(fill(countryObj[country].color)) + '">&#9711</span> <span style="color: gray;">' + country + ' </span>';
+                        document.getElementById("countries").appendChild(countryName);
+                    }
+                }
+                if (!flag) {
+                    var countryName = document.createElement("LI");
+                    countryName.innerHTML = '<span>No Active User</span>'
+                    document.getElementById("countries").appendChild(countryName)
                 }
             }
         };
@@ -77,26 +169,39 @@
             var k = .1 * e.alpha;
             // Push nodes toward their designated focus.
             nodes.forEach(function (o, i) {
-                o.y += (foci[o.country].y - o.y) * k;
-                o.x += (foci[o.country].x - o.x) * k;
+                o.y += (countryObj[o.country].y - o.y) * k;
+                o.x += (countryObj[o.country].x - o.x) * k;
             });
             node
                 .attr("cx", function (d) { return d.x; })
                 .attr("cy", function (d) { return d.y; });
-
         }
+        var responseVar = [["Russia", "4"], ["India", "1"], ["sfsfs", "4"]], flag;
+        _callApi();
+        setInterval(_callApi, 10000);
+        function _callApi() {
+            // if (flag)
+            //     responseVar = [["India", "1"]];
+            // else
+            //     responseVar = [["Russia", "4"], ["India", "1"], ["sfsfs", "4"]];
 
-        // function _mouseover(d, i) {
-        //     tooltip.transition().duration(200).style("opacity", .9);
-        //     tooltip.html(nodes[i].country)
-        // }
-
-        // function _mouseout(d, i) {
-        //     tooltip.transition().duration(500).style("opacity", 0);
-        // }
-
-        setInterval(function () {
+            // flag = !flag;
+            // _onStateChange.call({
+            //     "readyState": 4,
+            //     "status": 200,
+            //     "response": {
+            //         "rows": responseVar
+            //     }
+            // })
             xhttp.open("GET", "getGoogleAnalyticsData", true);
             xhttp.send();
-        }, 10000);
+        }
+        // For Time
+        function startTime() {
+            var today = new Date();
+            today = new Date(today).toUTCString();
+            today = today.split(' ').slice(0, 5).join(' ')
+            document.getElementById('txt').innerHTML = today;
+            setTimeout(startTime, 500);
+        }
     </script>

@@ -64,7 +64,7 @@ app.get('/getGoogleAnalyticsData', function (req, res) {
         'auth': jwtClient,
         'ids': VIEW_ID,
         'metrics': 'rt:activeUsers', // rt:activeUsers rt:screenViews rt:totalEvents
-        'dimensions': 'rt:userType, rt:operatingSystem, rt:country, rt:region, rt:city, rt:latitude, rt:longitude', // rt:minutesAgo, rt:referralPath
+        'dimensions': 'rt:country', // rt:minutesAgo, rt:referralPath
     }, function (err, response) {
         if (err) {
             res.send(err);
