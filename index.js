@@ -35,30 +35,7 @@ jwtClient.authorize(function (err, tokens) {
         return;
     }
     let analytics = google.analytics('v3');
-    //queryData(analytics);
 });
-// function queryData(analytics) {
-//     var apiQuery = analytics.data.realtime.get({
-//         'auth': jwtClient,
-//         'ids': VIEW_ID,
-//         'metrics': 'rt:activeUsers', // rt:activeUsers rt:screenViews rt:totalEvents
-//         'dimensions': 'rt:userType, rt:operatingSystem, rt:country, rt:region, rt:city, rt:latitude, rt:longitude', // rt:minutesAgo, rt:referralPath
-//         // 'start-date': '2008-10-01',
-//         // 'end-date': '2017-03-15',
-//         // 'sort': '-ga:sessions',
-//         // 'start-index' : 10,
-//         // 'max-results': 10,
-//         // 'prettyprint' : true,
-//         //   'filters': 'ga:pagePath=~/ch_[-a-z0-9]+[.]html$',
-//     }, function (err, response) {
-//         if (err) {
-//             console.log(err);
-//             return;
-//         }
-//         console.log(response);
-//     });
-// }
-
 app.get('/getGoogleAnalyticsData', function (req, res) {
     var apiQuery = google.analytics('v3').data.realtime.get({
         'auth': jwtClient,
