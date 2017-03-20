@@ -1,0 +1,36 @@
+.node {
+    stroke-width: 1.5px;
+}
+
+.dashboard {
+    stroke: black;
+}
+
+.content {
+    float: left;
+}
+
+li {
+    font-size: x-large;
+}
+
+.button {
+    background-color: deepskyblue;
+    border-radius: 5px;
+    color: white;
+    padding: .5em;
+    text-decoration: none;
+}
+
+.button:focus,
+.button:hover {
+    background-color: darkblue;
+}
+.title{
+    margin: 0 20px !important;
+}
+.country span{
+    font-size:20px;
+    font-weight: 300;
+    line-height: 20px;
+}
