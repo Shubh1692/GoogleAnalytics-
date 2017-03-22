@@ -34,3 +34,6 @@ li {
     font-weight: 300;
     line-height: 20px;
 }
+.country-list{
+    position: absolute;
+}
