@@ -1,7 +1,8 @@
 angular.module('googleAnalyticsModule')
     .controller('googleAnalyticsController', _googleAnalyticsController);
-_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_SOURCE_ARRAY', 'dataPassingService'];
-function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_SOURCE_ARRAY, dataPassingService) {
+_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME'];
+function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME) {
+    console.log(VIEWING_BY_TIME)
     var googleAnalyticsCtrl = this,
         intervalInstance,
         menuObjectInstanceName,
@@ -33,17 +34,20 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     // Functions 
     googleAnalyticsCtrl.startTime = _startTime;
     googleAnalyticsCtrl.setColor = _setColor;
-    googleAnalyticsCtrl.getRealTimeDataApi = _callRealtimeDataAPI;
     // Controller Variables
     googleAnalyticsCtrl.displayTime = {};
     googleAnalyticsCtrl.menuList = [];
-    googleAnalyticsCtrl.sourceArray = VIEWING_SOURCE_ARRAY;
-    googleAnalyticsCtrl.selectedSource = VIEWING_SOURCE_ARRAY[0];
+    googleAnalyticsCtrl.sourceArray = VIEWING_BY_SOURCE;
+    googleAnalyticsCtrl.selectedSource = VIEWING_BY_SOURCE[0];
+    googleAnalyticsCtrl.timeArray = VIEWING_BY_TIME;
+    googleAnalyticsCtrl.selectedTime = VIEWING_BY_TIME[0];
     googleAnalyticsCtrl.sourceSelection = _sourceSelection;
+    googleAnalyticsCtrl.getAnalyticsDataByTime = _getAnalyticsDataByTime;
     googleAnalyticsCtrl.onsiteUser = 0;
     //other
-    menuObjectInstanceName = VIEWING_SOURCE_ARRAY[0].name;
+    menuObjectInstanceName = VIEWING_BY_SOURCE[0].name;
     _callRealtimeDataAPI();
+    _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
     intervalInstance = $interval(_callRealtimeDataAPI, 10000);
     // For Time
     function _startTime() {
@@ -55,25 +59,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         googleAnalyticsCtrl.displayTime.time = time;
         $timeout(_startTime, 1000);
     }
-    var  resultWeb, flag = true;
     // For Get API Data
     function _callRealtimeDataAPI() {
-        // if (flag) {
-        //    resultWeb = {
-        //         status: 200,
-        //         data: {
-        //             rows: [["India", 5], ["Us", 5]]
-        //         }
-        //     }
-        // } else {
-        //    resultWeb = {
-        //         status: 200,
-        //         data: {
-        //             rows: [["India", 4],]
-        //         }
-        //     }
-        // }
-        //flag = !flag
         googleAnalyticsService.serverRequest(NODE_WEB_API.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
             .then(function (resultWeb) {
                 _displayApiData(resultWeb)
@@ -252,6 +239,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
 
     function _setColor(colorKey) {
         return d3.rgb(fill(colorKey));
+    }
+
+    function _getAnalyticsDataByTime(selectedTime) {
+        googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' +  selectedTime.time.startDate + '&endDate='  +  selectedTime.time.endDate , 'GET')
+            .then(function (resultWeb) {
+                console.log('resultWeb', resultWeb)
+            });
     }
 
 }

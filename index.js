@@ -56,10 +56,10 @@ app.get('/getGoogleAnalyticsAllData', function (req, res) {
     var apiQuery = google.analytics('v3').data.ga.get({
         'auth': jwtClient,
         'ids': VIEW_ID,
-        'start-date': '2017-04-12',
-        'end-date': '2017-04-12',
-        'metrics': 'ga:sessions',
-        'dimensions': 'ga:source,ga:keyword, ga:bounceRate',
+        'start-date': req.query.startDate,
+        'end-date': req.query.endDate,
+        'metrics': 'ga:bounceRate, ga:avgSessionDuration, ga:avgTimeOnPage, ga:users, ga:exitRate',
+       // 'dimensions': 'ga:hostname'
     }, function (err, response) {
         if (err) {
             res.send(err);

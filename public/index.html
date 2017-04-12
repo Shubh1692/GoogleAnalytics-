@@ -43,23 +43,30 @@
                 <ul>
                     <li id="key_{{key}}" class="country text-align-right" style="list-style-type: none;" ng-repeat="(key, menu) in googleAnalyticsCtrl.menuList">
                         <span ng-bind="key"></span>&nbsp;<span ng-style="{'color': googleAnalyticsCtrl.setColor(menu.color)}">&#9898;</span>
-            </li>
-            <li class="country popup" style="list-style-type: none;">
-                <select class="drop-dwon-label" ng-class="googleAnalyticsCtrl.showSourcePopupFlag ? 'show' : ''" ng-model="googleAnalyticsCtrl.selectedSource"
-                    ng-options="source as source.name for source in googleAnalyticsCtrl.sourceArray track by source.value" ng-change="googleAnalyticsCtrl.showSourcePopupFlag = false;googleAnalyticsCtrl.sourceSelection(googleAnalyticsCtrl.selectedSource)">
+                    </li>
+                    <li class="country popup" style="list-style-type: none;">
+                        <select class="drop-dwon-label" ng-model="googleAnalyticsCtrl.selectedSource"
+                            ng-options="source as source.name for source in googleAnalyticsCtrl.sourceArray track by source.value"
+                            ng-change="googleAnalyticsCtrl.sourceSelection(googleAnalyticsCtrl.selectedSource)">
                             </select>
-            </li>
-            </ul>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-    <div class="col-md-10" id="main_svg">
-    </div>
+        <div class="col-md-10" id="main_svg">
+        </div>
     </div>
     <div class="row">
         <div class="col-md-3">
         </div>
         <div class="col-md-8">
-            <button type="button" class="btn btn-primary btn-link">Clear Result</button>
+            <ul>
+            <li class="country popup" style="list-style-type: none;">
+                <select class="drop-dwon-label" ng-model="googleAnalyticsCtrl.selectedTime"
+                    ng-options="source as source.name for source in googleAnalyticsCtrl.timeArray track by source.time" ng-change="googleAnalyticsCtrl.getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime)">
+                            </select>
+            </li>
+            </ul>
         </div>
         <div class="col-md-1">
         </div>
