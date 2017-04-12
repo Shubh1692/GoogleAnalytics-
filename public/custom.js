@@ -242,17 +242,7 @@ function exitUser(row) {
     }
 }
 
-// For Time
-function startTime() {
-    var today = new Date();
-    today = new Date(today).toUTCString();
-    var day = today.split(' ').slice(0, 4).join(' ');
-    var time = today.split(' ').slice(4, 5).join(' ');
-    document.getElementById('day').innerHTML = day;
-    document.getElementById('currentTime').innerHTML = time;
 
-    setTimeout(startTime, 1000);
-}
 
 function uniqIndex(country) {
     var countries = nodes.map(function (n) { return n.country });

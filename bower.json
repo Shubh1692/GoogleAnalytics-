@@ -1,0 +1,21 @@
+{
+  "name": "googleanalytics",
+  "description": "Google Analytics Frontend",
+  "main": "index.js",
+  "authors": [
+    "Shubham Vijay Vargiy <svijay1692@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/Shubh1692/GoogleAnalytics-",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public/lib/",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.6.4"
+  }
+}
