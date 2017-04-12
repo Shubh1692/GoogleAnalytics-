@@ -23,24 +23,37 @@
             </div>
         </div>
     </div>
-    <div class="row margin-top-30">
+    <div class="row">
+        <div class="col-md-2">
+        </div>
+        <div class="col-md-2">
+            <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.onsiteUser"></b></span></br>
+            <span style="font-size: xx-small;color: gray;">AVERAGE TIME ONSITE</span>
+        </div>
+        <div class="col-md-2">
+            <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.onsiteUser"></b></span></br>
+            <span style="font-size: xx-small;color: gray;">CURRENT ONSITE</span>
+        </div>
+        <div class="col-md-7">
+        </div>
+    </div>
+    <div class="row">
         <div class="col-md-2">
             <div class="country-list">
                 <ul>
-                    <li id="key_{{key}}" class="country" style="list-style-type: none;" ng-repeat="(key, menu) in googleAnalyticsCtrl.menuList">
-                        <span ng-bind="key"></span><span ng-style="{'color': googleAnalyticsCtrl.setColor(menu.color)}">&#9898;</span>
-                    </li>
-                    <li class="country popup" style="list-style-type: none;">
-                        <span ng-click="googleAnalyticsCtrl.showSourcePopupFlag = !googleAnalyticsCtrl.showSourcePopupFlag;">Viewing Source</span>
-                        <select class="popuptext" ng-class="googleAnalyticsCtrl.showSourcePopupFlag ? 'show' : ''" ng-model="googleAnalyticsCtrl.selectedSource"
-                            ng-options="source as source.name for source in googleAnalyticsCtrl.sourceArray track by source.value" ng-change="googleAnalyticsCtrl.showSourcePopupFlag = false;googleAnalyticsCtrl.sourceSelection(googleAnalyticsCtrl.selectedSource)">
+                    <li id="key_{{key}}" class="country text-align-right" style="list-style-type: none;" ng-repeat="(key, menu) in googleAnalyticsCtrl.menuList">
+                        <span ng-bind="key"></span>&nbsp;<span ng-style="{'color': googleAnalyticsCtrl.setColor(menu.color)}">&#9898;</span>
+            </li>
+            <li class="country popup" style="list-style-type: none;">
+                <select class="drop-dwon-label" ng-class="googleAnalyticsCtrl.showSourcePopupFlag ? 'show' : ''" ng-model="googleAnalyticsCtrl.selectedSource"
+                    ng-options="source as source.name for source in googleAnalyticsCtrl.sourceArray track by source.value" ng-change="googleAnalyticsCtrl.showSourcePopupFlag = false;googleAnalyticsCtrl.sourceSelection(googleAnalyticsCtrl.selectedSource)">
                             </select>
-                    </li>
-                </ul>
-            </div>
+            </li>
+            </ul>
         </div>
-        <div class="col-md-10" id="d3Window">
-        </div>
+    </div>
+    <div class="col-md-10" id="main_svg">
+    </div>
     </div>
     <div class="row">
         <div class="col-md-3">
@@ -51,6 +64,5 @@
         <div class="col-md-1">
         </div>
     </div>
-
     <script src="http://d3js.org/d3.v3.min.js"></script>
 </body>

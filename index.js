@@ -37,7 +37,7 @@ jwtClient.authorize(function (err, tokens) {
     }
     let analytics = google.analytics('v3');
 });
-app.get('/getGoogleAnalyticsData', function (req, res) {
+app.get('/getGoogleAnalyticsRealTimeData', function (req, res) {
     var apiQuery = google.analytics('v3').data.realtime.get({
         'auth': jwtClient,
         'ids': VIEW_ID,
@@ -50,10 +50,30 @@ app.get('/getGoogleAnalyticsData', function (req, res) {
         }
         res.send(response);
     });
-    
 });
 
+app.get('/getGoogleAnalyticsAllData', function (req, res) {
+    var apiQuery = google.analytics('v3').data.ga.get({
+        'auth': jwtClient,
+        'ids': VIEW_ID,
+        'start-date': '2017-04-12',
+        'end-date': '2017-04-12',
+        'metrics': 'ga:sessions',
+        'dimensions': 'ga:source,ga:keyword, ga:bounceRate',
+    }, function (err, response) {
+        if (err) {
+            res.send(err);
+            return;
+        }
+        res.send(response);
+    });
+
+});
+
+
+
+
 // For Check Start Server function
-app.listen(8080, function() {
+app.listen(8080, function () {
     console.log('Server Started In Rest Api on port ' + 8080);
 });

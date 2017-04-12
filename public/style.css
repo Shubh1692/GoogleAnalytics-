@@ -2,8 +2,9 @@
     stroke-width: 1.5px;
 }
 
-.dashboard {
+.svg-main-window {
     stroke: black;
+    background-color: lightgray;
 }
 
 .content {
@@ -34,6 +35,9 @@ li {
     font-weight: 300;
     line-height: 20px;
 }
+.text-align-right {
+    text-align: right;
+}
 .country select{
     font-size: small;
     font-weight: 300;
@@ -42,47 +46,7 @@ li {
 .country-list{
     position: absolute;
 }
-
-
-/* The actual popup */
-.popup .popuptext {
-    margin: auto;
-    visibility: hidden;
-    background-color: #555;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 8px 0;
-    position: relative;
-    z-index: 1;
-}
-
-/* Popup arrow */
-.popup .popuptext::before {
-    content: "";
-    position: relative;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #555 transparent transparent transparent;
-}
-
-/* Toggle this class - hide and show the popup */
-.popup .show {
-    visibility: visible;
-    -webkit-animation: fadeIn 1s;
-    animation: fadeIn 1s;
-}
-
-/* Add animation (fade in the popup) */
-@-webkit-keyframes fadeIn {
-    from {opacity: 0;} 
-    to {opacity: 1;}
-}
-
-@keyframes fadeIn {
-    from {opacity: 0;}
-    to {opacity:1 ;}
+.drop-dwon-label {
+    color: cyan;
+    border: none !important; 
 }
