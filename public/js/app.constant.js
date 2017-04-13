@@ -3,6 +3,7 @@ angular.module('googleAnalyticsModule')
         'REAL_TIME_DATA_API': 'getGoogleAnalyticsRealTimeData',
         'ALL_TIME_DATA_API': 'getGoogleAnalyticsAllData'
     })
+    .constant('REAL_TIME_API_TIME_INTERVAL', 10000)
     .constant('VIEWING_BY_SOURCE', [
         {
             name: 'Country',
@@ -40,7 +41,7 @@ angular.module('googleAnalyticsModule')
             }
         },
         {
-            name: 'Past Yesr',
+            name: 'Past Year',
             time: {
                 startDate: new Date(new Date().setDate(new Date().getDate() - 365)).toISOString().slice(0, 10),
                 endDate: new Date().toISOString().slice(0, 10)

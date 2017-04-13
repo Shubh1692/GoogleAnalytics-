@@ -50,3 +50,12 @@ li {
     color: cyan;
     border: none !important; 
 }
+.svg-sub-window {
+    stroke: black;
+    background-color: lightgray;
+}
+
+.all-time-div {
+    width: 33.33%;
+    float: left;
+}

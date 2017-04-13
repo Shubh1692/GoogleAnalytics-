@@ -27,7 +27,7 @@
         <div class="col-md-2">
         </div>
         <div class="col-md-2">
-            <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.onsiteUser"></b></span></br>
+            <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.avgTimeOnSite"></b></span></br>
             <span style="font-size: xx-small;color: gray;">AVERAGE TIME ONSITE</span>
         </div>
         <div class="col-md-2">
@@ -45,8 +45,7 @@
                         <span ng-bind="key"></span>&nbsp;<span ng-style="{'color': googleAnalyticsCtrl.setColor(menu.color)}">&#9898;</span>
                     </li>
                     <li class="country popup" style="list-style-type: none;">
-                        <select class="drop-dwon-label" ng-model="googleAnalyticsCtrl.selectedSource"
-                            ng-options="source as source.name for source in googleAnalyticsCtrl.sourceArray track by source.value"
+                        <select class="drop-dwon-label" ng-model="googleAnalyticsCtrl.selectedSource" ng-options="source as source.name for source in googleAnalyticsCtrl.sourceArray track by source.value"
                             ng-change="googleAnalyticsCtrl.sourceSelection(googleAnalyticsCtrl.selectedSource)">
                             </select>
                     </li>
@@ -57,16 +56,38 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-2">
         </div>
-        <div class="col-md-8">
-            <ul>
-            <li class="country popup" style="list-style-type: none;">
-                <select class="drop-dwon-label" ng-model="googleAnalyticsCtrl.selectedTime"
-                    ng-options="source as source.name for source in googleAnalyticsCtrl.timeArray track by source.time" ng-change="googleAnalyticsCtrl.getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime)">
+        <div class="col-md-2" style="margin-left: 14px;">
+            <div class="row" id="sub_svg">
+            </div>
+            <div class="row">
+                <div class="all-time-div">
+                    <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.totalUserWithinTime"></b></span></br>
+                    <span style="font-size: xx-small;color: gray;">TOTAL VISITORS</span>
+
+                </div>
+                <div class="all-time-div">
+                    <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.bounceRate"></b></span></br>
+                    <span style="font-size: xx-small;color: gray;">BOUNCE RATE</span>
+
+                </div>
+                <div class="all-time-div">
+                    <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.exitRate"></b></span></br>
+                    <span style="font-size: xx-small;color: gray;">EXIT RATE</span>
+                </div>
+            </div>
+            <div class="row">
+                <ul>
+                    <li class="country popup" style="list-style-type: none;">
+                        <select class="drop-dwon-label" ng-model="googleAnalyticsCtrl.selectedTime" ng-options="timeSch as timeSch.name for timeSch in googleAnalyticsCtrl.timeArray"
+                            ng-change="googleAnalyticsCtrl.getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime)">
                             </select>
-            </li>
-            </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-5">
         </div>
         <div class="col-md-1">
         </div>

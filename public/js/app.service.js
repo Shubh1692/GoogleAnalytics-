@@ -19,7 +19,12 @@ function _googleAnalyticsService($http, $q) {
                 'Content-Type': 'application/json'
             }
         }).then(function (res) {
-            defer.resolve(res);
+            if(res.data.successMessage) {
+                defer.resolve(res.data.data);
+            } else {
+                defer.reject(res);
+                googleAnalyticsService.serverError(res);
+            } 
         }, function (res, status, headers, config) {
             googleAnalyticsService.serverError(res);
             defer.reject(res);
@@ -28,7 +33,7 @@ function _googleAnalyticsService($http, $q) {
     };
 
      function _serverError(res) {
-         console.log('error', res)
+         console.log('error', res.errorMessage)
      };
 }
 
