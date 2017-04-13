@@ -1,7 +1,7 @@
 angular.module('googleAnalyticsModule')
     .controller('googleAnalyticsController', _googleAnalyticsController);
-_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL'];
-function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL) {
+_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX'];
+function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX) {
     var googleAnalyticsCtrl = this,
         intervalInstance,
         removeSubIndex = 0,
@@ -35,21 +35,26 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         node = svg.selectAll("circle"),
         subSvg = d3.select("#sub_svg").append("svg")
             .attr("width", document.getElementById("sub_svg").offsetWidth)
+            .attr("height", document.getElementById("sub_svg").offsetWidth / 2)
             .attr("class", 'svg-sub-window')
             .attr("border", 1),
+        // subSvgParent = d3.select("#sub_svg-parent").append("svg")
+        //     // .attr("width", document.getElementById("sub_svg").offsetWidth)
+        //     // .attr("height", document.getElementById("sub_svg").offsetWidth /2 )
+        //     .attr("class", 'svg-sub-window-subling')
+        //     .attr("border", 1),
         forceSub = d3.layout.force()
             .nodes(subNodes)
             .links([])
-            .gravity(0.05)
-            .distance(50)
-            .charge(-60)
-            .size([mainSvgWidth, mainSvgHeight])
-            .friction(.9)
+            .size([document.getElementById("sub_svg").offsetWidth / 2, document.getElementById("sub_svg").offsetWidth / 4])
+            // .friction(.9)
             .on("tick", subTick),
         subNode = subSvg.selectAll("circle");
     // Controller Functions 
     googleAnalyticsCtrl.startTime = _startTime;
     googleAnalyticsCtrl.setColor = _setColor;
+    googleAnalyticsCtrl.subDivHeight = document.getElementById("sub_svg").offsetWidth + 'px';
+    googleAnalyticsCtrl.subDivParentHeight = (document.getElementById("sub_svg").offsetWidth * 0.6) + 'px';
     // Controller Variables
     googleAnalyticsCtrl.displayTime = {};
     googleAnalyticsCtrl.menuList = [];
@@ -89,10 +94,10 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .style("pointer-events", "none")
             .transition()
             .duration(1400)
-            .attr("transform", "translate(0,0)scale(1)rotate(90)")
+            .attr("transform", "translate(30,30)scale(1)rotate(90)")
             .transition()
             .delay(15000)
-            .attr("transform", "translate(0,0)scale(0)")
+            .attr("transform", "translate(-10,30)scale(0)")
             .style("fill-opacity", 0)
             .remove();
         menuObjectInstanceName = selectData.name;
@@ -170,12 +175,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         var k = .1 * e.alpha;
         // Push nodes toward their designated focus.
         subNodes.forEach(function (o, i) {
-            o.y += (0 - o.y) * k;
             o.x += (0 - o.x) * k;
+            o.y += (0 - o.y) * k;
         });
         subNode
-            .attr("cx", function (d) { return d.x; })
-            .attr("cy", function (d) { return d.y; });
+            .attr("cx", function (d) { return d.x + 80; })
+            .attr("cy", function (d) { return d.y + 70; });
     }
     // For Enter
     function collide(alpha) {
@@ -216,7 +221,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("cx", function (d) { return d.x || 0; })
             .attr("cy", function (d) { return d.y || 0; })
             .each(collide(.5))
-            .attr("r", 8)
+            .attr("r", 4)
             .style("fill", function (d) {
                 return d3.rgb(fill(d.color));
             })
@@ -241,12 +246,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                     .style("pointer-events", "none")
                     .transition()
                     .duration(1400)
-                    .attr("transform", "translate(0,0)scale(1)rotate(90)")
+                    .attr("transform", "translate(30,30)scale(1)rotate(90)")
                     .transition()
                     .delay(15000)
-                    .attr("transform", "translate(0,0)scale(0)")
+                    .attr("transform", "translate(-10,30)scale(0)")
                     .style("fill-opacity", 0)
                     .remove();
+
             })
         }
     }
@@ -264,14 +270,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
     // For Real Time
     function _getAnalyticsDataByTime(selectedTime) {
-        console.log(selectedTime)
         googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' + selectedTime.time.startDate + '&endDate=' + selectedTime.time.endDate, 'GET')
             .then(_setAllTimeAPIData);
     }
     // For Display All Time API Data
     function _setAllTimeAPIData(resultWeb) {
-        var scaleIndex = 10;
-        console.log('resultWeb', resultWeb);
+        var scaleIndex = SCALING_INDEX;
         googleAnalyticsCtrl.totalUserWithinTime = resultWeb.rows[0][0];
         googleAnalyticsCtrl.bounceRate = parseFloat(resultWeb.rows[0][1]).toFixed(2) + '%';
         googleAnalyticsCtrl.exitRate = parseFloat(resultWeb.rows[0][2]).toFixed(2) + '%';
@@ -285,7 +289,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             }
         } else if (totalCircle < subCircleCount) {
             subCircleCount = subCircleCount - totalCircle;
-            console.log(subCircleCount)
             for (var i = 0; i < subCircleCount; i++) {
                 _exitSubUser(removeSubIndex)
                 removeSubIndex++;
@@ -296,14 +299,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
 
     //For Display Sub Circle 
     function _enterSubUser() {
-        subNodes.push({ color: 1, x: 50, y: 50 });
+        subNodes.push({ color: 1, x: 0, y: 0 });
         forceSub.start();
         subNode = subNode.data(subNodes);
         subNode.enter().append("circle")
             .attr("class", "node")
-            .attr("main", "main")
             .each(collide(.5))
-            .attr("r", 8)
+            .attr("r", 4)
             .style("fill", function (d) {
                 return d3.rgb(fill(d.color));
             })
@@ -327,7 +329,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
 
     function _scaleIndexUpdate(users, scaleIndex) {
-        console.log(users / scaleIndex)
         if (users / scaleIndex > 1) {
             scaleIndex = _scaleIndexUpdate(users, scaleIndex * 10)
         }

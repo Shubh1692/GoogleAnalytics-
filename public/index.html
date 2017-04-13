@@ -23,18 +23,26 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" style="font-size: 0px;">
         <div class="col-md-2">
         </div>
-        <div class="col-md-2">
-            <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.avgTimeOnSite"></b></span></br>
-            <span style="font-size: xx-small;color: gray;">AVERAGE TIME ONSITE</span>
+        <div class="col-md-1">
+            <div style="text-align: center;">
+                <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.avgTimeOnSite"></b></span>
+            </div>
+            <div style="text-align: center;">
+                <span style="font-size: 7px; color: gray;">AVERAGE TIME ONSITE</span>
+            </div>
         </div>
-        <div class="col-md-2">
-            <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.onsiteUser"></b></span></br>
-            <span style="font-size: xx-small;color: gray;">CURRENT ONSITE</span>
+        <div class="col-md-1">
+            <div style="text-align: right;">
+                <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.onsiteUser"></b></span>
+            </div>
+            <div style="text-align: right;">
+                <span style="font-size: 7px;color: gray;">CURRENT ONSITE</span>
+            </div>
         </div>
-        <div class="col-md-7">
+        <div class="col-md-8">
         </div>
     </div>
     <div class="row">
@@ -42,9 +50,9 @@
             <div class="country-list">
                 <ul>
                     <li id="key_{{key}}" class="country text-align-right" style="list-style-type: none;" ng-repeat="(key, menu) in googleAnalyticsCtrl.menuList">
-                        <span ng-bind="key"></span>&nbsp;<span ng-style="{'color': googleAnalyticsCtrl.setColor(menu.color)}">&#9898;</span>
+                        <span ng-bind="key"></span>&nbsp;<span class="filled-circle" ng-style="{'background-color' : googleAnalyticsCtrl.setColor(menu.color)}"></span>
                     </li>
-                    <li class="country popup" style="list-style-type: none;">
+                    <li class="country popup" style="list-style-type: none; float: right;">
                         <select class="drop-dwon-label" ng-model="googleAnalyticsCtrl.selectedSource" ng-options="source as source.name for source in googleAnalyticsCtrl.sourceArray track by source.value"
                             ng-change="googleAnalyticsCtrl.sourceSelection(googleAnalyticsCtrl.selectedSource)">
                             </select>
@@ -55,26 +63,38 @@
         <div class="col-md-10" id="main_svg">
         </div>
     </div>
-    <div class="row">
+    <div class="row" style="font-size: 0px;">
         <div class="col-md-2">
         </div>
         <div class="col-md-2" style="margin-left: 14px;">
-            <div class="row" id="sub_svg">
+            <div class="row svg-sub-window-subling" id="sub_svg-parent">
+            </div>
+            <div class="row" id="sub_svg" ng-style="{'height': googleAnalyticsCtrl.subDivHeight}">
             </div>
             <div class="row">
                 <div class="all-time-div">
-                    <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.totalUserWithinTime"></b></span></br>
-                    <span style="font-size: xx-small;color: gray;">TOTAL VISITORS</span>
-
+                    <div style="text-align: center;">
+                        <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.totalUserWithinTime"></b></span>
+                    </div>
+                    <div style="text-align: center;">
+                        <span style="font-size: 7px;color: gray;">TOTAL VISITORS</span>
+                    </div>
                 </div>
                 <div class="all-time-div">
-                    <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.bounceRate"></b></span></br>
-                    <span style="font-size: xx-small;color: gray;">BOUNCE RATE</span>
-
+                    <div style="text-align: center;">
+                        <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.bounceRate"></b></span></br>
+                    </div>
+                    <div style="text-align: center;">
+                        <span style="font-size: 7px;color: gray;">BOUNCE RATE</span>
+                    </div>
                 </div>
                 <div class="all-time-div">
-                    <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.exitRate"></b></span></br>
-                    <span style="font-size: xx-small;color: gray;">EXIT RATE</span>
+                    <div style="text-align: center;">
+                        <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.exitRate"></b></span></br>
+                    </div>
+                    <div style="text-align: center;">
+                        <span style="font-size: 7px;color: gray;">EXIT RATE</span>
+                    </div>
                 </div>
             </div>
             <div class="row">

@@ -44,7 +44,9 @@ li {
     line-height: 20px;
 }
 .country-list{
-    position: absolute;
+    position: relative;
+    width: 100%;
+    margin: auto;
 }
 .drop-dwon-label {
     color: cyan;
@@ -53,9 +55,30 @@ li {
 .svg-sub-window {
     stroke: black;
     background-color: lightgray;
+    border-bottom-left-radius: 100%;
+    border-bottom-right-radius: 100%;
+    border-radius: 0 0 230px 230px;
+    bottom: 25%;
+    position: absolute;
 }
 
 .all-time-div {
     width: 33.33%;
     float: left;
+}
+.filled-circle {
+  padding: 0px 7px;
+  border-radius: 100%;
+  border-width: thin;
+  border-style: solid;
+}
+
+.svg-sub-window-subling {
+    background-color: gray;
+    top: 26%;
+    width: 100%;
+    height: 72px;
+    position: absolute;
+    border-radius: 100%;
+    z-index: 1;
 }

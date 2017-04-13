@@ -4,6 +4,7 @@ angular.module('googleAnalyticsModule')
         'ALL_TIME_DATA_API': 'getGoogleAnalyticsAllData'
     })
     .constant('REAL_TIME_API_TIME_INTERVAL', 10000)
+    .constant('SCALING_INDEX', 10)
     .constant('VIEWING_BY_SOURCE', [
         {
             name: 'Country',
@@ -14,7 +15,7 @@ angular.module('googleAnalyticsModule')
             value: 'rt:browser'
         },
         {
-            name: 'Operating System',
+            name: 'OS',
             value: 'rt:operatingSystem'
         }
     ])
