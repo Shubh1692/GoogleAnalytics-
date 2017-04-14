@@ -26,7 +26,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .links([])
             .gravity(0.05)
             .distance(50)
-            .charge(-60)
+            .charge(-20)
             .size([mainWIndowWidth, mainWindowHeight])
             .friction(.9)
             .on("tick", tick),
@@ -40,6 +40,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .nodes(subNodes)
             .links([])
             .size([100, 50])
+            .charge(-20)
             .on("tick", subTick),
         subNode = subSvg.selectAll("circle");
     // Controller Functions 
