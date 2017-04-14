@@ -1,26 +1,24 @@
 angular.module('googleAnalyticsModule')
     .controller('googleAnalyticsController', _googleAnalyticsController);
-_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX'];
-function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX) {
+_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT'];
+function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT) {
     var googleAnalyticsCtrl = this,
         intervalInstance,
         removeSubIndex = 0,
         subCircleCount = 0,
         menuObjectInstanceName,
-        devW = $window.innerWidth,
-        devH = $window.innerHeight,
-        mainSvgWidth = 0.7 * devW,
-        mainSvgHeight = 0.45 * devH,
         fill = d3.scale.category10(),
-        dim = 100,
+        dim = 50,
         color = 1,
         nodes = [],
         subNodes = [],
         padding = 1,
         cluster_padding = 10,
+        mainWindowHeight = $window.innerHeight * .78,
+        mainWIndowWidth = $window.innerWidth,
         svg = d3.select("#main_svg").append("svg")
-            .attr("width", mainSvgWidth)
-            .attr("height", mainSvgHeight)
+            .attr("width", mainWIndowWidth)
+            .attr("height", mainWindowHeight)
             .attr("class", 'svg-main-window')
             .attr("border", 1),
         force = d3.layout.force()
@@ -29,32 +27,26 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .gravity(0.05)
             .distance(50)
             .charge(-60)
-            .size([mainSvgWidth, mainSvgHeight])
+            .size([mainWIndowWidth, mainWindowHeight])
             .friction(.9)
             .on("tick", tick),
         node = svg.selectAll("circle"),
         subSvg = d3.select("#sub_svg").append("svg")
-            .attr("width", document.getElementById("sub_svg").offsetWidth)
-            .attr("height", document.getElementById("sub_svg").offsetWidth / 2)
+            .attr("width", ($window.innerWidth * 0.15))
+            .attr("height", ($window.innerWidth * 0.15) / 2)
             .attr("class", 'svg-sub-window')
             .attr("border", 1),
-        // subSvgParent = d3.select("#sub_svg-parent").append("svg")
-        //     // .attr("width", document.getElementById("sub_svg").offsetWidth)
-        //     // .attr("height", document.getElementById("sub_svg").offsetWidth /2 )
-        //     .attr("class", 'svg-sub-window-subling')
-        //     .attr("border", 1),
         forceSub = d3.layout.force()
             .nodes(subNodes)
             .links([])
-            .size([document.getElementById("sub_svg").offsetWidth / 2, document.getElementById("sub_svg").offsetWidth / 4])
-            // .friction(.9)
+            .size([100, 50])
             .on("tick", subTick),
         subNode = subSvg.selectAll("circle");
     // Controller Functions 
     googleAnalyticsCtrl.startTime = _startTime;
     googleAnalyticsCtrl.setColor = _setColor;
-    googleAnalyticsCtrl.subDivHeight = document.getElementById("sub_svg").offsetWidth + 'px';
-    googleAnalyticsCtrl.subDivParentHeight = (document.getElementById("sub_svg").offsetWidth * 0.6) + 'px';
+    googleAnalyticsCtrl.subDivHeight = ($window.innerWidth * 0.15) + 'px';
+    googleAnalyticsCtrl.maxMenuCount = MAX_MENU_COUNT;
     // Controller Variables
     googleAnalyticsCtrl.displayTime = {};
     googleAnalyticsCtrl.menuList = [];
@@ -87,17 +79,16 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
     // For Source Selection Change 
     function _sourceSelection(selectData) {
-        dim = 100;
+        dim = 50;
         color = 1;
         dataPassingService.menuObj[menuObjectInstanceName] = {};
+        googleAnalyticsCtrl.getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
         svg.selectAll("circle")
+            .attr("remove", "yes")
             .style("pointer-events", "none")
             .transition()
             .duration(1400)
-            .attr("transform", "translate(30,30)scale(1)rotate(90)")
-            .transition()
-            .delay(15000)
-            .attr("transform", "translate(-10,30)scale(0)")
+            .attr("transform", "translate(" + (mainWIndowWidth * 0.15 - 50) + "," + (document.getElementById("sub_svg").getBoundingClientRect().top - document.getElementById('main_svg').offsetTop) + ")scale(0)")
             .style("fill-opacity", 0)
             .remove();
         menuObjectInstanceName = selectData.name;
@@ -128,8 +119,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                     dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'] = color; color++;
                 if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]]['x']) {
                     dataPassingService.menuObj[menuObjectInstanceName][value[0]]['x'] = dim;
-                    dataPassingService.menuObj[menuObjectInstanceName][value[0]]['y'] = dim;
-                    dim = dim + 100;
+                    dataPassingService.menuObj[menuObjectInstanceName][value[0]]['y'] = 50;
+                    dim = dim + 200;
                 }
                 if (parseInt(value[1], 10) - dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length > 0) {
                     var length = dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length;
@@ -139,17 +130,26 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                     }
                 } else if (parseInt(value[1], 10) - dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length < 0) {
                     var length = dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length;
-                    for (var j = 0; j < length - parseInt(value[1], 10); j++) {
-                        dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].pop();
-                        var Index = nodes.map(function (x) { return x.name }).indexOf(value[0]);
-                        exitArray.push(nodes[Index]);
-                        nodes.splice(Index, 1);
-                    }
+                    var rotation = length - parseInt(value[1], 10);
+                    angular.forEach(node[0], function (nodeValue) {
+                        if (nodeValue.getAttribute("show-menu") === value[0] && !nodeValue.getAttribute("remove") && rotation) {
+                            dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].pop();
+                            exitUser(nodeValue.getAttribute("id"));
+                            rotation--;
+                        }
+                    });
                 }
             });
-            exitUser(exitArray);
+
         } else {
-            node.remove();
+            svg.selectAll("circle")
+                .attr("remove", "yes")
+                .style("pointer-events", "none")
+                .transition()
+                .duration(1400)
+                .attr("transform", "translate(" + (mainWIndowWidth * 0.15 - 50) + "," + (document.getElementById("sub_svg").getBoundingClientRect().top - document.getElementById('main_svg').offsetTop) + ")scale(0)")
+                .style("fill-opacity", 0)
+                .remove();
         }
         googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
     };
@@ -179,8 +179,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             o.y += (0 - o.y) * k;
         });
         subNode
-            .attr("cx", function (d) { return d.x + 80; })
-            .attr("cy", function (d) { return d.y + 70; });
+            .attr("cx", function (d) { return d.x + ($window.innerWidth * 0.15) / 2 - 15; })
+            .attr("cy", function (d) { return d.y + ($window.innerWidth * 0.15) / 4; });
     }
     // For Enter
     function collide(alpha) {
@@ -212,7 +212,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     // Enter User with Animation
     function enterUser(menuObj, row) {
         var indx = uniqIndex(row[0]);
-        nodes.push({ name: row[0], color: menuObj[row[0]]['color'], x: 0, y: (indx + 1) * 20 + 10 });
+        nodes.push({ name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10 });
         force.start();
         node = node.data(nodes);
         node.enter().append("circle")
@@ -231,30 +231,22 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("index_id", function (d) {
                 return d.index
             })
+            .attr("id", function (d) {
+                return 'main_svg_circle_' + d.index;
+            })
             .style("stroke", function (d) { return d3.rgb(fill(d.color)).darker(2); })
             .call(force.drag);
     }
     // Exit User with Animation
-    function exitUser(exitArray) {
-        var Index;
-        if (exitArray.length) {
-            angular.forEach(exitArray, function (value) {
-                Index = node[0].map(function (o) {
-                    return parseInt(o.getAttribute("index_id"));
-                }).indexOf(value.index);
-                d3.select(node[0][Index])
-                    .style("pointer-events", "none")
-                    .transition()
-                    .duration(1400)
-                    .attr("transform", "translate(30,30)scale(1)rotate(90)")
-                    .transition()
-                    .delay(15000)
-                    .attr("transform", "translate(-10,30)scale(0)")
-                    .style("fill-opacity", 0)
-                    .remove();
-
-            })
-        }
+    function exitUser(elementId) {
+        d3.select("#" + elementId)
+            .style("pointer-events", "none")
+            .attr("remove", "yes")
+            .transition()
+            .duration(1400)
+            .attr("transform", "translate(" + (mainWIndowWidth * 0.15 - 50) + "," + (document.getElementById("sub_svg").getBoundingClientRect().top - document.getElementById('main_svg').offsetTop) + ")scale(0)")
+            .style("fill-opacity", 0)
+            .remove();
     }
 
     function uniqIndex(name) {
@@ -270,16 +262,16 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
     // For Real Time
     function _getAnalyticsDataByTime(selectedTime) {
-        googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' + selectedTime.time.startDate + '&endDate=' + selectedTime.time.endDate, 'GET')
+        googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' + selectedTime.time.startDate + '&endDate=' + selectedTime.time.endDate + '&dimensionsId=' + googleAnalyticsCtrl.selectedSource.gaValue, 'GET')
             .then(_setAllTimeAPIData);
     }
     // For Display All Time API Data
     function _setAllTimeAPIData(resultWeb) {
         var scaleIndex = SCALING_INDEX;
-        googleAnalyticsCtrl.totalUserWithinTime = resultWeb.rows[0][0];
-        googleAnalyticsCtrl.bounceRate = parseFloat(resultWeb.rows[0][1]).toFixed(2) + '%';
-        googleAnalyticsCtrl.exitRate = parseFloat(resultWeb.rows[0][2]).toFixed(2) + '%';
-        googleAnalyticsCtrl.avgTimeOnSite = (parseFloat(resultWeb.rows[0][3]) / 60).toFixed(1) + 'min';
+        googleAnalyticsCtrl.totalUserWithinTime = resultWeb.totalsForAllResults['ga:users'];
+        googleAnalyticsCtrl.bounceRate = parseFloat(resultWeb.totalsForAllResults['ga:bounceRate']).toFixed(2) + '%';
+        googleAnalyticsCtrl.exitRate = parseFloat(resultWeb.totalsForAllResults['ga:exitRate']).toFixed(2) + '%';
+        googleAnalyticsCtrl.avgTimeOnSite = (parseFloat(resultWeb.totalsForAllResults['ga:avgTimeOnPage']) / 60).toFixed(1) + 'min';
         scaleIndex = _scaleIndexUpdate(googleAnalyticsCtrl.totalUserWithinTime, scaleIndex);
         var totalCircle = parseInt(((googleAnalyticsCtrl.totalUserWithinTime / scaleIndex) * 10));
         if (totalCircle > subCircleCount) {
@@ -295,6 +287,24 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             }
         }
         subCircleCount = totalCircle;
+        if (!dataPassingService.menuObj[menuObjectInstanceName]) {
+            dataPassingService.menuObj[menuObjectInstanceName] = {};
+        }
+        angular.forEach(resultWeb.rows, function (value, key) {
+            if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]])
+                dataPassingService.menuObj[menuObjectInstanceName][value[0]] = {}
+            if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'])
+                dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'] = [];
+            if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'])
+                dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'] = color; color++;
+            if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]]['x']) {
+                dataPassingService.menuObj[menuObjectInstanceName][value[0]]['x'] = dim;
+                dataPassingService.menuObj[menuObjectInstanceName][value[0]]['y'] = 50;
+                dim = dim + 200;
+            }
+        });
+        googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
+        console.log(googleAnalyticsCtrl.menuList)
     }
 
     //For Display Sub Circle 
@@ -327,7 +337,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .style("fill-opacity", 0)
             .remove();
     }
-
+    // For Update Scaling Index
     function _scaleIndexUpdate(users, scaleIndex) {
         if (users / scaleIndex > 1) {
             scaleIndex = _scaleIndexUpdate(users, scaleIndex * 10)

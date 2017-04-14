@@ -8,15 +8,18 @@ angular.module('googleAnalyticsModule')
     .constant('VIEWING_BY_SOURCE', [
         {
             name: 'Country',
-            value: 'rt:country'
+            value: 'rt:country',
+            gaValue : 'ga:country',
         },
         {
             name: 'Browser',
-            value: 'rt:browser'
+            value: 'rt:browser',
+            gaValue : 'ga:browser',
         },
         {
             name: 'OS',
-            value: 'rt:operatingSystem'
+            value: 'rt:operatingSystem',
+            gaValue : 'ga:operatingSystem',
         }
     ])
     .constant('VIEWING_BY_TIME', [
@@ -49,3 +52,4 @@ angular.module('googleAnalyticsModule')
             }
         }
     ])
+    .constant('MAX_MENU_COUNT', 10)

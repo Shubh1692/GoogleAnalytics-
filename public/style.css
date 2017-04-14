@@ -42,6 +42,7 @@ li {
     font-size: small;
     font-weight: 300;
     line-height: 20px;
+    background: transparent;
 }
 .country-list{
     position: relative;
@@ -54,11 +55,11 @@ li {
 }
 .svg-sub-window {
     stroke: black;
-    background-color: lightgray;
+    background-color: darkgray;
     border-bottom-left-radius: 100%;
     border-bottom-right-radius: 100%;
     border-radius: 0 0 230px 230px;
-    bottom: 25%;
+    bottom: 100%;
     position: absolute;
 }
 
@@ -75,10 +76,42 @@ li {
 
 .svg-sub-window-subling {
     background-color: gray;
-    top: 26%;
+    bottom: 187%;
     width: 100%;
-    height: 72px;
+    height: 50%;
     position: absolute;
     border-radius: 100%;
     z-index: 1;
+}
+
+.font-size-zero {
+    font-size : 0px;
+}
+
+.font-size-large {
+    font-size : large;
+}
+
+.d3-label {
+    font-size : 7px;
+    color: gray;
+}
+.color-gray {
+    color : gray;
+}
+
+.menu-list {
+    position: absolute; 
+    z-index: 1; 
+    width: 150px
+}
+
+.none-list-type {
+    list-style-type: none;
+}
+
+.bowl-style {
+    position: absolute;
+    bottom: 0; 
+    left: 10%
 }

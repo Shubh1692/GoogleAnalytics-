@@ -9,10 +9,10 @@
 <script src="js/app.controller.js"></script>
 <script src="js/app.service.js"></script>
 
-<body ng-app="googleAnalyticsModule" ng-init="googleAnalyticsCtrl.startTime()" ng-controller="googleAnalyticsController as googleAnalyticsCtrl">
+<body style="overflow-x : hidden" ng-app="googleAnalyticsModule" ng-init="googleAnalyticsCtrl.startTime()" ng-controller="googleAnalyticsController as googleAnalyticsCtrl">
     <div class="row title">
         <div class="col-md-6">
-            <h2 style="color: gray;"> GA/D3 Connection Test</h2>
+            <h2 class="color-gray"> GA/D3 Connection Test</h2>
         </div>
         <div class="col-md-6 padding-right-20">
             <div class="valign-parent" style="height: 100px">
@@ -23,36 +23,36 @@
             </div>
         </div>
     </div>
-    <div class="row" style="font-size: 0px;">
+    <div class="row font-size-zero">
         <div class="col-md-2">
         </div>
         <div class="col-md-1">
-            <div style="text-align: center;">
-                <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.avgTimeOnSite"></b></span>
+            <div class="div-center">
+                <span class="font-size-large color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.avgTimeOnSite"></b></span>
             </div>
-            <div style="text-align: center;">
-                <span style="font-size: 7px; color: gray;">AVERAGE TIME ONSITE</span>
+            <div class="div-center">
+                <span class="d3-label color-gray">AVERAGE TIME ONSITE</span>
             </div>
         </div>
         <div class="col-md-1">
-            <div style="text-align: right;">
-                <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.onsiteUser"></b></span>
+            <div class="text-align-right">
+                <span class="font-size-large color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.onsiteUser"></b></span>
             </div>
-            <div style="text-align: right;">
-                <span style="font-size: 7px;color: gray;">CURRENT ONSITE</span>
+            <div class="text-align-right">
+                <span class="d3-label color-gray">CURRENT ONSITE</span>
             </div>
         </div>
         <div class="col-md-8">
         </div>
     </div>
     <div class="row">
-        <div class="col-md-2">
+        <div class="menu-list">
             <div class="country-list">
-                <ul>
-                    <li id="key_{{key}}" class="country text-align-right" style="list-style-type: none;" ng-repeat="(key, menu) in googleAnalyticsCtrl.menuList">
+                <ul >
+                    <li ng-if="$index < googleAnalyticsCtrl.maxMenuCount" class="country text-align-right none-list-type" ng-repeat="(key, menu) in googleAnalyticsCtrl.menuList">
                         <span ng-bind="key"></span>&nbsp;<span class="filled-circle" ng-style="{'background-color' : googleAnalyticsCtrl.setColor(menu.color)}"></span>
                     </li>
-                    <li class="country popup" style="list-style-type: none; float: right;">
+                    <li class="country float-right none-list-type">
                         <select class="drop-dwon-label" ng-model="googleAnalyticsCtrl.selectedSource" ng-options="source as source.name for source in googleAnalyticsCtrl.sourceArray track by source.value"
                             ng-change="googleAnalyticsCtrl.sourceSelection(googleAnalyticsCtrl.selectedSource)">
                             </select>
@@ -60,56 +60,48 @@
                 </ul>
             </div>
         </div>
-        <div class="col-md-10" id="main_svg">
+        <div class="col-md-12" id="main_svg">
         </div>
     </div>
-    <div class="row" style="font-size: 0px;">
-        <div class="col-md-2">
+    <div class="bowl-style" ng-style="{'width': googleAnalyticsCtrl.subDivHeight}">
+        <div class="svg-sub-window-subling" id="sub_svg-subling">
         </div>
-        <div class="col-md-2" style="margin-left: 14px;">
-            <div class="row svg-sub-window-subling" id="sub_svg-parent">
-            </div>
-            <div class="row" id="sub_svg" ng-style="{'height': googleAnalyticsCtrl.subDivHeight}">
-            </div>
-            <div class="row">
-                <div class="all-time-div">
-                    <div style="text-align: center;">
-                        <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.totalUserWithinTime"></b></span>
-                    </div>
-                    <div style="text-align: center;">
-                        <span style="font-size: 7px;color: gray;">TOTAL VISITORS</span>
-                    </div>
+        <div id="sub_svg">
+        </div>
+        <div>
+            <div class="all-time-div">
+                <div class="div-center">
+                    <span class="font-size-large color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.totalUserWithinTime"></b></span>
                 </div>
-                <div class="all-time-div">
-                    <div style="text-align: center;">
-                        <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.bounceRate"></b></span></br>
-                    </div>
-                    <div style="text-align: center;">
-                        <span style="font-size: 7px;color: gray;">BOUNCE RATE</span>
-                    </div>
-                </div>
-                <div class="all-time-div">
-                    <div style="text-align: center;">
-                        <span style="font-size: large;color: gray; text-align: right"><b ng-bind="googleAnalyticsCtrl.exitRate"></b></span></br>
-                    </div>
-                    <div style="text-align: center;">
-                        <span style="font-size: 7px;color: gray;">EXIT RATE</span>
-                    </div>
+                <div class="div-center">
+                    <span class="d3-label color-gray">TOTAL VISITORS</span>
                 </div>
             </div>
-            <div class="row">
-                <ul>
-                    <li class="country popup" style="list-style-type: none;">
-                        <select class="drop-dwon-label" ng-model="googleAnalyticsCtrl.selectedTime" ng-options="timeSch as timeSch.name for timeSch in googleAnalyticsCtrl.timeArray"
-                            ng-change="googleAnalyticsCtrl.getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime)">
+            <div class="all-time-div">
+                <div class="div-center">
+                    <span class="font-size-large color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.bounceRate"></b></span></br>
+                </div>
+                <div class="div-center">
+                    <span class="d3-label color-gray">BOUNCE RATE</span>
+                </div>
+            </div>
+            <div class="all-time-div">
+                <div class="div-center">
+                    <span class="font-size-large color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.exitRate"></b></span></br>
+                </div>
+                <div class="div-center">
+                    <span class="d3-label color-gray">EXIT RATE</span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <ul>
+                <li class="country none-list-type">
+                    <select class="drop-dwon-label" ng-model="googleAnalyticsCtrl.selectedTime" ng-options="timeSch as timeSch.name for timeSch in googleAnalyticsCtrl.timeArray"
+                        ng-change="googleAnalyticsCtrl.getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime)">
                             </select>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="col-md-5">
-        </div>
-        <div class="col-md-1">
+                </li>
+            </ul>
         </div>
     </div>
     <script src="http://d3js.org/d3.v3.min.js"></script>

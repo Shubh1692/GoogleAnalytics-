@@ -57,7 +57,7 @@ app.get('/getGoogleAnalyticsAllData', function (req, res) {
         'start-date': req.query.startDate,
         'end-date': req.query.endDate,
         'metrics': 'ga:users, ga:bounceRate,ga:exitRate, ga:avgTimeOnPage', // , ga:avgSessionDuration
-        // 'dimensions': 'ga:hostname'
+        'dimensions': req.query.dimensionsId
     }, function (err, response) {
         if (err) {
             res.send({
