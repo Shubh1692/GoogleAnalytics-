@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<link rel="stylesheet" type="text/css" href="standard.css">
-<link rel="stylesheet" type="text/css" href="style.css">
-<link rel="stylesheet" type="text/css" href="bootstrap.min.css">
+<!-- Css Files -->
+<link rel="stylesheet" type="text/css" href="css/standard.css">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+<!-- Js Files -->
 <script src="lib/angular/angular.min.js"></script>
 <script src="js/app.js"></script>
 <script src="js/app.constant.js"></script>
 <script src="js/app.controller.js"></script>
 <script src="js/app.service.js"></script>
+<!-- Html Code -->
 
-<body style="overflow-x : hidden" ng-app="googleAnalyticsModule" ng-init="googleAnalyticsCtrl.startTime()" ng-controller="googleAnalyticsController as googleAnalyticsCtrl">
-    <div class="row title">
+<body ng-app="googleAnalyticsModule" ng-init="googleAnalyticsCtrl.startTime()" ng-controller="googleAnalyticsController as googleAnalyticsCtrl">
+    <div class="row title margin-right-0">
         <div class="col-md-6">
             <h2 class="color-gray"> GA/D3 Connection Test</h2>
         </div>
@@ -23,7 +26,7 @@
             </div>
         </div>
     </div>
-    <div class="row font-size-zero">
+    <div class="row font-size-zero margin-right-0">
         <div class="col-md-2">
         </div>
         <div class="col-md-1">
@@ -45,10 +48,10 @@
         <div class="col-md-8">
         </div>
     </div>
-    <div class="row">
+    <div class="row margin-right-0 relative">
         <div class="menu-list">
             <div class="country-list">
-                <ul >
+                <ul>
                     <li ng-if="$index < googleAnalyticsCtrl.maxMenuCount" class="country text-align-right none-list-type" ng-repeat="(key, menu) in googleAnalyticsCtrl.menuList">
                         <span ng-bind="key"></span>&nbsp;<span class="filled-circle" ng-style="{'background-color' : googleAnalyticsCtrl.setColor(menu.color)}"></span>
                     </li>
@@ -60,48 +63,46 @@
                 </ul>
             </div>
         </div>
-        <div class="col-md-12" id="main_svg">
+        <div class="col-md-12" style="padding-right: 0px" id="main_svg">
         </div>
-    </div>
-    <div class="bowl-style" ng-style="{'width': googleAnalyticsCtrl.subDivHeight}">
-        <div class="svg-sub-window-subling" id="sub_svg-subling">
-        </div>
-        <div id="sub_svg">
-        </div>
-        <div>
-            <div class="all-time-div">
-                <div class="div-center">
-                    <span class="font-size-large color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.totalUserWithinTime"></b></span>
+        <div class="bowl-style" ng-style="{'height': googleAnalyticsCtrl.bowlHeight + 'px', 'width' : googleAnalyticsCtrl.bowlWidth + 'px'}">
+            <div class="svg-sub-window-subling" id="sub_svg-subling" ng-style="{'height' : googleAnalyticsCtrl.bowlTopHeight + 'px', 'bottom' : googleAnalyticsCtrl.bowlTopBottomPostion + 'px'}">
+            </div>
+            <div id="sub_svg">
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="div-center">
+                        <span class="color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.totalUserWithinTime"></b></span>
+                    </div>
+                    <div class="div-center">
+                        <span class="d3-label color-gray">TOTAL VISITORS</span>
+                    </div>
                 </div>
-                <div class="div-center">
-                    <span class="d3-label color-gray">TOTAL VISITORS</span>
+                <div class="col-md-3">
+                    <div class="div-center">
+                        <span class="color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.bounceRate"></b></span></br>
+                    </div>
+                    <div class="div-center">
+                        <span class="d3-label color-gray">BOUNCE RATE</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="div-center">
+                        <span class="color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.exitRate"></b></span></br>
+                    </div>
+                    <div class="div-center">
+                        <span class="d3-label color-gray">EXIT RATE</span>
+                    </div>
                 </div>
             </div>
-            <div class="all-time-div">
-                <div class="div-center">
-                    <span class="font-size-large color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.bounceRate"></b></span></br>
-                </div>
-                <div class="div-center">
-                    <span class="d3-label color-gray">BOUNCE RATE</span>
-                </div>
-            </div>
-            <div class="all-time-div">
-                <div class="div-center">
-                    <span class="font-size-large color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.exitRate"></b></span></br>
-                </div>
-                <div class="div-center">
-                    <span class="d3-label color-gray">EXIT RATE</span>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <ul>
-                <li class="country none-list-type">
+            <div class="row">
+                <div class="col-md-3 country">
                     <select class="drop-dwon-label" ng-model="googleAnalyticsCtrl.selectedTime" ng-options="timeSch as timeSch.name for timeSch in googleAnalyticsCtrl.timeArray"
                         ng-change="googleAnalyticsCtrl.getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime)">
                             </select>
-                </li>
-            </ul>
+                </div>
+            </div>
         </div>
     </div>
     <script src="http://d3js.org/d3.v3.min.js"></script>

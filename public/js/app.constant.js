@@ -52,4 +52,4 @@ angular.module('googleAnalyticsModule')
             }
         }
     ])
-    .constant('MAX_MENU_COUNT', 10)
+    .constant('MAX_MENU_COUNT', 10);

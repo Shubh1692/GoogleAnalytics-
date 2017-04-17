@@ -14,11 +14,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         subNodes = [],
         padding = 1,
         cluster_padding = 10,
-        mainWindowHeight = $window.innerHeight * .78,
-        mainWIndowWidth = $window.innerWidth,
+        mainSvgHeight = $window.innerHeight,
+        mainSvgWidth = $window.innerWidth,
+        bowlSvgWidth = $window.innerWidth * 0.15,
+        bowlSvgHeight = ($window.innerWidth * 0.15) / 2,
         svg = d3.select("#main_svg").append("svg")
-            .attr("width", mainWIndowWidth)
-            .attr("height", mainWindowHeight)
+            .attr("width", mainSvgWidth)
+            .attr("height", mainSvgHeight)
             .attr("class", 'svg-main-window')
             .attr("border", 1),
         force = d3.layout.force()
@@ -27,13 +29,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .gravity(0.05)
             .distance(50)
             .charge(-20)
-            .size([mainWIndowWidth, mainWindowHeight])
+            .size([mainSvgWidth, mainSvgHeight])
             .friction(.9)
             .on("tick", tick),
         node = svg.selectAll("circle"),
         subSvg = d3.select("#sub_svg").append("svg")
-            .attr("width", ($window.innerWidth * 0.15))
-            .attr("height", ($window.innerWidth * 0.15) / 2)
+            .attr("width", bowlSvgWidth)
+            .attr("height", bowlSvgHeight)
             .attr("class", 'svg-sub-window')
             .attr("border", 1),
         forceSub = d3.layout.force()
@@ -42,12 +44,26 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .size([100, 50])
             .charge(-20)
             .on("tick", subTick),
-        subNode = subSvg.selectAll("circle");
+        subNode = subSvg.selectAll("circle"),
+        rectangle = svg.append("rect")
+            .attr("width", 150)
+            .attr("height", mainSvgHeight)
+            .style("fill", d3.rgb(255, 255, 255))
+            .style("stroke", d3.rgb(255, 255, 255))
     // Controller Functions 
     googleAnalyticsCtrl.startTime = _startTime;
     googleAnalyticsCtrl.setColor = _setColor;
-    googleAnalyticsCtrl.subDivHeight = ($window.innerWidth * 0.15) + 'px';
+    googleAnalyticsCtrl.bowlWidth = bowlSvgWidth;
+    googleAnalyticsCtrl.bowlHeight = (mainSvgHeight * 0.15);
     googleAnalyticsCtrl.maxMenuCount = MAX_MENU_COUNT;
+    googleAnalyticsCtrl.bowlTopHeight = bowlSvgHeight * 0.35;
+    googleAnalyticsCtrl.bowlTopBottomPostion = bowlSvgHeight - ((bowlSvgHeight * 0.35) / 2) + (mainSvgHeight * 0.15);
+    // Default Values
+    googleAnalyticsCtrl.onsiteUser = 0;
+    googleAnalyticsCtrl.totalUserWithinTime = 0;
+    googleAnalyticsCtrl.bounceRate = 0 + '%';
+    googleAnalyticsCtrl.exitRate = 0 + '%';
+    googleAnalyticsCtrl.avgTimeOnSite = 0 + 'min';
     // Controller Variables
     googleAnalyticsCtrl.displayTime = {};
     googleAnalyticsCtrl.menuList = [];
@@ -63,6 +79,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     _callRealtimeDataAPI();
     _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
     intervalInstance = $interval(_callRealtimeDataAPI, REAL_TIME_API_TIME_INTERVAL);
+
     // For Time
     function _startTime() {
         var today = new Date();
@@ -73,11 +90,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         googleAnalyticsCtrl.displayTime.time = time;
         $timeout(_startTime, 1000);
     }
+
     // For Get API Data
     function _callRealtimeDataAPI() {
         googleAnalyticsService.serverRequest(NODE_WEB_API.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
             .then(_displayApiData);
     }
+
     // For Source Selection Change 
     function _sourceSelection(selectData) {
         dim = 50;
@@ -89,7 +108,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .style("pointer-events", "none")
             .transition()
             .duration(1400)
-            .attr("transform", "translate(" + (mainWIndowWidth * 0.15 - 50) + "," + (document.getElementById("sub_svg").getBoundingClientRect().top - document.getElementById('main_svg').offsetTop) + ")scale(0)")
+            .attr("transform", "translate(" + (mainSvgWidth * 0.15 - 50) + "," + (document.getElementById("sub_svg").getBoundingClientRect().top - document.getElementById('main_svg').offsetTop) + ")scale(0)")
             .style("fill-opacity", 0)
             .remove();
         menuObjectInstanceName = selectData.name;
@@ -148,7 +167,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 .style("pointer-events", "none")
                 .transition()
                 .duration(1400)
-                .attr("transform", "translate(" + (mainWIndowWidth * 0.15 - 50) + "," + (document.getElementById("sub_svg").getBoundingClientRect().top - document.getElementById('main_svg').offsetTop) + ")scale(0)")
+                .attr("transform", "translate(" + (mainSvgWidth * 0.15 - 50) + "," + (document.getElementById("sub_svg").getBoundingClientRect().top - document.getElementById('main_svg').offsetTop) + ")scale(0)")
                 .style("fill-opacity", 0)
                 .remove();
         }
@@ -171,6 +190,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 .attr("cy", function (d) { return d.y; });
         }
     }
+
     // For Sub Enter 
     function subTick(e) {
         var k = .1 * e.alpha;
@@ -183,6 +203,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("cx", function (d) { return d.x + ($window.innerWidth * 0.15) / 2 - 15; })
             .attr("cy", function (d) { return d.y + ($window.innerWidth * 0.15) / 4; });
     }
+
     // For Enter
     function collide(alpha) {
         var quadtree = d3.geom.quadtree(nodes);
@@ -210,6 +231,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             });
         };
     }
+
     // Enter User with Animation
     function enterUser(menuObj, row) {
         var indx = uniqIndex(row[0]);
@@ -238,6 +260,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .style("stroke", function (d) { return d3.rgb(fill(d.color)).darker(2); })
             .call(force.drag);
     }
+
     // Exit User with Animation
     function exitUser(elementId) {
         d3.select("#" + elementId)
@@ -245,11 +268,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("remove", "yes")
             .transition()
             .duration(1400)
-            .attr("transform", "translate(" + (mainWIndowWidth * 0.15 - 50) + "," + (document.getElementById("sub_svg").getBoundingClientRect().top - document.getElementById('main_svg').offsetTop) + ")scale(0)")
+            .attr("transform", "translate(" + (mainSvgWidth * 0.15 - 50) + "," + (document.getElementById("sub_svg").getBoundingClientRect().top - document.getElementById('main_svg').offsetTop) + ")scale(0)")
             .style("fill-opacity", 0)
             .remove();
     }
 
+    // For Unique Index of Circle
     function uniqIndex(name) {
         var countries = nodes.map(function (n) { return n.name });
         var u = countries.filter(function (v, i) { return countries.indexOf(v) == i; });
@@ -257,15 +281,18 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         indx = indx > 0 ? indx : 0;
         return indx;
     }
+
     // For RGB Color
     function _setColor(colorKey) {
         return d3.rgb(fill(colorKey));
     }
+
     // For Real Time
     function _getAnalyticsDataByTime(selectedTime) {
         googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' + selectedTime.time.startDate + '&endDate=' + selectedTime.time.endDate + '&dimensionsId=' + googleAnalyticsCtrl.selectedSource.gaValue, 'GET')
             .then(_setAllTimeAPIData);
     }
+    
     // For Display All Time API Data
     function _setAllTimeAPIData(resultWeb) {
         var scaleIndex = SCALING_INDEX;
@@ -305,7 +332,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             }
         });
         googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
-        console.log(googleAnalyticsCtrl.menuList)
     }
 
     //For Display Sub Circle 

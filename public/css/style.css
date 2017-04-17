@@ -5,6 +5,8 @@
 .svg-main-window {
     stroke: black;
     background-color: lightgray;
+    width : 100%;
+    margin-right: 0px
 }
 
 .content {
@@ -43,6 +45,7 @@ li {
     font-weight: 300;
     line-height: 20px;
     background: transparent;
+    outline: 0px;
 }
 .country-list{
     position: relative;
@@ -63,10 +66,6 @@ li {
     position: absolute;
 }
 
-.all-time-div {
-    width: 33.33%;
-    float: left;
-}
 .filled-circle {
   padding: 0px 7px;
   border-radius: 100%;
@@ -113,5 +112,9 @@ li {
 .bowl-style {
     position: absolute;
     bottom: 0; 
-    left: 10%
+    left: 175px;
+}
+
+.svg-rect-window{
+    background-color: white
 }

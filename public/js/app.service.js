@@ -3,6 +3,7 @@ angular.module('googleAnalyticsModule')
     .service('dataPassingService', _dataPassingService);
 _googleAnalyticsService.$inject = ['$http', '$q'];
 _dataPassingService.$inject = [];
+
 function _googleAnalyticsService($http, $q) {
     var googleAnalyticsService = this;
     googleAnalyticsService.serverRequest = _serverRequest;

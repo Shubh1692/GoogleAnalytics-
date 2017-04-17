@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 // here public is name of a folder of static file
 app.use(express.static('public'));
-
+// Google Analytics Authentication
 let jwtClient = new google.auth.JWT(CONFIG.GOOGLE_CLINET_CONFIG.client_email, null, CONFIG.GOOGLE_CLINET_CONFIG.private_key,
     ['https://www.googleapis.com/auth/analytics.readonly'], null);
 jwtClient.authorize(function (err, tokens) {
@@ -57,7 +57,8 @@ app.get('/getGoogleAnalyticsAllData', function (req, res) {
         'start-date': req.query.startDate,
         'end-date': req.query.endDate,
         'metrics': 'ga:users, ga:bounceRate,ga:exitRate, ga:avgTimeOnPage', // , ga:avgSessionDuration
-        'dimensions': req.query.dimensionsId
+        'dimensions': req.query.dimensionsId,
+        'sort' : '-ga:users'
     }, function (err, response) {
         if (err) {
             res.send({
