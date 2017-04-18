@@ -15,7 +15,7 @@
 <body ng-app="googleAnalyticsModule" ng-init="googleAnalyticsCtrl.startTime()" ng-controller="googleAnalyticsController as googleAnalyticsCtrl">
     <div class="row title margin-right-0">
         <div class="col-md-6">
-            <h2 class="color-gray"> GA/D3 Connection Test</h2>
+            <h2 class=""> Project Bubble Cluster</h2>
         </div>
         <div class="col-md-6 padding-right-20">
             <div class="valign-parent" style="height: 100px">
@@ -31,10 +31,10 @@
         </div>
         <div class="col-md-1">
             <div class="text-align-right">
-                <span class="font-size-large color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.onsiteUser"></b></span>
+                <span class="font-size-large  text-align-right"><b ng-bind="googleAnalyticsCtrl.onsiteUser"></b></span>
             </div>
             <div class="text-align-right">
-                <span class="d3-label color-gray">CURRENT ONSITE</span>
+                <span class="d3-label ">CURRENT ONSITE</span>
             </div>
         </div>
         <div class="col-md-8">
@@ -61,34 +61,34 @@
             <div class="row">
                 <div style="width:25%; float: left">
                     <div class="div-center">
-                        <span class="color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.totalUserWithinTime"></b></span>
+                        <span class=" text-align-right"><b ng-bind="googleAnalyticsCtrl.totalUserWithinTime"></b></span>
                     </div>
                     <div class="div-center">
-                        <span class="d3-label color-gray">TOTAL VISITORS</span>
-                    </div>
-                </div>
-                <div style="width:25%; float: left">
-                    <div class="div-center">
-                        <span class="color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.bounceRate"></b></span></br>
-                    </div>
-                    <div class="div-center">
-                        <span class="d3-label color-gray">BOUNCE RATE</span>
+                        <span class="d3-label ">TOTAL VISITORS</span>
                     </div>
                 </div>
                 <div style="width:25%; float: left">
                     <div class="div-center">
-                        <span class="color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.exitRate"></b></span></br>
+                        <span class=" text-align-right"><b ng-bind="googleAnalyticsCtrl.bounceRate"></b></span></br>
                     </div>
                     <div class="div-center">
-                        <span class="d3-label color-gray">EXIT RATE</span>
+                        <span class="d3-label ">BOUNCE RATE</span>
                     </div>
                 </div>
                 <div style="width:25%; float: left">
                     <div class="div-center">
-                        <span class="color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.avgTimeOnSite"></b></span>
+                        <span class=" text-align-right"><b ng-bind="googleAnalyticsCtrl.exitRate"></b></span></br>
                     </div>
                     <div class="div-center">
-                        <span class="d3-label color-gray">AVERAGE TIME ONSITE</span>
+                        <span class="d3-label ">EXIT RATE</span>
+                    </div>
+                </div>
+                <div style="width:25%; float: left">
+                    <div class="div-center">
+                        <span class=" text-align-right"><b ng-bind="googleAnalyticsCtrl.avgTimeOnSite"></b></span>
+                    </div>
+                    <div class="div-center">
+                        <span class="d3-label ">AVERAGE TIME ONSITE</span>
                     </div>
                 </div>
             </div>
