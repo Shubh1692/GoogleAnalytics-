@@ -11,7 +11,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         nodes = [],
         padding = 1,
         cluster_padding = 10,
-        mainSvgHeight = $window.innerHeight,
+        mainSvgHeight = $window.innerHeight * 0.78,
         mainSvgWidth = $window.innerWidth,
         bowlSvgWidth = $window.innerWidth * 0.15,
         bowlSvgHeight = ($window.innerWidth * 0.15) / 2,
