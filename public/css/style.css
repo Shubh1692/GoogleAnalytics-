@@ -1,10 +1,10 @@
 .node {
-    stroke-width: 1.5px;
+    stroke-width: 0px;
 }
 
 .svg-main-window {
     stroke: black;
-    background-color: lightgray;
+    background-color: #f0f0f0;
     width : 100%;
     margin-right: 0px
 }
@@ -46,10 +46,10 @@ li {
     text-align: right;
 }
 .country select{
-    font-size: small;
-    font-weight: 300;
+    font-size: 13px;
+    font-weight: 500;
     line-height: 20px;
-    background: transparent;
+    background: #f2f2f2;
     outline: 0px;
 }
 .country-list{
@@ -58,7 +58,7 @@ li {
     margin: auto;
 }
 .drop-dwon-label {
-    color: cyan;
+    color: deepskyblue;
     border: none !important; 
 }
 .svg-sub-window {
@@ -72,6 +72,8 @@ li {
 }
 
 .filled-circle {
+
+  padding: 0px 8px;
   border-radius: 100%;
   border: none;
   width : 10px;
@@ -105,7 +107,7 @@ li {
     color: gray;
 }
 .color-gray {
-    color : gray;
+    //color : gray;
 }
 
 .menu-list {
@@ -118,6 +120,8 @@ li {
 }
 
 .bowl-style {
+    height: 230px;
+    width: 360px;
     position: absolute;
     bottom: 0; 
     left: 225px;
