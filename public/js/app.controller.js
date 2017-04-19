@@ -4,11 +4,8 @@ _googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$wi
 function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT) {
     var googleAnalyticsCtrl = this,
         intervalInstance,
-        removeSubIndex = 0,
-        subCircleCount = 0,
         menuObjectInstanceName,
         fill = d3.scale.category20(),
-        dim = 200,
         color = 1,
         nodes = [],
         padding = 1,
@@ -24,12 +21,9 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("border", 1),
         force = d3.layout.force()
             .nodes(nodes)
-            .links([])
-            .gravity(0.05)
-            .distance(50)
-            .charge(-4)
             .size([mainSvgWidth, mainSvgHeight])
-            .friction(.9)
+            .gravity(.02)
+            .charge(0)
             .on("tick", tick),
         node = svg.selectAll(".main_circle"),
         rectangleMenu = svg.append("rect")
@@ -69,6 +63,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     googleAnalyticsCtrl.onsiteUser = 0;
     //other
     menuObjectInstanceName = VIEWING_BY_SOURCE[0].name;
+    var clusters = new Array(1);
     _callRealtimeDataAPI();
     _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
     intervalInstance = $interval(_callRealtimeDataAPI, REAL_TIME_API_TIME_INTERVAL);
@@ -83,28 +78,73 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         googleAnalyticsCtrl.displayTime.time = time;
         $timeout(_startTime, 1000);
     }
+    // Move d to be adjacent to the cluster node.
+    function mainCluster(alpha) {
+        return function (d) {
+            var cluster = clusters[d.cluster];
+            if (cluster === d) return;
+            var x = d.x - cluster.x,
+                y = d.y - cluster.y,
+                l = Math.sqrt(x * x + y * y),
+                r = d.radius + cluster.radius;
+            if (l != r) {
+                l = (l - r) / l * alpha;
+                d.x -= x *= l;
+                d.y -= y *= l;
+                cluster.x += x;
+                cluster.y += y;
+            }
+        };
+    }
+
+    // Resolves collisions between d and all other circles.
+    function mainCollides(alpha) {
+        var quadtree = d3.geom.quadtree(nodes);
+        return function (d) {
+            var r = d.radius + 4 + Math.max(padding, 6),
+                nx1 = d.x - r,
+                nx2 = d.x + r,
+                ny1 = d.y - r,
+                ny2 = d.y + r;
+            quadtree.visit(function (quad, x1, y1, x2, y2) {
+                if (quad.point && (quad.point !== d)) {
+                    var x = d.x - quad.point.x,
+                        y = d.y - quad.point.y,
+                        l = Math.sqrt(x * x + y * y),
+                        r = d.radius + quad.point.radius + (d.cluster === quad.point.cluster ? padding : clusterPadding);
+                    if (l < r) {
+                        l = (l - r) / l * alpha;
+                        d.x -= x *= l;
+                        d.y -= y *= l;
+                        quad.point.x += x;
+                        quad.point.y += y;
+                    }
+                }
+                return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+            });
+        };
+    }
     var flag = true;
     // For Get API Data
     function _callRealtimeDataAPI() {
-        // var res = {
-        //     totalsForAllResults: {
-        //         'rt:activeUsers': 10
-        //     }
-        // }
-        googleAnalyticsService.serverRequest(NODE_WEB_API.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
-            .then(_displayApiData);
-        // if (flag) {
-        //     res.rows = [["India", 2]]
-        // } else {
-        //     res.rows = [["India", 3], ["United States", 4]]
-        // }
-        // flag = !flag
-        // _displayApiData(res)
+        var res = {
+            totalsForAllResults: {
+                'rt:activeUsers': 10
+            }
+        }
+        // googleAnalyticsService.serverRequest(NODE_WEB_API.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
+        //     .then(_displayApiData);
+        if (flag) {
+            res.rows = [["India", 2]]
+        } else {
+            res.rows = [["India", 3], ["United States", 4]]
+        }
+        flag = !flag
+        _displayApiData(res)
     }
 
     // For Source Selection Change 
     function _sourceSelection(selectData) {
-        dim = 50;
         color = 1;
         dataPassingService.menuObj[menuObjectInstanceName] = {};
         googleAnalyticsCtrl.getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
@@ -117,6 +157,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .remove();
         menuObjectInstanceName = selectData.name;
         $interval.cancel(intervalInstance);
+        clusters = new Array(1)
         _callRealtimeDataAPI();
         intervalInstance = $interval(_callRealtimeDataAPI, 10000);
     }
@@ -144,7 +185,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]]['x']) {
                     dataPassingService.menuObj[menuObjectInstanceName][value[0]]['x'] = 100;
                     dataPassingService.menuObj[menuObjectInstanceName][value[0]]['y'] = 50;
-                    dim = dim + 200;
                 }
                 if (parseInt(value[1], 10) - dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length > 0) {
                     var length = dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length;
@@ -192,42 +232,18 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 }
             });
         }
-        svg.selectAll("circle[remove='no']")
-            .each(function (e) {
-                mainCollide(e);
-            })
+        svg.selectAll(".main_circle")
+            .each(mainCluster(10 * e.alpha * e.alpha))
+            .each(mainCollides(.5))
             .attr("cx", function (d) { return d.x; })
             .attr("cy", function (d) { return d.y; });
     }
-
-    function mainCollide(node) {
-        var r = 4 + 16,
-            nx1 = node.x - r,
-            nx2 = node.x + r,
-            ny1 = node.y - r,
-            ny2 = node.y + r;
-        return function (quad, x1, y1, x2, y2) {
-            if (quad.point && (quad.point !== node)) {
-                var x = node.x - quad.point.x,
-                    y = node.y - quad.point.y,
-                    l = Math.sqrt(x * x + y * y),
-                    r = node.radius + quad.point.radius;
-                if (l < r) {
-                    l = (l - r) / l * .5;
-                    node.x -= x *= l;
-                    node.y -= y *= l;
-                    quad.point.x += x;
-                    quad.point.y += y;
-                }
-            }
-            return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-        };
-    }
-
     // Enter User with Animation
     function enterUser(menuObj, row) {
         var indx = uniqIndex(row[0]);
-        nodes.push({ name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10 });
+        nodes.push({ name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0 });
+        clusters[0] = { name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0 };
+        force.nodes(nodes);
         force.start();
         node = node.data(nodes);
         node.enter().append("circle")
@@ -240,7 +256,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .style("fill", function (d) {
                 return d3.rgb(fill(d.color));
             })
-           .attr("transform", "translate(0)")
+            .attr("transform", "translate(0)")
             .attr("show-menu", function (d, i) {
                 return d.name
             })
@@ -257,16 +273,20 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     // Exit User with Animation
     function exitUser(elementId, name) {
         var index = elementId.split('_')[elementId.split('_').length - 1];
-        nodes.splice(index, 1)
         var mergeNode = svg.selectAll("circle[name='" + name + "']");
         d3.select("#" + elementId)
             .style("pointer-events", "none")
             .attr("remove", "yes")
-          .transition()
-            // .each("end", function (e) {
-            //     mergeNode.attr("r", parseFloat(mergeNode[0][0].getAttribute("r")) + 1)
-            // })
-            
+            .transition()
+            .each("end", function (e) {
+                subForceGlobal.stop()
+                var user  = (parseInt(mergeNode[0][0].getAttribute("user")) + 1);
+                mergeNode.attr("r", Math.log(user) * 4);
+                mergeNode.attr("user", function(d){
+                    return user
+                });
+                subForceGlobal.start();
+            })
             .attr("transform", "translate(" + mergeNode[0][0].getAttribute("cx") + "," + mergeNode[0][0].getAttribute("cy") + ")scale(0)") //scale(0)
             .duration(1400)
             //  .style("fill-opacity", 0.2)
@@ -287,12 +307,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         return d3.rgb(fill(colorKey));
     }
 
-    // For Real Time
+    // For All Time
     function _getAnalyticsDataByTime(selectedTime) {
         googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' + selectedTime.time.startDate + '&endDate=' + selectedTime.time.endDate + '&dimensionsId=' + googleAnalyticsCtrl.selectedSource.gaValue, 'GET')
             .then(_setAllTimeAPIData);
     }
-
+    var subForceGlobal
     // For Display All Time API Data
     function _setAllTimeAPIData(resultWeb) {
         var scaleIndex = SCALING_INDEX;
@@ -323,7 +343,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     function _enterSubUser(nodeData, totalUser) {
         var padding = 1.5, // separation between same-color circles
             clusterPadding = 6, // separation between different-color circles
-            maxRadius = 12;
+            maxRadius = 60;
         var m = 1; // number of distinct clusters
         // The largest node for each cluster.
         var clusters = new Array(1);
@@ -342,23 +362,16 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'])
                 dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'] = color; color++;
             if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]]['x']) {
-                dataPassingService.menuObj[menuObjectInstanceName][value[0]]['x'] = dim;
+                dataPassingService.menuObj[menuObjectInstanceName][value[0]]['x'] = 100;
                 dataPassingService.menuObj[menuObjectInstanceName][value[0]]['y'] = 50;
-                dim = dim + 200;
             }
             subNodes[key].color = dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'];
-            subNodes[key].name = [value[0]];
-            var radius;
-            if (value[1] / totalUser * 100 <= 10) {
-                radius = 4
-            } else if (value[1] / totalUser * 100 <= 50) {
-                radius = 8
-            } else if (value[1] / totalUser * 100 <= 75) {
-                radius = 12
-            } else if (value[1] / totalUser * 100 < 100) {
-                radius = maxRadius
+            subNodes[key].name = value[0];
+            subNodes[key].user = value[1]
+            subNodes[key].radius = Math.log(value[1]) * 4;
+            if(maxRadius < subNodes[key].radius) {
+                subNodes[key].radius = maxRadius;
             }
-            subNodes[key].radius = radius;
         });
         var subForce = d3.layout.force()
             .nodes(subNodes)
@@ -369,16 +382,19 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 subNode
                     .each(cluster(10 * e.alpha * e.alpha))
                     .each(collide(.5))
-                    .attr("cx", function (d) { return d.x - 200; })
-                    .attr("cy", function (d) { return d.y + 100; });
+                    .attr("cx", function (d) { return d.x - (mainSvgWidth/4) + maxRadius; })
+                    .attr("cy", function (d) { return d.y + (mainSvgHeight/6); });
             })
             .start();
-
+            subForceGlobal = subForce
         var subNode = svg.selectAll(".sub_circle")
             .data(subNodes)
             .enter().append("circle")
             .attr("r", function (d) { return d.radius; })
             .attr("class", "node sub_circle")
+            .attr("user", function (d) {
+                return d.user
+            })
             .attr("name", function (d) {
                 return d.name
             })
