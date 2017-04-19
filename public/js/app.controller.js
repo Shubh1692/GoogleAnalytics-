@@ -4,6 +4,7 @@ _googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$wi
 function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT) {
     var googleAnalyticsCtrl = this,
         intervalInstance,
+        subForceGlobal, subForceNodes,
         menuObjectInstanceName,
         fill = d3.scale.category20(),
         color = 1,
@@ -127,20 +128,20 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     var flag = true;
     // For Get API Data
     function _callRealtimeDataAPI() {
-        var res = {
-            totalsForAllResults: {
-                'rt:activeUsers': 10
-            }
-        }
-        // googleAnalyticsService.serverRequest(NODE_WEB_API.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
-        //     .then(_displayApiData);
-        if (flag) {
-            res.rows = [["India", 2]]
-        } else {
-            res.rows = [["India", 3], ["United States", 4]]
-        }
-        flag = !flag
-        _displayApiData(res)
+        // var res = {
+        //     totalsForAllResults: {
+        //         'rt:activeUsers': 10
+        //     }
+        // }
+        googleAnalyticsService.serverRequest(NODE_WEB_API.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
+            .then(_displayApiData);
+        // if (flag) {
+        //     res.rows = [["India", 2]]
+        // } else {
+        //     res.rows = [["India", 3]]
+        // }
+        // flag = !flag
+        // _displayApiData(res)
     }
 
     // For Source Selection Change 
@@ -157,7 +158,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .remove();
         menuObjectInstanceName = selectData.name;
         $interval.cancel(intervalInstance);
-        clusters = new Array(1)
         _callRealtimeDataAPI();
         intervalInstance = $interval(_callRealtimeDataAPI, 10000);
     }
@@ -240,6 +240,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
     // Enter User with Animation
     function enterUser(menuObj, row) {
+        force.stop();
         var indx = uniqIndex(row[0]);
         nodes.push({ name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0 });
         clusters[0] = { name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0 };
@@ -280,16 +281,16 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .transition()
             .each("end", function (e) {
                 subForceGlobal.stop()
-                var user  = (parseInt(mergeNode[0][0].getAttribute("user")) + 1);
-                mergeNode.attr("r", Math.log(user) * 4);
-                mergeNode.attr("user", function(d){
-                    return user
+                var user = (parseInt(mergeNode[0][0].getAttribute("user")) + 1);
+                mergeNode.attr("r", function (d) {
+                    subForceNodes[d.index].radius = Math.log(user) * 4;
+                    return Math.log(user) * 4;
                 });
+                mergeNode.attr("user", user);
                 subForceGlobal.start();
             })
-            .attr("transform", "translate(" + mergeNode[0][0].getAttribute("cx") + "," + mergeNode[0][0].getAttribute("cy") + ")scale(0)") //scale(0)
+            .attr("transform", "translate(" + -(nodes[index].x -  parseFloat(mergeNode[0][0].getAttribute("cx"))) + "," + -(nodes[index].y - parseFloat(mergeNode[0][0].getAttribute("cy"))) + ")") //scale(0)
             .duration(1400)
-            //  .style("fill-opacity", 0.2)
             .remove();
     }
 
@@ -312,7 +313,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' + selectedTime.time.startDate + '&endDate=' + selectedTime.time.endDate + '&dimensionsId=' + googleAnalyticsCtrl.selectedSource.gaValue, 'GET')
             .then(_setAllTimeAPIData);
     }
-    var subForceGlobal
+
     // For Display All Time API Data
     function _setAllTimeAPIData(resultWeb) {
         var scaleIndex = SCALING_INDEX;
@@ -326,8 +327,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         if (!dataPassingService.menuObj[menuObjectInstanceName]) {
             dataPassingService.menuObj[menuObjectInstanceName] = {};
         }
-
-        _enterSubUser(resultWeb.rows, googleAnalyticsCtrl.totalUserWithinTime);
+        angular.forEach(dataPassingService.menuObj[menuObjectInstanceName], function(value, key){
+            dataPassingService.menuObj[menuObjectInstanceName][key]['display'] = false;
+        })
+        if (resultWeb.rows && resultWeb.rows.length) {
+            _enterSubUser(resultWeb.rows, googleAnalyticsCtrl.totalUserWithinTime);
+        }
         googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
         console.log(dataPassingService.menuObj[menuObjectInstanceName])
     }
@@ -341,6 +346,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
 
     function _enterSubUser(nodeData, totalUser) {
+        if (subForceGlobal && angular.isFunction(subForceGlobal.stop))
+            subForceGlobal.stop();
         var padding = 1.5, // separation between same-color circles
             clusterPadding = 6, // separation between different-color circles
             maxRadius = 60;
@@ -365,14 +372,16 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 dataPassingService.menuObj[menuObjectInstanceName][value[0]]['x'] = 100;
                 dataPassingService.menuObj[menuObjectInstanceName][value[0]]['y'] = 50;
             }
+            dataPassingService.menuObj[menuObjectInstanceName][value[0]]['display'] = true;
             subNodes[key].color = dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'];
             subNodes[key].name = value[0];
             subNodes[key].user = value[1]
             subNodes[key].radius = Math.log(value[1]) * 4;
-            if(maxRadius < subNodes[key].radius) {
+            if (maxRadius < subNodes[key].radius) {
                 subNodes[key].radius = maxRadius;
             }
         });
+        subForceNodes = subNodes;
         var subForce = d3.layout.force()
             .nodes(subNodes)
             .size([mainSvgWidth, mainSvgHeight])
@@ -382,11 +391,11 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 subNode
                     .each(cluster(10 * e.alpha * e.alpha))
                     .each(collide(.5))
-                    .attr("cx", function (d) { return d.x - (mainSvgWidth/4) + maxRadius; })
-                    .attr("cy", function (d) { return d.y + (mainSvgHeight/6); });
+                    .attr("cx", function (d) { return d.x - (mainSvgWidth / 4) + maxRadius; })
+                    .attr("cy", function (d) { return d.y + (mainSvgHeight / 6); });
             })
             .start();
-            subForceGlobal = subForce
+        subForceGlobal = subForce
         var subNode = svg.selectAll(".sub_circle")
             .data(subNodes)
             .enter().append("circle")
@@ -438,7 +447,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         function collide(alpha) {
             var quadtree = d3.geom.quadtree(subNodes);
             return function (d) {
-                var r = d.radius + maxRadius + Math.max(padding, clusterPadding),
+                var r = subForceNodes[d.index].radius + maxRadius + Math.max(padding, clusterPadding),
                     nx1 = d.x - r,
                     nx2 = d.x + r,
                     ny1 = d.y - r,
@@ -448,7 +457,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                         var x = d.x - quad.point.x,
                             y = d.y - quad.point.y,
                             l = Math.sqrt(x * x + y * y),
-                            r = d.radius + quad.point.radius + (d.cluster === quad.point.cluster ? padding : clusterPadding);
+                            r = subForceNodes[d.index].radius + quad.point.radius + (d.cluster === quad.point.cluster ? padding : clusterPadding);
                         if (l < r) {
                             l = (l - r) / l * alpha;
                             d.x -= x *= l;

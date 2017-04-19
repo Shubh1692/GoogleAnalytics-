@@ -32,11 +32,11 @@ li {
 .title{
     margin: 0 20px !important;
 }
-.country span{
-    font-size: small;
-    font-weight: 300;
-    line-height: 20px;
-    
+.menu-li{
+    position: relative;font-size: xx-small;
+}
+.menu-name{
+    font-size: small; text-align: right;
 }
 .country-name {
     position: relative;
@@ -72,11 +72,14 @@ li {
 }
 
 .filled-circle {
-  padding: 0px 7px;
   border-radius: 100%;
   border: none;
-  position: relative;
-  right : 9px;
+  width : 10px;
+  height : 10px;
+  top: 10%;
+  position: absolute; 
+  display: flex;
+  left: 110%;
 }
 
 .svg-sub-window-subling {
@@ -108,12 +111,7 @@ li {
 .menu-list {
     position: absolute; 
     z-index: 1; 
-    width: 200px;
-}
-.text-overflow {
-     text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+    width: 150px;
 }
 .none-list-type {
     list-style-type: none;
@@ -129,3 +127,7 @@ li {
     background-color: white
 }
 
+.detail-div {
+    width:25%; 
+    float: left;
+}

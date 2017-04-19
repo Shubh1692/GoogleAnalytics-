@@ -44,8 +44,8 @@
         <div class="menu-list">
             <div class="country-list">
                 <ul>
-                    <li ng-if="$index < googleAnalyticsCtrl.maxMenuCount" class="country text-overflow text-align-right none-list-type" ng-repeat="(key, menu) in googleAnalyticsCtrl.menuList">
-                        <span class="country-name" ng-bind="key"></span>&nbsp;<span class="filled-circle" ng-style="{'background-color' : googleAnalyticsCtrl.setColor(menu.color)}"></span>
+                    <li ng-if="$index < googleAnalyticsCtrl.maxMenuCount && menu.display" class="none-list-type menu-li" ng-repeat="(key, menu) in googleAnalyticsCtrl.menuList">
+                        <div ng-bind="key" class="menu-name"></div>&nbsp;<div class="filled-circle" ng-style="{'background-color' : googleAnalyticsCtrl.setColor(menu.color)}"></div>
                     </li>
                     <li class="country float-right none-list-type">
                         <select class="drop-dwon-label" ng-model="googleAnalyticsCtrl.selectedSource" ng-options="source as source.name for source in googleAnalyticsCtrl.sourceArray track by source.value"
@@ -55,11 +55,11 @@
                 </ul>
             </div>
         </div>
-        <div class="col-md-12" style="padding-right: 0px" id="main_svg">
+        <div class="col-md-12 padding-right-0" id="main_svg">
         </div>
         <div class="bowl-style" ng-style="{'height': googleAnalyticsCtrl.bowlHeight + 'px', 'width' : 300 + 'px'}">
             <div class="row">
-                <div style="width:25%; float: left">
+                <div class="detail-div">
                     <div class="div-center">
                         <span class="color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.totalUserWithinTime"></b></span>
                     </div>
@@ -67,7 +67,7 @@
                         <span class="d3-label color-gray">TOTAL VISITORS</span>
                     </div>
                 </div>
-                <div style="width:25%; float: left">
+                <div class="detail-div">
                     <div class="div-center">
                         <span class="color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.bounceRate"></b></span></br>
                     </div>
@@ -75,7 +75,7 @@
                         <span class="d3-label color-gray">BOUNCE RATE</span>
                     </div>
                 </div>
-                <div style="width:25%; float: left">
+                <div class="detail-div">
                     <div class="div-center">
                         <span class="color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.exitRate"></b></span></br>
                     </div>
@@ -83,7 +83,7 @@
                         <span class="d3-label color-gray">EXIT RATE</span>
                     </div>
                 </div>
-                <div style="width:25%; float: left">
+                <div class="detail-div">
                     <div class="div-center">
                         <span class="color-gray text-align-right"><b ng-bind="googleAnalyticsCtrl.avgTimeOnSite"></b></span>
                     </div>
