@@ -190,6 +190,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                     var length = dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length;
                     for (var j = 0; j < (parseInt(value[1], 10) - length); j++) {
                         dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].push({ name: value[0], color: dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'] });
+                        dataPassingService.menuObj[menuObjectInstanceName][value[0]]['display'] = true;
                         enterUser(dataPassingService.menuObj[menuObjectInstanceName], value);
                     }
                 } else if (parseInt(value[1], 10) - dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length < 0) {
