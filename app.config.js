@@ -1,17 +1,17 @@
 module.exports = {
     GOOGLE_CLINET_CONFIG:  {
         "type": "service_account",
-        "project_id": "d3test-160705",
-        "private_key_id": "8ac392b926c69504ff9e5801b9796f3bf6f75ab9",
-        "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDWZUjoeHjH54F/\n5KfEmZLaQE7zpsAVSFstWVde/o2A6/TGU9A6BsJH5IcFUQtwAdbcZxL63w1Zn0lV\nQ8v9bGgZFbIrkBlxbBSyBPEaPY58aHZtXsgwgF7Aeo9FaoL4u9sLxphDTW1ykQs6\nA4i8MM5a2BIk2kcu4pAj53ZaLLlpG47/TNOiZ427HMPryGCWEVeiqz+JcFAKViNZ\n7ZHN3q2VQTRO3KPLLQKzZ8dOfkQMi++tMyOBSx5q6PsFPryGYjJHBNVt8xu/9jhY\nQ8idZRMaalSeG5j5L/8Tnk2kbpVhZY20I90cHLaxHhu9NQuUGXroKhGo2LMgG0Bc\nQt8IyYNNAgMBAAECggEBALcmm1wM3pFXkedhvHhVAYD1Av1ebCVCRLG+6sa6CsQh\nzl9G5lFLyNiFv1qpW236BEUQwMQTnGH9kzYFztPVsjALusNAPJwKSruxQQ67m2do\nDhNsrvPQFiG0EYSpcu1t/bhXlWeZU3BVvBN5RWwO/ZnZj9ZvqfPBlIU3jIGIR3Qj\nh4uGOme3hjg0im8rp4c5zKmVrMLSqb+f93p/wxXB47L56AkmnXXJ402ey8iOzxRG\nqw7im65O6gLiPRcCGabO6uMBPYHKWgk5L3WERRLSrreGlRl4BSQkyB5FBr/G1dIq\nxjS5ajU/RmD0vqUBBV4LDBwxzbMmvVvEJYxD6O3J8PkCgYEA+zWCubgA5PG9QkzH\neAkIuF5rDRtWhKmbNym1r0AY8HvFC+Y8d3rCsBE70+0vHhhwAiBiuCQbG/eegK6O\nzhCcSwk0x1uP4ElJixchywgC7+p1PpxwDSWZqG7RANnF9cp+0vhGFhrYECnaI1Mv\nHuwoBSY2wCJd8P0JtNGFXP13zQMCgYEA2nwJ2jOgYj4BuqbLeFqxV2XSMEBSo1bP\nGdRi4NGD4xD0UgX+CTtD/ZFOvdaXyi+sLWTztTmjPKamHxnZKfady0j8zMCjzDuu\nyUNGI3wy4KDGaloZOJrekyJSrV6suz1iym3g1jN+43PH/dHw4ThAbXdoprCN5+wi\ny8QzoV4iNW8CgYBSNkj6DsX8J0ERGZ+OISbBb+UI/RFriTZK71OObyO6UEdEhaz0\nTTC5/mneCZmJ9+VwTLkCGo7ksD0nT/lcZwM/a1vigoyrklCHPKLKl2yep9SHERt6\nsft/rASqiprGveaTlL0bLt3XLFs/hFG/hPnz9XWlm5my7JzomElVDX7PkQKBgH3r\nXRZICNh2GjMD7GKqCmlvgotSlw4SevvM/0vJFLTqUZVwZK/XW2EpvPMGWacqgJYN\nB7Rbyquq9DUahaF8xAakQyaSpBSSFTNjtWnAK+ZwYspqsPyBrWOpNXM8DFtBjs1S\nNHHfbfMTCKFNvQFglSlB16uyN6cB3jAIHSWUhiy7AoGBAJveTKAAottC+TWSPjs5\nn19PM1+w8svi5u/SHxA/d8n0qQ3qq2jm2nOoZRL9bipk8+4lVmMmKaW+u9HkylQH\nLp1oeKsYGnY+z0welmpzrhGnf9zX7VHIS6FaVlpGJQEwPT7bzDPWF6YJBOyE0lL+\n47oOUwo0m6lxRWGhGJYYC5G8\n-----END PRIVATE KEY-----\n",
-        "client_email": "136642508525-compute@developer.gserviceaccount.com",
-        "client_id": "111755491521631439835",
+        "project_id": "project-management-148702",
+        "private_key_id": "f6cf4f5fa9dc65dffe11cc1e64756478b1f4d514",
+        "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDEZnI3osQ4TBKi\n492KO7RzIKXkL4rl9EC/TwUL9ncb3w1H0hQB2b+qqxG8tGY+ApvXc94jGp6QSLyz\nEFd61TpT+PEWnPqoANL/ZcKuf6aceWwma5Q4iKXvikCjM0L0zyj+0BlN7ReYMf97\nGcQ1z5h9eBqStIUk2Bosh7iLltlgA9tR1mGNLRhrilAyeWtk4NUIgUL7tV+UE15v\nzv+5YIvYq/3ZafU8yepwqD1r7aH8eClbBBdUMpKv90CwAk31RFTibNgU+oFo08US\nuRDxb1YITrLBwK1sYf9gBRpqYJDFvKDqKFg0comqJgrp4TMes9aO5ICWsSW6bpuV\nPw2GTXE5AgMBAAECggEAODtMwHktzSCaxWCQcZ+ejsfuN2MVVbmVQDETtNUgTS6T\n0thnOhBqPCc2sNzF2UNN82YNV+erNoxc2rf3FAgw5xIDlQHlEm0J/G3aS7PotCxf\ntrBeg8E8IVVoJFHs/cLCbhKO7CzR8JWAHHLIJtAFTQcyNIbTCDWHaPCC+hR6sG5p\npSWT8cHGVPTctm1hL8paV0VUva2fpAmamG9ChhRgohoGhaVzoCieNJYJpgXOx/WW\nqkTzHXpciQBohuV/1jWZb+7lvybwfV0jwvAuTZxg4M9+e2y1OzpuzL7gZozFf2Kg\new2Ko61slFNB2GBbCkGRM0a4RY3e4ZrcTtbKJyFuwQKBgQDtYIV/kACcXFrO5CbV\nXR2dpJpZhXl7AhbKf4x3Yk+BbZjz2zalCAC0yFNGVgrt/ZJVVfg5ZhEQSrhfNrnt\nvycRh9XvmFhk/yyjzC+HboYFbJotzokscYCESqdsMTr5JnFeiultXPDCfRseyC9m\nmEl44jGD90/bGaTvVAEHTGc/FQKBgQDTzvIhP2bEVKre9lKzUeDf8VvOaEki0J51\ndY4vNG2PDOZ/0dVSa/Sd++ETvDrvnpJ1xlkDf2IKkBJ+DU98z7dve3AHkLTjiz9R\nTGCXPT18hd78iInYTAjouyJ0I3ctefbySokA+05CDK7wHtOkUvH8eCWYbG9Bk4C8\n4FVsJD1SlQKBgHW2Xp0iWNsxBSsBgqxdr5kEDjKEePhh0dF7LLnq+4gwRB/xPgja\njhcYHAuOEX9xNkaxChXUonOUyhcVOWBHYWVVGeblgjgbPhS/5XXgff9kmpRKjkWG\nx3dS2fFR/G+e+6spcZX098NKbM937+GNdSnH6UwKsQPylJLF8nifD7f9AoGAbwqR\nWejZQZh5tEZC+Qu17vGkBcQag4wHZuDoV8sOnO5QcTZatckvBxwj1ara4wCpG+GO\njQzdI1iAuWDVCUQEkQePpgexLZG08jQud1t9vqiYTKBwU9sY2Joy59woAMluM3vr\n833Me0gW9n/SyNVLU+bRHuXKNgDUfzDE19rv4zkCgYAKn92QVkZfVL9VzCFBNtQR\nNkCpUUHYARc9H3n5COD0mn9px+Z/dUVUjHN8zfyEnKfcixOt1XzLY4w0W6bI3HPL\nVbf1BdW5zDRk7edc9VaHAL9+hl3084joal8UHiegzgkDd5hL8UnndBKskzL9HHvN\nQpTaFRKUXjdfiQ7CctNG3A==\n-----END PRIVATE KEY-----\n",
+        "client_email": "new-service-account@project-management-148702.iam.gserviceaccount.com",
+        "client_id": "118028953493255647005",
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://accounts.google.com/o/oauth2/token",
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/136642508525-compute%40developer.gserviceaccount.com"
+        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/new-service-account%40project-management-148702.iam.gserviceaccount.com"
     },
-    GOOGLE_APP_VIEW_ID : 'ga:142108037',
+    GOOGLE_APP_VIEW_ID : 'ga:142900171',
     NODE_SERVER_PORT : 8080,
     REAL_TIME_API_SUCCESS_MESSAGE : 'Get Real Time Data',
     REAL_TIME_API_ERROR_MESSAGE : 'Error By Google Real Time API',

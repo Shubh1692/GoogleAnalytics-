@@ -29,7 +29,7 @@ app.get('/getGoogleAnalyticsRealTimeData', function (req, res) {
         'auth': jwtClient,
         'ids': CONFIG.GOOGLE_APP_VIEW_ID,
         'metrics': 'rt:activeUsers',
-        'dimensions': req.query.dimensionsId //+ ',rt:hostname'
+        'dimensions': req.query.dimensionsId + ',rt:goalId'
     }, function (err, response) {
         if (err) {
             res.send({
