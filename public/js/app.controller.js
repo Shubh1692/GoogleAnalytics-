@@ -2,7 +2,7 @@ angular.module('googleAnalyticsModule')
     .controller('googleAnalyticsController', _googleAnalyticsController);
 _googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT'];
 function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT) {
-    var googleAnalyticsCtrl = this,
+    var googleAnalyticsCtrl = this,slider,
         intervalInstance,
         subForceGlobal, subForceNodes,
         menuObjectInstanceName,
@@ -290,7 +290,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 mergeNode.attr("user", user);
                 subForceGlobal.start();
             })
-            .attr("transform", "translate(" + -(nodes[index].x -  parseFloat(mergeNode[0][0].getAttribute("cx"))) + "," + -(nodes[index].y - parseFloat(mergeNode[0][0].getAttribute("cy"))) + ")") //scale(0)
+            .attr("transform", "translate(" + -(nodes[index].x - parseFloat(mergeNode[0][0].getAttribute("cx"))) + "," + -(nodes[index].y - parseFloat(mergeNode[0][0].getAttribute("cy"))) + ")") //scale(0)
             .duration(1400)
             .remove();
     }
@@ -328,7 +328,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         if (!dataPassingService.menuObj[menuObjectInstanceName]) {
             dataPassingService.menuObj[menuObjectInstanceName] = {};
         }
-        angular.forEach(dataPassingService.menuObj[menuObjectInstanceName], function(value, key){
+        angular.forEach(dataPassingService.menuObj[menuObjectInstanceName], function (value, key) {
             dataPassingService.menuObj[menuObjectInstanceName][key]['display'] = false;
         })
         if (resultWeb.rows && resultWeb.rows.length) {
@@ -471,5 +471,16 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 });
             };
         }
+    }
+
+    $timeout(_rightSideBarConfig, 100);
+    // Set Right Side Menu Config
+    function _rightSideBarConfig() {
+        googleAnalyticsCtrl.sideBarInstance = angular.element('#slider').slideReveal({
+            position: "right",
+            push: false,
+            speed: 700,
+            zIndex: 1
+        });
     }
 }
