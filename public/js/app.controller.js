@@ -2,7 +2,7 @@ angular.module('googleAnalyticsModule')
     .controller('googleAnalyticsController', _googleAnalyticsController);
 _googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT'];
 function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT) {
-    var googleAnalyticsCtrl = this,slider,
+    var googleAnalyticsCtrl = this, slider,
         intervalInstance,
         subForceGlobal, subForceNodes,
         menuObjectInstanceName,
@@ -480,7 +480,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             position: "right",
             push: false,
             speed: 700,
-            zIndex: 1
+            zIndex: 1,
+            hide: function (slider, trigger) {
+                googleAnalyticsCtrl.sideBarFlag = false;
+            },
+            show: function (slider, trigger) {
+                googleAnalyticsCtrl.sideBarFlag = true;
+            },
         });
     }
 }
