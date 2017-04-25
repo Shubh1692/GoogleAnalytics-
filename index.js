@@ -29,7 +29,7 @@ app.get('/getGoogleAnalyticsRealTimeData', function (req, res) {
         'auth': jwtClient,
         'ids': CONFIG.GOOGLE_APP_VIEW_ID,
         'metrics': 'rt:activeUsers',
-        'dimensions': req.query.dimensionsId //+ ',rt:hostname'
+        'dimensions': req.query.dimensionsId, //+ ',rt:hostname'
     }, function (err, response) {
         if (err) {
             res.send({
@@ -56,9 +56,9 @@ app.get('/getGoogleAnalyticsAllData', function (req, res) {
         'ids': CONFIG.GOOGLE_APP_VIEW_ID,
         'start-date': req.query.startDate,
         'end-date': req.query.endDate,
-        'metrics': 'ga:users, ga:bounceRate,ga:exitRate, ga:avgTimeOnPage', // , ga:avgSessionDuration
+        'metrics': 'ga:users, ga:bounceRate,ga:exitRate, ga:avgSessionDuration, ga:newUsers, ga:percentNewSessions, ga:pageviewsPerSession', // , ga:avgSessionDuration
         'dimensions': req.query.dimensionsId,
-        'sort' : '-ga:users'
+     //   'sort' : '-ga:users'
     }, function (err, response) {
         if (err) {
             res.send({

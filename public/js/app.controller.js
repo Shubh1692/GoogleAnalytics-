@@ -1,6 +1,9 @@
 angular.module('googleAnalyticsModule')
-    .controller('googleAnalyticsController', _googleAnalyticsController);
+    .controller('googleAnalyticsController', _googleAnalyticsController)
+    .filter('liveUserSort', _liveUserSort);
+
 _googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT'];
+_liveUserSort.$inject = ['_'];
 function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT) {
     var googleAnalyticsCtrl = this, slider,
         intervalInstance,
@@ -51,7 +54,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     googleAnalyticsCtrl.totalUserWithinTime = 0;
     googleAnalyticsCtrl.bounceRate = 0 + '%';
     googleAnalyticsCtrl.exitRate = 0 + '%';
-    googleAnalyticsCtrl.avgTimeOnSite = 0 + 'min';
+    googleAnalyticsCtrl.avgSessionDuration = 0 + 'min';
     // Controller Variables
     googleAnalyticsCtrl.displayTime = {};
     googleAnalyticsCtrl.menuList = [];
@@ -177,7 +180,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             });
             angular.forEach(res.rows, function (value, key) {
                 if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]])
-                    dataPassingService.menuObj[menuObjectInstanceName][value[0]] = {}
+                    dataPassingService.menuObj[menuObjectInstanceName][value[0]] = {};
+                dataPassingService.menuObj[menuObjectInstanceName][value[0]].name = value[0];
                 if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'])
                     dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'] = [];
                 if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'])
@@ -321,7 +325,14 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         googleAnalyticsCtrl.totalUserWithinTime = resultWeb.totalsForAllResults['ga:users'];
         googleAnalyticsCtrl.bounceRate = parseFloat(resultWeb.totalsForAllResults['ga:bounceRate']).toFixed(2) + '%';
         googleAnalyticsCtrl.exitRate = parseFloat(resultWeb.totalsForAllResults['ga:exitRate']).toFixed(2) + '%';
-        googleAnalyticsCtrl.avgTimeOnSite = (parseFloat(resultWeb.totalsForAllResults['ga:avgTimeOnPage']) / 60).toFixed(1) + 'min';
+        var seconds = parseFloat(resultWeb.totalsForAllResults['ga:avgSessionDuration']) % 60;
+        var minutes = (parseFloat(resultWeb.totalsForAllResults['ga:avgSessionDuration']) / 60) % 60;
+        var hours = (parseFloat(resultWeb.totalsForAllResults['ga:avgSessionDuration'] / (60 * 60))) % 24;
+        console.log(hours, minutes, seconds)
+        googleAnalyticsCtrl.avgSessionDuration = hours.toFixed(0) + ':' + minutes.toFixed(0) + ':' + seconds.toFixed(0)
+        googleAnalyticsCtrl.newUsers = resultWeb.totalsForAllResults['ga:newUsers'];
+        googleAnalyticsCtrl.percentNewSessions = parseFloat(resultWeb.totalsForAllResults['ga:percentNewSessions']).toFixed(2) + '%';
+        googleAnalyticsCtrl.pageviewsPerSession = parseFloat(resultWeb.totalsForAllResults['ga:pageviewsPerSession']).toFixed(2) + '%';
         scaleIndex = _scaleIndexUpdate(googleAnalyticsCtrl.totalUserWithinTime, scaleIndex);
         svg.selectAll(".sub_circle")
             .remove();
@@ -364,7 +375,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         });
         angular.forEach(nodeData, function (value, key) {
             if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]])
-                dataPassingService.menuObj[menuObjectInstanceName][value[0]] = {}
+                dataPassingService.menuObj[menuObjectInstanceName][value[0]] = {};
+            dataPassingService.menuObj[menuObjectInstanceName][value[0]].name = value[0];
             if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'])
                 dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'] = [];
             if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'])
@@ -377,7 +389,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             subNodes[key].color = dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'];
             subNodes[key].name = value[0];
             subNodes[key].user = value[1]
-            subNodes[key].radius = Math.log(value[1]) * 4;
+            console.log(Math.log(value[1]), value[0], value[1])
+            subNodes[key].radius = Math.log(value[1]) * 4 || 4;
             if (maxRadius < subNodes[key].radius) {
                 subNodes[key].radius = maxRadius;
             }
@@ -489,4 +502,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             },
         });
     }
+}
+
+
+function _liveUserSort(_) {
+    function liveUserSortFilter(input) {
+        return _.sortBy(input, ['data']).reverse();
+    }
+    return liveUserSortFilter;
 }

@@ -99,7 +99,7 @@ li {
 }
 
 .font-size-large {
-    font-size : large;
+    font-size : xx-large;
 }
 
 .d3-label {
@@ -107,13 +107,17 @@ li {
     color: gray;
 }
 .color-gray {
-    //color : gray;
+    color : lightgray;
 }
 
 .menu-list {
     position: absolute; 
     z-index: 1; 
     width: 150px;
+}
+.domain-style {
+     position: absolute; 
+     z-index: 1;
 }
 .none-list-type {
     list-style-type: none;
@@ -160,4 +164,19 @@ li {
 }
 .right-menu-z-index  {
     z-index: 1;
+}
+
+.user-count {
+    font-size: small;
+    text-align: right;
+    position: relative;
+    bottom: 25%;
+}
+
+.width-auto {
+    width : auto;
+}
+.current-user-count {
+    padding: 5px;
+    font-size: x-small;
 }
