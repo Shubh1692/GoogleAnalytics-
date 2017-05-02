@@ -1,20 +1,26 @@
 module.exports = {
-    GOOGLE_CLINET_CONFIG:  {
+    GOOGLE_CLINET_CONFIG: {
         "type": "service_account",
-        "project_id": "d3test-160705",
-        "private_key_id": "8ac392b926c69504ff9e5801b9796f3bf6f75ab9",
-        "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDWZUjoeHjH54F/\n5KfEmZLaQE7zpsAVSFstWVde/o2A6/TGU9A6BsJH5IcFUQtwAdbcZxL63w1Zn0lV\nQ8v9bGgZFbIrkBlxbBSyBPEaPY58aHZtXsgwgF7Aeo9FaoL4u9sLxphDTW1ykQs6\nA4i8MM5a2BIk2kcu4pAj53ZaLLlpG47/TNOiZ427HMPryGCWEVeiqz+JcFAKViNZ\n7ZHN3q2VQTRO3KPLLQKzZ8dOfkQMi++tMyOBSx5q6PsFPryGYjJHBNVt8xu/9jhY\nQ8idZRMaalSeG5j5L/8Tnk2kbpVhZY20I90cHLaxHhu9NQuUGXroKhGo2LMgG0Bc\nQt8IyYNNAgMBAAECggEBALcmm1wM3pFXkedhvHhVAYD1Av1ebCVCRLG+6sa6CsQh\nzl9G5lFLyNiFv1qpW236BEUQwMQTnGH9kzYFztPVsjALusNAPJwKSruxQQ67m2do\nDhNsrvPQFiG0EYSpcu1t/bhXlWeZU3BVvBN5RWwO/ZnZj9ZvqfPBlIU3jIGIR3Qj\nh4uGOme3hjg0im8rp4c5zKmVrMLSqb+f93p/wxXB47L56AkmnXXJ402ey8iOzxRG\nqw7im65O6gLiPRcCGabO6uMBPYHKWgk5L3WERRLSrreGlRl4BSQkyB5FBr/G1dIq\nxjS5ajU/RmD0vqUBBV4LDBwxzbMmvVvEJYxD6O3J8PkCgYEA+zWCubgA5PG9QkzH\neAkIuF5rDRtWhKmbNym1r0AY8HvFC+Y8d3rCsBE70+0vHhhwAiBiuCQbG/eegK6O\nzhCcSwk0x1uP4ElJixchywgC7+p1PpxwDSWZqG7RANnF9cp+0vhGFhrYECnaI1Mv\nHuwoBSY2wCJd8P0JtNGFXP13zQMCgYEA2nwJ2jOgYj4BuqbLeFqxV2XSMEBSo1bP\nGdRi4NGD4xD0UgX+CTtD/ZFOvdaXyi+sLWTztTmjPKamHxnZKfady0j8zMCjzDuu\nyUNGI3wy4KDGaloZOJrekyJSrV6suz1iym3g1jN+43PH/dHw4ThAbXdoprCN5+wi\ny8QzoV4iNW8CgYBSNkj6DsX8J0ERGZ+OISbBb+UI/RFriTZK71OObyO6UEdEhaz0\nTTC5/mneCZmJ9+VwTLkCGo7ksD0nT/lcZwM/a1vigoyrklCHPKLKl2yep9SHERt6\nsft/rASqiprGveaTlL0bLt3XLFs/hFG/hPnz9XWlm5my7JzomElVDX7PkQKBgH3r\nXRZICNh2GjMD7GKqCmlvgotSlw4SevvM/0vJFLTqUZVwZK/XW2EpvPMGWacqgJYN\nB7Rbyquq9DUahaF8xAakQyaSpBSSFTNjtWnAK+ZwYspqsPyBrWOpNXM8DFtBjs1S\nNHHfbfMTCKFNvQFglSlB16uyN6cB3jAIHSWUhiy7AoGBAJveTKAAottC+TWSPjs5\nn19PM1+w8svi5u/SHxA/d8n0qQ3qq2jm2nOoZRL9bipk8+4lVmMmKaW+u9HkylQH\nLp1oeKsYGnY+z0welmpzrhGnf9zX7VHIS6FaVlpGJQEwPT7bzDPWF6YJBOyE0lL+\n47oOUwo0m6lxRWGhGJYYC5G8\n-----END PRIVATE KEY-----\n",
-        "client_email": "136642508525-compute@developer.gserviceaccount.com",
-        "client_id": "111755491521631439835",
+        "project_id": "hip-hangout-165616",
+        "private_key_id": "75e04fa70ca50ea7ed11be19a0108f94698dece6",
+        "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC/fTrxiIq9GzN/\nBrtMwADmNH4pbjqdKi/30z0rd0CroKbP4vVVq9uHroLdz0Wmi8YPN+JpxzAfCD+Q\nhi5cVBd7OzU86gv7PtkUHmD6uUXfrp6omizWFG5hC9ubeiM/HVkn+AuqmfgDXMBc\nK/OUg7Mmblh+yll9MemEdqbD0omfobU24yAoRo+aOgEGLYoLBUD0JiouQmE0nvSH\nvD5AL7mPkA3SXryZfcntQJIMUnBtwULwsY5v8eRzlZkadt+5MdE/OHToBINJDxqC\nDKA2DRxrSRQGixv9Gpt1H8UW6IyElLIM7eSOHWBDQ3GXoJ2+xWQBVdf3+wTkwC8M\nSVaM88ZBAgMBAAECggEABmSb7yxr1VxvH7KN1kYiwYzHGYMAmfaqm0+GH0lf81rt\ntssQ/cc7ERCWdelRnfnUpvVqrbVkueSAmsagDZ0RG6AiauI1fDHg9Xb+LeC5oHon\n+eEL1ingdYT70/kD7DuCmn8BhLSXPyV9lpYxD6hF9uaANdtzmWZtMWr0rlz9E0M3\n6ZkRYTD/udjD1z1k5aH5eSjgny0BuLMPVevTL4Xa4yR1aGos4t7hTXJKjU7QiSs5\n7cfIOIUHAUT3c+tSpPTF1dR+vMryDDQwFadu37wr1tbaL9KxL85vHNjSGfdbvEKP\n2OpasHx4/ZHVFXn6ckVtD/Y+T8Pu51vy0L5QvM0n8QKBgQD9yqVUGt3RoiP70xyW\nFs1dFsK70LOw3K95/d0N88If9OdGYXAZbpxAwvwcjC50TI3TY44QlSQ7SJW+b9CJ\nYcvaqy+zO3U7gt6x6fnl+cLsxPvMRXhJnosvsnyFlxWBviVHMHQVmra2ejxGKFd0\nAB1ohq0KmHKLGDP9GkzfkR3XCwKBgQDBJ8ww4KuPTayFbtOgwzWnl9kpGBoMzy+X\ncLKZNV++7ZK35Qv4OPLU8a+iAhYya6RUwdLCndD+E5o2Stn8c4wDYL+uVcgLgDHH\nYk8J5OJWnCin2cZrHY01Fms10CadxiqbmFtvJRub+V7YNdSjZb/tvpoHK8onC2UY\nl4dKKIr3YwKBgA0jrbWSAoP08gn6nxNCMPWt1P0mS/dPJaKaOxSa1yUSZ9rj9orK\niDpuHeFYfJs2z2zvTY6cOhj7pA0M+u3x6zzx+fE8ldAz8VWiuHZonOfnNuYXfqfJ\nFomsovfDn7Bs6L8rygbIUMdXwsEbG5P84Yjk2BahV+TNpvtmni5A9BuLAoGBAIg5\n1kP+oGCgKnWs9SqjoprBeJIIAo9YLDuFayCsyQsyKNDzhJ6bI4BVuEXtbNRAoJR6\nYneJsFURZCi4X8cxguT6/hUpQL4DupfhWNckixEEb5P5/nubSvTPC+vXEvUhRvmX\n2ZyosjEuDds1E/PtlhBJ5f36v0cMPU+7xtnhgCj7AoGAeU/3cNrzuofx9epq8i1l\nl8zjRjaHumjrpaIEsi9Vn8u02z4AkmHzKZCAea+prnG5c52jOeenP++6l5Dfc135\njB99xeoX8Oy0dUjf6dqnJ12zZZXlxr/0Ryda6F8vxAXrSSxKdw80/+TNeH+1qfRy\nhE6yJpJXPv9SUj0J5vjs56E=\n-----END PRIVATE KEY-----\n",
+        "client_email": "googleanalytics1692@hip-hangout-165616.iam.gserviceaccount.com",
+        "client_id": "112880960730733793641",
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://accounts.google.com/o/oauth2/token",
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/136642508525-compute%40developer.gserviceaccount.com"
+        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/googleanalytics1692%40hip-hangout-165616.iam.gserviceaccount.com"
     },
-    GOOGLE_APP_VIEW_ID : 'ga:142108037',
-    NODE_SERVER_PORT : 8080,
-    REAL_TIME_API_SUCCESS_MESSAGE : 'Get Real Time Data',
-    REAL_TIME_API_ERROR_MESSAGE : 'Error By Google Real Time API',
-    ALL_TIME_API_SUCCESS_MESSAGE : 'Get All Data Data',
-    ALL_TIME_API_ERROR_MESSAGE : 'Error By Google All Data API',
+    GOOGLE_APP_VIEW_ID: 'ga:148848685',
+    NODE_SERVER_PORT: 8080,
+    REAL_TIME_API_SUCCESS_MESSAGE: 'Get Real Time Data',
+    REAL_TIME_API_ERROR_MESSAGE: 'Error By Google Real Time API',
+    ALL_TIME_API_SUCCESS_MESSAGE: 'Get All Data Data',
+    ALL_TIME_API_ERROR_MESSAGE: 'Error By Google All Data API',
+    REQUEST_HEADER: {
+        'Access-Control-Allow-Origin': 'https://obscure-springs-26671.herokuapp.com',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, PATCH, DELETE',
+        'Access-Control-Allow-Headers': 'X-Requested-With,content-type',
+        'Access-Control-Allow-Credentials': true
+    }
 };

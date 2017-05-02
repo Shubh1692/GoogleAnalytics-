@@ -195,7 +195,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                     for (var j = 0; j < (parseInt(value[1], 10) - length); j++) {
                         dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].push({ name: value[0], color: dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'] });
                         dataPassingService.menuObj[menuObjectInstanceName][value[0]]['display'] = true;
-                        enterUser(dataPassingService.menuObj[menuObjectInstanceName], value);
+                        enterUser(dataPassingService.menuObj[menuObjectInstanceName], value, value[2][length + j]);
                     }
                 } else if (parseInt(value[1], 10) - dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length < 0) {
                     var length = dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length;
@@ -244,7 +244,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("cy", function (d) { return d.y; });
     }
     // Enter User with Animation
-    function enterUser(menuObj, row) {
+    function enterUser(menuObj, row, userId) {
+        
         force.stop();
         var indx = uniqIndex(row[0]);
         nodes.push({ name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0 });
@@ -258,6 +259,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("cx", function (d) { return d.x || 0; })
             .attr("cy", function (d) { return d.y || 0; })
             .attr("remove", "no")
+            .attr("userId", userId)
             .attr("r", 4)
             .style("fill", function (d) {
                 return d3.rgb(fill(d.color));
