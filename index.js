@@ -40,7 +40,7 @@ app.get('/getGoogleAnalyticsRealTimeData', function (req, res) {
         'auth': jwtClient,
         'ids': CONFIG.GOOGLE_APP_VIEW_ID,
         'metrics': 'rt:activeUsers',
-        'dimensions': req.query.dimensionsId + ',rt:eventAction'
+        'dimensions': req.query.dimensionsId + ',rt:eventAction, rt:eventCategory'
     }, function (err, response) {
         if (err) {
             res.send({
@@ -50,33 +50,28 @@ app.get('/getGoogleAnalyticsRealTimeData', function (req, res) {
             return;
         }
         var rowArray = [];
+        var userInfo = [];
+        console.log(response.rows)
+        response.totalsForAllResults['rt:activeUsers'] = 0;
         _.each(response.rows, function (value) {
-            if (value[1] !== '(not set)') {
+            if (value[1] !== '(not set)' && value[2] === 'onload') {
+                response.totalsForAllResults['rt:activeUsers'] ++;
                 var index = rowArray.map(function (obj) {
                     return obj[0];
                 }).indexOf(value[0]);
-                var userData;
-                if (completedGoalData.map(function (obj) {
-                    retun.id;
-                }).indexOf(value[1]) > - 1) {
-                    userData = completedGoalData[completedGoalData.map(function (obj) {
-                        retun.id;
-                    }).indexOf(value[1])]
-                } else {
-                    userData = {
-                        id : value[1]
-                    }
-                }
                 if (index === -1) {
-                    rowArray.push([value[0], 1, [userData]])
+                    rowArray.push([value[0], 1, [value[1]]])
                 } else {
                     rowArray[index][1]++;
-                    rowArray[index][2].push(userData)
+                    rowArray[index][2].push(value[1])
                 }
+            } else if (value[1] !== '(not set)'){
+                userInfo.push([value[0], 1, value[1], value[2]])
             }
         });
         response.rows = rowArray;
-        console.log(rowArray, response.rows);
+        response.userInfo = userInfo;
+        console.log(response.rows, response.userInfo);
         res.send({
             successMessage: CONFIG.REAL_TIME_API_SUCCESS_MESSAGE,
             data: response

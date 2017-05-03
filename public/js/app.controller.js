@@ -5,7 +5,7 @@ angular.module('googleAnalyticsModule')
 _googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT'];
 _liveUserSort.$inject = ['_'];
 function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT) {
-    var googleAnalyticsCtrl = this, slider,
+    var googleAnalyticsCtrl = this, slider, clusterPadding = 6, // separation between different-color circles
         intervalInstance,
         subForceGlobal, subForceNodes,
         menuObjectInstanceName,
@@ -13,7 +13,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         color = 1,
         nodes = [],
         padding = 1,
-        cluster_padding = 10,
+        cluster_padding = 1000,
         mainSvgHeight = $window.innerHeight * 0.78,
         mainSvgWidth = $window.innerWidth,
         bowlSvgWidth = $window.innerWidth * 0.15,
@@ -40,7 +40,10 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("height", mainSvgHeight * 0.5)
             .attr("y", mainSvgHeight * 0.5)
             .style("fill", d3.rgb(255, 255, 255))
-            .style("stroke", d3.rgb(255, 255, 255));
+            .style("stroke", d3.rgb(255, 255, 255)),
+        div = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
     // Controller Functions 
     googleAnalyticsCtrl.startTime = _startTime;
     googleAnalyticsCtrl.setColor = _setColor;
@@ -220,9 +223,43 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 dataPassingService.menuObj[menuObjectInstanceName][key].data = [];
             });
         }
+        _completeGoal(res.userInfo);
         googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
     };
 
+    var firstFlag, previousCompletedUser;
+    function _completeGoal(goalCompletedUsers) {
+        console.log(angular.equals(goalCompletedUsers, previousCompletedUser))
+        if (firstFlag && !angular.equals(goalCompletedUsers, previousCompletedUser)) {
+            // force.stop();
+            _.each(goalCompletedUsers, function (userData, userIndex) {
+                var parsedWordArray = CryptoJS.enc.Base64.parse(userData[2]).toString(CryptoJS.enc.Utf8);
+                goalCompletedUsers[userIndex][2] = JSON.parse(parsedWordArray);
+                var index = nodes.map(function (obj) {
+                    return obj.userId;
+                }).indexOf(JSON.parse(parsedWordArray).id);
+                console.log(index)
+                if (index !== -1) {
+                    nodes[index].cluster = 1;
+                    clusters[1] = { name: nodes[index].name, color: nodes[index].color, x: nodes[index].x + 100 || 0, y: nodes[index].y || 0, radius: 4, cluster: 1, userId: JSON.parse(parsedWordArray).id };
+                    console.log(index)
+                    svg.selectAll('circle[userId="' + JSON.parse(parsedWordArray).id + '"]')
+                        .transition()
+                        .each("end", function (e) {
+                            console.log('end', e)
+                        })
+                        .attr('userData', parsedWordArray)
+                        .attr("transform", "translate(" + 300 + "," + 0 + ")")
+                        .duration(1400)
+                }
+            });
+            previousCompletedUser = goalCompletedUsers;
+            //   force.start();
+        } else {
+            firstFlag = true
+        }
+
+    }
     // For MainEnter 
     function tick(e) {
         var k = .1 * e.alpha;
@@ -245,11 +282,11 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
     // Enter User with Animation
     function enterUser(menuObj, row, userId) {
-        
+        console.log('enterUser')
         force.stop();
         var indx = uniqIndex(row[0]);
-        nodes.push({ name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0 });
-        clusters[0] = { name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0 };
+        nodes.push({ name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: userId, userData: { id: userId } });
+        clusters[0] = { name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: userId };
         force.nodes(nodes);
         force.start();
         node = node.data(nodes);
@@ -275,11 +312,30 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 return 'main_svg_circle_' + d.index;
             })
             .style("stroke", function (d) { return d3.rgb(fill(d.color)).darker(2); })
+            .on("mouseover", function (d) {
+                console.log()
+                if (node[0][d.index].getAttribute('userData')) {
+                    var data = JSON.parse(node[0][d.index].getAttribute('userData'));
+                    div.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    div.html('<div> Email : ' + data.userInfo.useremail + '</div>')
+                        .style("left", (d3.event.pageX) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px");
+                }
+
+            })
+            .on("mouseout", function (d) {
+                div.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            })
             .call(force.drag);
     }
 
     // Exit User with Animation
     function exitUser(elementId, name) {
+        console.log(exitUser)
         var index = elementId.split('_')[elementId.split('_').length - 1];
         var mergeNode = svg.selectAll("circle[name='" + name + "']");
         d3.select("#" + elementId)
