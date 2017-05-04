@@ -19,6 +19,7 @@
     "angular": "^1.6.4",
     "slidereveal": "^1.1.2",
     "jquery": "^3.2.1",
-    "lodash" : "4.17.4"
+    "lodash": "4.17.4",
+    "cryptojslib": "^3.1.2"
   }
 }
