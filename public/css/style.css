@@ -72,16 +72,15 @@ li {
 }
 
 .filled-circle {
-
-  padding: 0px 0px;
-  border-radius: 100%;
-  border: none;
-  width : 10px;
-  height : 10px;
-  top: 10%;
-  position: absolute; 
-  display: flex;
-  left: 110%;
+    padding: 0px 0px;
+    border-radius: 100%;
+    border: none;
+    width : 10px;
+    height : 10px;
+    top: 10%;
+    position: absolute; 
+    display: flex;
+    left: 110%;
 }
 
 .svg-sub-window-subling {
@@ -182,12 +181,15 @@ li {
 }
 
 div.tooltip {	
-    position: absolute;			
-    text-align: center;			
+    position: absolute;		
     padding: 2px;				
     font: 12px sans-serif;		
     background: lightsteelblue;	
     border: 0px;		
     border-radius: 8px;			
     pointer-events: none;			
+}
+
+.div-center {
+    white-space: nowrap;
 }

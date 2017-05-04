@@ -92,13 +92,13 @@
         </div>
         <div class="col-md-12 padding-right-0" id="main_svg">
         </div>
-        <div class="bowl-style" ng-style="{'height': googleAnalyticsCtrl.bowlHeight + 'px', 'width' : '100%' }">
+        <div class="bowl-style" ng-style="{'height': googleAnalyticsCtrl.bowlHeight + 'px', 'width' : '80%' }">
             <div class="row">
-                <div class="col-md-2">
+                <div class="col-md-3 padding-0">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="div-center">
-                                <span class=" text-align-right"><b ng-bind="googleAnalyticsCtrl.totalUserWithinTime"></b></span>
+                                <span class=" text-align-right"><b ng-bind="googleAnalyticsCtrl.totalSession"></b></span>
                             </div>
                             <div class="div-center">
                                 <span class="d3-label ">SESSIONS</span>
@@ -122,9 +122,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-1">
+                <div class="col-md-1 padding-0">
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3 padding-0">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="div-center">
@@ -148,6 +148,36 @@
                             </div>
                             <div class="div-center">
                                 <span class="d3-label ">AVG. SESSION DURATION</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1 padding-0">
+                </div>
+                <div class="col-md-4 padding-0">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="div-center">
+                                <span class=" text-align-right"><b ng-bind="googleAnalyticsCtrl.goalCompletionsAll"></b></span>
+                            </div>
+                            <div class="div-center">
+                                <span class="d3-label">OVERALL GOAL COMPILATION</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="div-center">
+                                <span class=" text-align-right"><b ng-bind="googleAnalyticsCtrl.goalConversionRateAll"></b></span>
+                            </div>
+                            <div class="div-center">
+                                <span class="d3-label">GOAL CONVERSION RATE</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="div-center">
+                                <span class=" text-align-right"><b ng-bind="googleAnalyticsCtrl.goalValueAll"></b></span>
+                            </div>
+                            <div class="div-center">
+                                <span class="d3-label">GOAL VALUE</span>
                             </div>
                         </div>
                     </div>

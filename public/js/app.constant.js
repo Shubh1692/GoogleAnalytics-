@@ -52,4 +52,5 @@ angular.module('googleAnalyticsModule')
             }
         }
     ])
-    .constant('MAX_MENU_COUNT', 10);
+    .constant('MAX_MENU_COUNT', 10)
+    .constant('GOAL_COMPLETE_ICON_PATH', '/imags/star.ico');

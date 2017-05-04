@@ -90,7 +90,7 @@ app.get('/getGoogleAnalyticsAllData', function (req, res) {
         'ids': CONFIG.GOOGLE_APP_VIEW_ID,
         'start-date': req.query.startDate,
         'end-date': req.query.endDate,
-        'metrics': 'ga:users, ga:bounceRate,ga:exitRate, ga:avgSessionDuration, ga:newUsers, ga:percentNewSessions, ga:pageviewsPerSession', // , ga:avgSessionDuration
+        'metrics': 'ga:users, ga:bounceRate, ga:avgSessionDuration, ga:newUsers, ga:percentNewSessions, ga:pageviewsPerSession, ga:goalCompletionsAll, ga:goalConversionRateAll, ga:goalValueAll, ga:sessions', // , ga:avgSessionDuration
         'dimensions': req.query.dimensionsId,
         'sort': '-ga:users'
     }, function (err, response) {
