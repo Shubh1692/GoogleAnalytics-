@@ -39,8 +39,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .append('image')
             .attr("x", 0)
             .attr("y", 0)
-            .attr("width", 40)
-            .attr("height", 40)
+            .attr("width", 11)
+            .attr("height", 11)
             .attr("xlink:href", GOAL_COMPLETE_ICON_PATH),
         rectangleBowl = svg.append("rect")
             .attr("width", mainSvgWidth)
@@ -57,23 +57,25 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("x1", mainSvgWidth * 0.7)
             .attr("y1", 0)
             .attr("x2", mainSvgWidth * 0.7)
-            .attr("y2", mainSvgHeight * 0.5);
-    clusters = new Array(1);
+            .attr("y2", mainSvgHeight * 0.5),
+    clusters = new Array(1),
+    firstFlag, previousCompletedUser;
     // Controller Functions 
     googleAnalyticsCtrl.startTime = _startTime;
     googleAnalyticsCtrl.setColor = _setColor;
     googleAnalyticsCtrl.bowlWidth = bowlSvgWidth;
     googleAnalyticsCtrl.bowlHeight = (mainSvgHeight * 0.15);
     googleAnalyticsCtrl.maxMenuCount = MAX_MENU_COUNT;
-    googleAnalyticsCtrl.bowlTopHeight = bowlSvgHeight * 0.35;
+    googleAnalyticsCtrl.userInfoTopPostion = mainSvgHeight * 0.5;
     googleAnalyticsCtrl.bowlTopBottomPostion = bowlSvgHeight - ((bowlSvgHeight * 0.35) / 2) + (mainSvgHeight * 0.15);
-    // Default Values
+    // Default Values or Controller Variables
     googleAnalyticsCtrl.onsiteUser = 0;
     googleAnalyticsCtrl.totalUserWithinTime = 0;
     googleAnalyticsCtrl.bounceRate = 0 + '%';
     googleAnalyticsCtrl.exitRate = 0 + '%';
     googleAnalyticsCtrl.avgSessionDuration = 0 + 'min';
-    // Controller Variables
+    googleAnalyticsCtrl.userInfoArray = [];
+    googleAnalyticsCtrl.showUserInfo = true;
     googleAnalyticsCtrl.displayTime = {};
     googleAnalyticsCtrl.menuList = [];
     googleAnalyticsCtrl.sourceArray = VIEWING_BY_SOURCE;
@@ -83,6 +85,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     googleAnalyticsCtrl.sourceSelection = _sourceSelection;
     googleAnalyticsCtrl.getAnalyticsDataByTime = _getAnalyticsDataByTime;
     googleAnalyticsCtrl.onsiteUser = 0;
+    googleAnalyticsCtrl.goalOneDivWidth = mainSvgWidth - (mainSvgWidth * 0.7);
     //other
     menuObjectInstanceName = VIEWING_BY_SOURCE[0].name;
     _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
@@ -121,7 +124,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     function mainCollides(alpha) {
         var quadtree = d3.geom.quadtree(nodes);
         return function (d) {
-            var r = d.radius + 4 + Math.max(padding, 6),
+            var r = d.radius + 6 + Math.max(padding, 6),
                 nx1 = d.x - r,
                 nx2 = d.x + r,
                 ny1 = d.y - r,
@@ -155,9 +158,9 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         googleAnalyticsService.serverRequest(NODE_WEB_API.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
             .then(_displayApiData);
         // if (flag) {
-        //     res.rows = [["India", 2]]
+        //     res.rows = [["India", 2, ['11111', '11112']]]
         // } else {
-        //     res.rows = [["India", 3]]
+        //     res.rows = [["India", 3, ['11111', '11112', '11113']], ["Japan", 3, ['21111', '21112', '21113']]]
         // }
         // flag = !flag
         // _displayApiData(res)
@@ -177,8 +180,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .remove();
         menuObjectInstanceName = selectData.name;
         $interval.cancel(intervalInstance);
-        // _callRealtimeDataAPI();
-        // intervalInstance = $interval(_callRealtimeDataAPI, 10000);
     }
 
     // For Display Real Time API Data
@@ -189,24 +190,10 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             if (!dataPassingService.menuObj[menuObjectInstanceName]) {
                 dataPassingService.menuObj[menuObjectInstanceName] = {};
             }
+
             angular.forEach(dataPassingService.menuObj[menuObjectInstanceName], function (value, key) {
                 if (res.rows.map(function (o) { return o[0] }).indexOf(key) === -1) {
                     res.rows.push([key, 0]);
-                }
-                var newCricleIndex = subForceNodes.findIndex(function (obj) {
-                    return obj.name === key;
-                })
-                if (newCricleIndex === -1) {
-                    var obj = {};
-                    obj.color = dataPassingService.menuObj[menuObjectInstanceName][key]['color'];
-                    obj.name = key;
-                    obj.user = 0;
-                    obj.radius = 4;
-                    obj.cluster
-                    subForceNodes.push(obj)
-                    svg.selectAll(".sub_circle")
-                        .data(subForceNodes)
-                        .enter().append("circle")
                 }
             });
             angular.forEach(res.rows, function (value, key) {
@@ -220,6 +207,41 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]]['x']) {
                     dataPassingService.menuObj[menuObjectInstanceName][value[0]]['x'] = 100;
                     dataPassingService.menuObj[menuObjectInstanceName][value[0]]['y'] = 50;
+                }
+                var newCricleIndex = subForceNodes.findIndex(function (obj) {
+                    return obj.name === value[0];
+                });
+                if (newCricleIndex === -1) {
+                    subForceGlobal.stop()
+                    var obj = {};
+                    obj.color = dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'];
+                    obj.name = value[0];
+                    obj.user = 0;
+                    obj.radius = 4;
+                    obj.cluster = 0;
+                    subForceNodes.push(obj);
+                    svg.selectAll(".sub_circle")
+                        .data(subForceNodes)
+                        .enter().append("circle")
+                        .attr("r", function (d) { return d.radius; })
+                        .attr("class", "node sub_circle")
+                        .attr("user", function (d) {
+                            return d.user
+                        })
+                        .attr("name", function (d) {
+                            return d.name
+                        })
+                        .style("fill", function (d) {
+                            return d3.rgb(fill(d.color));
+                        })
+                        .attr("show-menu", function (d, i) {
+                            return d.name
+                        })
+                        .attr("index_id", function (d) {
+                            return d.index
+                        })
+                        .call(subForceGlobal.drag);
+                    subForceGlobal.start();
                 }
                 if (parseInt(value[1], 10) - dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length > 0) {
                     var length = dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length;
@@ -240,7 +262,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                     });
                 }
             });
-
         } else {
             angular.forEach(node[0], function (nodeValue) {
                 if (nodeValue.getAttribute("remove") === "no") {
@@ -255,9 +276,9 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
     };
 
-    var firstFlag, previousCompletedUser;
     function _completeGoal(goalCompletedUsers) {
         if (firstFlag && !angular.equals(goalCompletedUsers, previousCompletedUser)) {
+            googleAnalyticsCtrl.userInfoArray = [];
             previousCompletedUser = angular.copy(goalCompletedUsers);
             force.stop();
             _.each(goalCompletedUsers, function (userData, userIndex) {
@@ -266,10 +287,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 var index = nodes.map(function (obj) {
                     return obj.userId;
                 }).indexOf(JSON.parse(parsedWordArray).id);
+                googleAnalyticsCtrl.userInfoArray.push(JSON.parse(parsedWordArray));
                 if (index !== -1) {
                     nodes[index].cluster = 1;
                     clusters[1] = { name: nodes[index].name, color: nodes[index].color, x: nodes[index].x + 100 || 0, y: nodes[index].y || 0, radius: 4, cluster: 1, userId: JSON.parse(parsedWordArray).id };
                     svg.selectAll('circle[userId="' + JSON.parse(parsedWordArray).id + '"]')
+                        .attr('r', 6)
                         .style("fill", "url(#image)")
                         .transition()
                         .each("end", function (e) {
@@ -277,7 +300,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                         })
                         .attr('userData', parsedWordArray)
                         .attr("transform", "translate(" + 500 + "," + 0 + ")")
-                        .duration(1400)
+                        .duration(1400);
                 }
             });
         } else {
@@ -329,7 +352,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                     .style("fill", function (d) {
                         return d3.rgb(fill(d.color));
                     })
-                    // .attr("transform", "translate(0)")
                     .attr("show-menu", function (d, i) {
                         return d.name
                     })
@@ -350,7 +372,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                                 .style("left", (d3.event.pageX) + "px")
                                 .style("top", (d3.event.pageY - 28) + "px");
                         }
-
                     })
                     .on("mouseout", function (d) {
                         div.transition()
@@ -409,6 +430,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
 
     // For All Time
     function _getAnalyticsDataByTime(selectedTime) {
+        //firstFlag = true;
         googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' + selectedTime.time.startDate + '&endDate=' + selectedTime.time.endDate + '&dimensionsId=' + googleAnalyticsCtrl.selectedSource.gaValue, 'GET')
             .then(_setAllTimeAPIData);
     }
@@ -498,7 +520,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .gravity(.02)
             .charge(0)
             .on("tick", function (e) {
-                subNode
+                svg.selectAll(".sub_circle")
                     .each(cluster(10 * e.alpha * e.alpha))
                     .each(collide(.5))
                     .attr("cx", function (d) { return d.x - (mainSvgWidth / 4) + maxRadius; })
@@ -597,6 +619,9 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 googleAnalyticsCtrl.sideBarFlag = true;
             },
         });
+    }
+    googleAnalyticsCtrl.slideAnimation = function (id) {
+        console.log('ooo')
     }
 }
 
