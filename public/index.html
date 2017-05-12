@@ -210,7 +210,7 @@
             <a href="JavaScript:Void(0);" class="float-right padding-right-10 cross-icon" ng-click="googleAnalyticsCtrl.showUserInfo = !googleAnalyticsCtrl.showUserInfo;">&#x2716;</a>
         </div>
         <div ng-if="googleAnalyticsCtrl.showUserInfo" class="user-info color-gray" ng-style="{'top' : googleAnalyticsCtrl.userInfoTopPostion + 30 + 'px','width' : googleAnalyticsCtrl.goalOneDivWidth + 'px', 'height': '100px', 'overflow-x': 'hidden'}">
-            <div id="{{userInfo.id}}" class="user-notification" ng-repeat="userInfo in googleAnalyticsCtrl.userInfoArray | orderBy:'+':true  track by $index" ng-init="googleAnalyticsCtrl.slideAnimation(userInfo.id);">
+            <div id="{{userInfo.id}}" class="user-notification" ng-repeat="userInfo in googleAnalyticsCtrl.userInfoArray | orderBy:'+':true  track by $index">
                 <div ng-repeat="(key, userData) in userInfo.userInfo">
                     <label ng-bind="key | uppercase"> </label> <span ng-bind="userData" style="margin-left: 70px;"> </span>
                 </div>

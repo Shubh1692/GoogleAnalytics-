@@ -86,12 +86,11 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     googleAnalyticsCtrl.getAnalyticsDataByTime = _getAnalyticsDataByTime;
     googleAnalyticsCtrl.onsiteUser = 0;
     googleAnalyticsCtrl.goalOneDivWidth = mainSvgWidth - (mainSvgWidth * 0.7);
-    //other
+    //Init Functions or Variables
     menuObjectInstanceName = VIEWING_BY_SOURCE[0].name;
     _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
 
-
-    // For Time
+    // For Time Display
     function _startTime() {
         var today = new Date();
         today = new Date(today).toUTCString();
@@ -101,8 +100,9 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         googleAnalyticsCtrl.displayTime.time = time;
         $timeout(_startTime, 1000);
     }
+
     // Move d to be adjacent to the cluster node.
-    function mainCluster(alpha) {
+    function _mainCluster(alpha) {
         return function (d) {
             var cluster = clusters[d.cluster];
             if (cluster === d) return;
@@ -121,7 +121,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
 
     // Resolves collisions between d and all other circles.
-    function mainCollides(alpha) {
+    function _mainCollides(alpha) {
         var quadtree = d3.geom.quadtree(nodes);
         return function (d) {
             var r = d.radius + 6 + Math.max(padding, 6),
@@ -249,14 +249,14 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                         dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].push({ name: value[0], color: dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'] });
                         dataPassingService.menuObj[menuObjectInstanceName][value[0]]['display'] = true;
                     }
-                    enterUser(dataPassingService.menuObj[menuObjectInstanceName], value);
+                    _enterUser(dataPassingService.menuObj[menuObjectInstanceName], value);
                 } else if (parseInt(value[1], 10) - dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length < 0) {
                     var length = dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length;
                     var rotation = length - parseInt(value[1], 10);
                     angular.forEach(node[0], function (nodeValue) {
                         if (nodeValue.getAttribute("show-menu") === value[0] && nodeValue.getAttribute("remove") === "no" && rotation) {
                             dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].pop();
-                            exitUser(nodeValue.getAttribute("id"), nodeValue.getAttribute("show-menu"));
+                            _exitUser(nodeValue.getAttribute("id"), nodeValue.getAttribute("show-menu"));
                             rotation--;
                         }
                     });
@@ -265,7 +265,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         } else {
             angular.forEach(node[0], function (nodeValue) {
                 if (nodeValue.getAttribute("remove") === "no") {
-                    exitUser(nodeValue.getAttribute("id"), nodeValue.getAttribute("show-menu"));
+                    _exitUser(nodeValue.getAttribute("id"), nodeValue.getAttribute("show-menu"));
                 }
             });
             angular.forEach(dataPassingService.menuObj[menuObjectInstanceName], function (value, key) {
@@ -276,6 +276,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
     };
 
+    // For Complete Goal Real Time Display
     function _completeGoal(goalCompletedUsers) {
         if (firstFlag && !angular.equals(goalCompletedUsers, previousCompletedUser)) {
             googleAnalyticsCtrl.userInfoArray = [];
@@ -309,7 +310,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
 
 
-    // For MainEnter 
+    // For MainEnter Tick Function
     function tick(e) {
         var k = .1 * e.alpha;
         n = nodes.length, i = 0
@@ -324,18 +325,18 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             });
         }
         svg.selectAll(".main_circle")
-            .each(mainCluster(10 * e.alpha * e.alpha))
-            .each(mainCollides(.5))
+            .each(_mainCluster(10 * e.alpha * e.alpha))
+            .each(_mainCollides(.5))
             .attr("cx", function (d) { return d.x; })
             .attr("cy", function (d) { return d.y; });
     }
 
-    // Enter User with Animation
-    function enterUser(menuObj, row) {
+    // Enter Main User with Animation
+    function _enterUser(menuObj, row) {
         angular.forEach(row[2], function (userId) {
             if (svg.selectAll('circle[userId="' + userId + '"]')[0].length === 0) {
                 force.stop();
-                var indx = uniqIndex(row[0]);
+                var indx = _uniqIndex(row[0]);
                 nodes.push({ name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: userId, userData: { id: userId } });
                 clusters[0] = { name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: userId };
                 force.nodes(nodes);
@@ -383,6 +384,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         })
     }
 
+    // Add Tooltip Display to D3 circle
     function _setTooltipView(userInfo) {
         var html = '<div>'
         _.each(userInfo, function (value, key) {
@@ -392,7 +394,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
 
     // Exit User with Animation
-    function exitUser(elementId, name) {
+    function _exitUser(elementId, name) {
         var index = elementId.split('_')[elementId.split('_').length - 1];
         var mergeNode = svg.selectAll("circle[name='" + name + "']");
         d3.select("#" + elementId)
@@ -415,7 +417,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
 
     // For Unique Index of Circle
-    function uniqIndex(name) {
+    function _uniqIndex(name) {
         var countries = nodes.map(function (n) { return n.name });
         var u = countries.filter(function (v, i) { return countries.indexOf(v) == i; });
         var indx = u.indexOf(name);
@@ -428,7 +430,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         return d3.rgb(fill(colorKey));
     }
 
-    // For All Time
+    // For All Time Data API Calling
     function _getAnalyticsDataByTime(selectedTime) {
         //firstFlag = true;
         googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' + selectedTime.time.startDate + '&endDate=' + selectedTime.time.endDate + '&dimensionsId=' + googleAnalyticsCtrl.selectedSource.gaValue, 'GET')
@@ -612,6 +614,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             push: false,
             speed: 700,
             zIndex: 1,
+            width: 300,
             hide: function (slider, trigger) {
                 googleAnalyticsCtrl.sideBarFlag = false;
             },
@@ -619,9 +622,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 googleAnalyticsCtrl.sideBarFlag = true;
             },
         });
-    }
-    googleAnalyticsCtrl.slideAnimation = function (id) {
-        console.log('ooo')
     }
 }
 

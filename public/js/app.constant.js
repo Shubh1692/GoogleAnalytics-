@@ -53,4 +53,4 @@ angular.module('googleAnalyticsModule')
         }
     ])
     .constant('MAX_MENU_COUNT', 10)
-    .constant('GOAL_COMPLETE_ICON_PATH', 'http://iconshow.me/media/images/ui/ios7-icons/png/512/star_2.png');
+    .constant('GOAL_COMPLETE_ICON_PATH', '/images/star_2.png');

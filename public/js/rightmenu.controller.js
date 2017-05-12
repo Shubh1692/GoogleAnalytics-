@@ -5,5 +5,5 @@ function _rightMenuController($timeout, googleAnalyticsService, $window) {
     var rightMenuCtrl = this;
     $timeout(function(){
         rightMenuCtrl.setBackGroundColorFlag = true;
-    }, 100)
+    }, 100);
 }
