@@ -4,5 +4,6 @@ angular.module('googleAnalyticsModule')
         controller: 'rightMenuController',
         controllerAs: 'rightMenuCtrl',
         bindings: {
+            userData : '='
         }
     });

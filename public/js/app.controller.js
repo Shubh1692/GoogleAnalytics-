@@ -1,10 +1,11 @@
 angular.module('googleAnalyticsModule')
     .controller('googleAnalyticsController', _googleAnalyticsController)
-    .filter('liveUserSort', _liveUserSort);
+    .filter('liveUserSort', _liveUserSort)
+    .filter('dateMenuSort', _dateMenuSort);
 
-_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT', 'GOAL_COMPLETE_ICON_PATH'];
+_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT', 'GOAL_COMPLETE_ICON_PATH', '$filter'];
 _liveUserSort.$inject = ['_'];
-function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT, GOAL_COMPLETE_ICON_PATH) {
+function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT, GOAL_COMPLETE_ICON_PATH, $filter) {
     var googleAnalyticsCtrl = this, slider, clusterPadding = 6, // separation between different-color circles
         intervalInstance,
         subForceGlobal, subForceNodes,
@@ -86,6 +87,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     googleAnalyticsCtrl.getAnalyticsDataByTime = _getAnalyticsDataByTime;
     googleAnalyticsCtrl.onsiteUser = 0;
     googleAnalyticsCtrl.goalOneDivWidth = mainSvgWidth - (mainSvgWidth * 0.7);
+    googleAnalyticsCtrl.userDataForRightMenu = {};
     //Init Functions or Variables
     menuObjectInstanceName = VIEWING_BY_SOURCE[0].name;
     _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
@@ -184,6 +186,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
 
     // For Display Real Time API Data
     function _displayApiData(res) {
+        console.log(res)
         var exitArray = [];
         googleAnalyticsCtrl.onsiteUser = res.totalsForAllResults['rt:activeUsers'];
         if (res.rows && res.rows.length !== 0) {
@@ -334,11 +337,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     // Enter Main User with Animation
     function _enterUser(menuObj, row) {
         angular.forEach(row[2], function (userId) {
-            if (svg.selectAll('circle[userId="' + userId + '"]')[0].length === 0) {
+            console.log(userId[1])
+            if (svg.selectAll('circle[userId="' + userId[1] + '"]')[0].length === 0) {
                 force.stop();
                 var indx = _uniqIndex(row[0]);
-                nodes.push({ name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: userId, userData: { id: userId } });
-                clusters[0] = { name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: userId };
+                nodes.push({ name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: userId[1], userData: { id: userId[1] } });
+                clusters[0] = { name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: userId[1] };
                 force.nodes(nodes);
                 force.start();
                 node = node.data(nodes);
@@ -348,7 +352,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                     .attr("cx", function (d) { return d.x || 0; })
                     .attr("cy", function (d) { return d.y || 0; })
                     .attr("remove", "no")
-                    .attr("userId", userId)
+                    .attr("userId", userId[1])
+                    .attr("userInformation", userId)
                     .attr("r", 4)
                     .style("fill", function (d) {
                         return d3.rgb(fill(d.color));
@@ -380,6 +385,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                             .style("opacity", 0);
                     })
                     .call(force.drag)
+                googleAnalyticsService.getFormattedCurrentDate();
             }
         })
     }
@@ -630,4 +636,11 @@ function _liveUserSort(_) {
         return _.sortBy(input, ['data']).reverse();
     }
     return liveUserSortFilter;
+}
+
+function _dateMenuSort(_) {
+    function _dateMenuSortFilter(input) {
+        return _.sortBy(input, ['data']).reverse();
+    }
+    return _dateMenuSortFilter;
 }

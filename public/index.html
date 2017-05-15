@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="css/standard.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="lib\flag-icon-css\css\flag-icon.min.css">
     <!-- JQuery Js Files -->
     <script src=lib/lodash/dist/lodash.min.js></script>
     <script src="lib/jquery/dist/jquery.min.js"></script>
@@ -30,7 +31,7 @@
 <body ng-app="googleAnalyticsModule" ng-init="googleAnalyticsCtrl.startTime()" ng-controller="googleAnalyticsController as googleAnalyticsCtrl">
     <div id='slider' class="right-menu-z-index">
         <div class="handle" ng-click="googleAnalyticsCtrl.sideBarInstance.slideReveal('toggle');" ng-class="googleAnalyticsCtrl.sideBarFlag ? 'rotate':''">&#8249;</div>
-        <right-menu></right-menu>
+        <right-menu user-data="googleAnalyticsCtrl.userDataForRightMenu"></right-menu>
     </div>
     <div class="row title margin-right-0">
         <div class="col-md-6">

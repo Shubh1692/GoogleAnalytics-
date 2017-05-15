@@ -1,25 +1,72 @@
 <div class="right-side-menu-content" ng-style="rightMenuCtrl.setBackGroundColorFlag && {'background-color': 'cyan'}">
     <div class="right-menu-tab">
         <div class="right-menu-tab-content">
-            <button href="JavaScript:Void(0);">Visitiors</button>
+            <button href="JavaScript:Void(0);" ng-click="rightMenuCtrl.showVisitiors = true;rightMenuCtrl.showConversions = false;rightMenuCtrl.showSettings = false;" ng-style="rightMenuCtrl.showVisitiors && {'color': 'white'} || {'color': 'gray'}">Visitiors</button>
         </div>
         <div class="right-menu-tab-content">
-            <button href="JavaScript:Void(0);">Conversions</button>
+            <button href="JavaScript:Void(0);" ng-click="rightMenuCtrl.showVisitiors = false;rightMenuCtrl.showConversions = true;rightMenuCtrl.showSettings = false;" ng-style="rightMenuCtrl.showConversions && {'color': 'white'} || {'color': 'gray'}">Conversions</button>
         </div>
         <div class="right-menu-tab-content">
-            <button href="JavaScript:Void(0);">Settings</button>
+            <button href="JavaScript:Void(0);" ng-click="rightMenuCtrl.showVisitiors = false;rightMenuCtrl.showConversions = false;rightMenuCtrl.showSettings = true;" ng-style="rightMenuCtrl.showSettings && {'color': 'white'} || {'color': 'gray'}">Settings</button>
         </div>
     </div>
-    <div>
-        <div class="right-menu-day-back-ground">
-            <div>
-                <div>Fri May 12 2017</div>  <div class="padding-right-5" style="position: absolute; right: 0; top: 0; color:lightgray;">500</div>
+    <div style="overflow: scroll; height: 97%;">
+        <div ng-repeat="(key, value) in rightMenuCtrl.userData | dateMenuSort">
+            <div ng-if="rightMenuCtrl.showVisitiors">
+                <div ng-if="value.onload" class="right-menu-day-back-ground">
+                    <div>
+                        <div>{{value.date | date: 'EEEE, MMMM d, y'}}</div>
+                        <div class="padding-right-5" style="position: absolute; right: 0; top: 0; color:lightgray;" ng-bind="value.onload.length"></div>
+                    </div>
+                </div>
+                <div ng-if="value.onload" ng-repeat="(userKey, user) in value.onload">
+                    <div class="right-menu-detail">
+                        <li class="none-list-type" style="font-size: larger; height:75px; background-color:#EDEEF0; border-bottom: solid 1px gray;"
+                            ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
+                            <div style="height:50%"><span class="padding-10" ng-bind="$index + 1"></span><span class="padding-10 flag-icon flag-icon-{{user[3] | lowercase}}"></span>
+                                <span class="padding-10" ng-bind="user[6]"></span>
+                            </div>
+                            <div style="height:50%"><span class="padding-10"></span><span class="margin-right-10 padding-10 flag-icon flag-icon-in"
+                                    style="float: right;"></span><span class="margin-right-10 padding-10 flag-icon flag-icon-in"
+                                    style="float: right;"></span>
+                                <span class="margin-right-10 padding-10 flag-icon flag-icon-in" style="float: right;"></span>
+                            </div>
+                        </li>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="rightMenuCtrl.showConversions">
+                <div ng-if="value[rightMenuCtrl.GOAL_EVENT_NAME]" class="right-menu-day-back-ground">
+                    <div>
+                        <div>{{value.date | date: 'EEEE, MMMM d, y'}}</div>
+                        <div class="padding-right-5" style="position: absolute; right: 0; top: 0; color:lightgray;" ng-bind="value[rightMenuCtrl.GOAL_EVENT_NAME].length"></div>
+                    </div>
+                </div>
+                <div ng-if="value[rightMenuCtrl.GOAL_EVENT_NAME]" ng-repeat="(userKey, user) in value[rightMenuCtrl.GOAL_EVENT_NAME]">
+                    <div class="right-menu-detail">
+                        <li class="none-list-type" style="font-size: larger; height:75px; background-color:#EDEEF0; border-bottom: solid 1px gray;"
+                            ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
+                            <div style="height:50%"><span class="padding-10" ng-bind="$index  + 1"></span><span class="padding-10 flag-icon flag-icon-{{user[3] | lowercase}}"></span>
+                                <span class="padding-10" ng-bind="user[6]"></span>
+                            </div>
+                            <div style="height:50%"><span class="padding-10"></span><span class="margin-right-10 padding-10 flag-icon flag-icon-in"
+                                    style="float: right;"></span><span class="margin-right-10 padding-10 flag-icon flag-icon-in"
+                                    style="float: right;"></span>
+                                <span class="margin-right-10 padding-10 flag-icon flag-icon-in" style="float: right;"></span>
+                            </div>
+                        </li>
+                        <li class="none-list-type" style="font-size: larger; height:75px; background-color:#EDEEF0; border-bottom: solid 1px gray;"
+                            ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
+                            <div style="height:50%" ng-repeat="(keyData, valueUser) in rightMenuCtrl.getConvertedUserData(user[2])">
+                                <span class="padding-10" ng-bind="keyData | uppercase"></span> <span class="padding-10" ng-bind="valueUser"></span>
+                            </div>
+                        </li>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="right-menu-detail">
-            <div>
-
-            </div>
+        <div ng-if="rightMenuCtrl.showSettings">
+            Settings
         </div>
     </div>
 </div>

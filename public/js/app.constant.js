@@ -1,7 +1,8 @@
 angular.module('googleAnalyticsModule')
     .constant('NODE_WEB_API', {
         'REAL_TIME_DATA_API': 'getGoogleAnalyticsRealTimeData',
-        'ALL_TIME_DATA_API': 'getGoogleAnalyticsAllData'
+        'ALL_TIME_DATA_API': 'getGoogleAnalyticsAllData',
+        'ALL_TIME_USER_DATA_API': 'getGoogleAnalyticsUserData'
     })
     .constant('REAL_TIME_API_TIME_INTERVAL', 10000)
     .constant('SCALING_INDEX', 10)
@@ -53,4 +54,5 @@ angular.module('googleAnalyticsModule')
         }
     ])
     .constant('MAX_MENU_COUNT', 10)
+    .constant('GOAL_EVENT_NAME', 'login')
     .constant('GOAL_COMPLETE_ICON_PATH', '/images/star_2.png');

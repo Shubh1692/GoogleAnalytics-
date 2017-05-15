@@ -17,10 +17,13 @@ module.exports = {
     REAL_TIME_API_ERROR_MESSAGE: 'Error By Google Real Time API',
     ALL_TIME_API_SUCCESS_MESSAGE: 'Get All Data Data',
     ALL_TIME_API_ERROR_MESSAGE: 'Error By Google All Data API',
+    ALL_TIME_GET_USER_API_ERROR_MESSAGE: 'Error By Google All Data API For Get User',
     REQUEST_HEADER: {
         'Access-Control-Allow-Origin': 'https://obscure-springs-26671.herokuapp.com',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, PATCH, DELETE',
         'Access-Control-Allow-Headers': 'X-Requested-With,content-type',
         'Access-Control-Allow-Credentials': true
-    }
+    },
+    GOOGLE_MENU_DATA_START_DATE : new Date('2007-01-01').toISOString().slice(0, 10),
+    GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS : ['rt:country', 'rt:browser', 'rt:operatingSystem', 'rt:deviceCategory']
 };

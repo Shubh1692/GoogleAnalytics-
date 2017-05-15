@@ -6,8 +6,7 @@ var express = require('express'), // require express code
     google = require('googleapis'),// require googleapis code
     app = express(),
     CONFIG = require('./app.config'),
-    _ = require('lodash'),
-    completedGoalData = [];
+    _ = require('lodash');
 app.use(bodyParser.urlencoded({
     extended: false
 }));
@@ -35,12 +34,12 @@ jwtClient.authorize(function (err, tokens) {
 });
 // Get Real Time Data API
 app.get('/getGoogleAnalyticsRealTimeData', function (req, res) {
-    console.log(completedGoalData)
+    var dimensions = _.reject(CONFIG.GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS, function(o) { return o === req.query.dimensionsId})
     var apiQuery = google.analytics('v3').data.realtime.get({
         'auth': jwtClient,
         'ids': CONFIG.GOOGLE_APP_VIEW_ID,
         'metrics': 'rt:activeUsers',
-        'dimensions': req.query.dimensionsId + ',rt:eventAction, rt:eventCategory'
+        'dimensions': req.query.dimensionsId + ',rt:eventAction, rt:eventCategory,' + CONFIG.GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS
     }, function (err, response) {
         if (err) {
             res.send({
@@ -51,27 +50,26 @@ app.get('/getGoogleAnalyticsRealTimeData', function (req, res) {
         }
         var rowArray = [];
         var userInfo = [];
-        console.log(response.rows)
         response.totalsForAllResults['rt:activeUsers'] = 0;
         _.each(response.rows, function (value) {
             if (value[1] !== '(not set)' && value[2] === 'onload') {
-                response.totalsForAllResults['rt:activeUsers'] ++;
+                response.totalsForAllResults['rt:activeUsers']++;
                 var index = rowArray.map(function (obj) {
                     return obj[0];
                 }).indexOf(value[0]);
+                console.log(value)
                 if (index === -1) {
-                    rowArray.push([value[0], 1, [value[1]]])
+                    rowArray.push([value[0], 1, [value]])
                 } else {
                     rowArray[index][1]++;
-                    rowArray[index][2].push(value[1])
+                    rowArray[index][2].push(value)
                 }
-            } else if (value[1] !== '(not set)'){
+            } else if (value[1] !== '(not set)') {
                 userInfo.push([value[0], 1, value[1], value[2]])
             }
         });
         response.rows = rowArray;
         response.userInfo = userInfo;
-        console.log(response.rows, response.userInfo);
         res.send({
             successMessage: CONFIG.REAL_TIME_API_SUCCESS_MESSAGE,
             data: response
@@ -113,12 +111,41 @@ app.get('/getGoogleAnalyticsAllData', function (req, res) {
     });
 });
 
-app.post('/getUserInfo', function (req, res) {
-    console.log(req.body)
-    completedGoalData.push(req.body)
-    res.send({
-        successMessage: 'Get User Data',
-        data: req.body
+app.get('/getGoogleAnalyticsUserData', function (req, res) {
+    var apiQuery = google.analytics('v3').data.ga.get({
+        'auth': jwtClient,
+        'ids': CONFIG.GOOGLE_APP_VIEW_ID,
+        'start-date': CONFIG.GOOGLE_MENU_DATA_START_DATE,
+        'end-date': new Date().toISOString().slice(0, 10),
+        'metrics': 'ga:users',
+        'dimensions': 'ga:date, ga:eventCategory, ga:eventAction, ga:countryIsoCode, ga:browser, ga:deviceCategory, ga:userType',
+        'sort': '-ga:date'
+    }, function (err, response) {
+        if (err) {
+            res.send({
+                errorMessage: CONFIG.ALL_TIME_GET_USER_API_ERROR_MESSAGE,
+                data: err
+            });
+            return;
+        }
+        var groupByDate = _.groupBy(response.rows, function (o) { return o[0] });
+        var groupByEventCategory = {}
+        _.each(groupByDate, function (value, key) {
+            groupByEventCategory[key.substring(6, 8) + '-' + key.substring(4, 6) + '-' + key.substring(0, 4)] = _.groupBy(value, function (o) { return o[1] });
+            groupByEventCategory[key.substring(6, 8) + '-' + key.substring(4, 6) + '-' + key.substring(0, 4)].date = new Date(key.substring(0, 4) + '/' +   key.substring(4, 6) + '/' + key.substring(6, 8)); 
+        })
+        res.send({
+            successMessage: CONFIG.ALL_TIME_API_SUCCESS_MESSAGE,
+            data: {
+                data: groupByEventCategory,
+                total: response.rows.length
+            }
+        });
+    }, function (err) {
+        res.send({
+            errorMessage: CONFIG.ALL_TIME_GET_USER_API_ERROR_MESSAGE,
+            data: err
+        });
     });
 })
 // For Check Start Server function

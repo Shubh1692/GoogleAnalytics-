@@ -8,6 +8,7 @@ function _googleAnalyticsService($http, $q) {
     var googleAnalyticsService = this;
     googleAnalyticsService.serverRequest = _serverRequest;
     googleAnalyticsService.serverError = _serverError;
+    googleAnalyticsService.getFormattedCurrentDate = _getFormattedCurrentDate;
     // Method for Do Server Request
     function _serverRequest(url, method, postData) {
         var defer = $q.defer();
@@ -20,12 +21,12 @@ function _googleAnalyticsService($http, $q) {
                 'Content-Type': 'application/json'
             }
         }).then(function (res) {
-            if(res.data.successMessage) {
+            if (res.data.successMessage) {
                 defer.resolve(res.data.data);
             } else {
                 defer.reject(res);
                 googleAnalyticsService.serverError(res);
-            } 
+            }
         }, function (res, status, headers, config) {
             googleAnalyticsService.serverError(res);
             defer.reject(res);
@@ -33,9 +34,13 @@ function _googleAnalyticsService($http, $q) {
         return defer.promise;
     };
 
-     function _serverError(res) {
-         console.log('error', res.errorMessage)
-     };
+    function _serverError(res) {
+        console.log('error', res.errorMessage)
+    };
+
+    function _getFormattedCurrentDate() {
+        return new Date().getFullYear() + '/' + new Date().getMonth() +  '/' + new Date().getDate();
+    }
 }
 
 function _dataPassingService() {
