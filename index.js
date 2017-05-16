@@ -6,7 +6,8 @@ var express = require('express'), // require express code
     google = require('googleapis'),// require googleapis code
     app = express(),
     CONFIG = require('./app.config'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    countryCodes = require('country-data').countries;
 app.use(bodyParser.urlencoded({
     extended: false
 }));
@@ -34,12 +35,12 @@ jwtClient.authorize(function (err, tokens) {
 });
 // Get Real Time Data API
 app.get('/getGoogleAnalyticsRealTimeData', function (req, res) {
-    var dimensions = _.reject(CONFIG.GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS, function(o) { return o === req.query.dimensionsId})
+    var dimensions = _.reject(CONFIG.GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS, function (o) { return o === req.query.dimensionsId })
     var apiQuery = google.analytics('v3').data.realtime.get({
         'auth': jwtClient,
         'ids': CONFIG.GOOGLE_APP_VIEW_ID,
         'metrics': 'rt:activeUsers',
-        'dimensions': req.query.dimensionsId + ',rt:eventAction, rt:eventCategory,' + CONFIG.GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS
+        'dimensions': req.query.dimensionsId + ',rt:eventCategory, rt:eventAction,' + CONFIG.GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS
     }, function (err, response) {
         if (err) {
             res.send({
@@ -52,7 +53,13 @@ app.get('/getGoogleAnalyticsRealTimeData', function (req, res) {
         var userInfo = [];
         response.totalsForAllResults['rt:activeUsers'] = 0;
         _.each(response.rows, function (value) {
-            if (value[1] !== '(not set)' && value[2] === 'onload') {
+            if (value[2] !== '(not set)' && value[1] === 'onload') {
+                var countryName = _.find(countryCodes, function (countryValue) {
+                    if (countryValue.name === value[3]) {
+                        return countryValue;
+                    }
+                });
+                value[3] = countryName.alpha2;
                 response.totalsForAllResults['rt:activeUsers']++;
                 var index = rowArray.map(function (obj) {
                     return obj[0];
@@ -65,7 +72,7 @@ app.get('/getGoogleAnalyticsRealTimeData', function (req, res) {
                     rowArray[index][2].push(value)
                 }
             } else if (value[1] !== '(not set)') {
-                userInfo.push([value[0], 1, value[1], value[2]])
+                userInfo.push([value[0], 1, value[2], value[1]])
             }
         });
         response.rows = rowArray;
@@ -119,7 +126,8 @@ app.get('/getGoogleAnalyticsUserData', function (req, res) {
         'end-date': new Date().toISOString().slice(0, 10),
         'metrics': 'ga:users',
         'dimensions': 'ga:date, ga:eventCategory, ga:eventAction, ga:countryIsoCode, ga:browser, ga:deviceCategory, ga:userType',
-        'sort': '-ga:date'
+        'sort': '-ga:date',
+       // 'filters' : 'ga:userType==New Visitor,ga:userType==Returning Visitor'
     }, function (err, response) {
         if (err) {
             res.send({
@@ -132,7 +140,7 @@ app.get('/getGoogleAnalyticsUserData', function (req, res) {
         var groupByEventCategory = {}
         _.each(groupByDate, function (value, key) {
             groupByEventCategory[key.substring(6, 8) + '-' + key.substring(4, 6) + '-' + key.substring(0, 4)] = _.groupBy(value, function (o) { return o[1] });
-            groupByEventCategory[key.substring(6, 8) + '-' + key.substring(4, 6) + '-' + key.substring(0, 4)].date = new Date(key.substring(0, 4) + '/' +   key.substring(4, 6) + '/' + key.substring(6, 8)); 
+            groupByEventCategory[key.substring(6, 8) + '-' + key.substring(4, 6) + '-' + key.substring(0, 4)].date = new Date(key.substring(0, 4) + '/' + key.substring(4, 6) + '/' + key.substring(6, 8));
         })
         res.send({
             successMessage: CONFIG.ALL_TIME_API_SUCCESS_MESSAGE,

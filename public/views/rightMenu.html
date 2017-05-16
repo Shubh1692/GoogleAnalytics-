@@ -10,26 +10,26 @@
             <button href="JavaScript:Void(0);" ng-click="rightMenuCtrl.showVisitiors = false;rightMenuCtrl.showConversions = false;rightMenuCtrl.showSettings = true;" ng-style="rightMenuCtrl.showSettings && {'color': 'white'} || {'color': 'gray'}">Settings</button>
         </div>
     </div>
-    <div style="overflow: scroll; height: 97%;">
+    <div class="right-menu-scroll-content">
         <div ng-repeat="(key, value) in rightMenuCtrl.userData | dateMenuSort">
             <div ng-if="rightMenuCtrl.showVisitiors">
                 <div ng-if="value.onload" class="right-menu-day-back-ground">
                     <div>
                         <div>{{value.date | date: 'EEEE, MMMM d, y'}}</div>
-                        <div class="padding-right-5" style="position: absolute; right: 0; top: 0; color:lightgray;" ng-bind="value.onload.length"></div>
+                        <div class="padding-right-5 right-menu-total-count" ng-bind="value.onload.length"></div>
                     </div>
                 </div>
                 <div ng-if="value.onload" ng-repeat="(userKey, user) in value.onload">
                     <div class="right-menu-detail">
-                        <li class="none-list-type" style="font-size: larger; height:75px; background-color:#EDEEF0; border-bottom: solid 1px gray;"
+                        <li class="none-list-type right-menu-li"
                             ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
-                            <div style="height:50%"><span class="padding-10" ng-bind="$index + 1"></span><span class="padding-10 flag-icon flag-icon-{{user[3] | lowercase}}"></span>
+                            <div class="right-menu-text-div"><span class="padding-10" ng-bind="$index + 1"></span><span class="padding-10 flag-icon flag-icon-{{user[3] | lowercase}}"></span>
                                 <span class="padding-10" ng-bind="user[6]"></span>
                             </div>
-                            <div style="height:50%"><span class="padding-10"></span><span class="margin-right-10 padding-10 flag-icon flag-icon-in"
-                                    style="float: right;"></span><span class="margin-right-10 padding-10 flag-icon flag-icon-in"
-                                    style="float: right;"></span>
-                                <span class="margin-right-10 padding-10 flag-icon flag-icon-in" style="float: right;"></span>
+                            <div class="right-menu-text-div"><span class="padding-10"></span><span class="margin-right-10 padding-10 flag-icon flag-icon-in float-right"
+                                    ></span><span class="margin-right-10 padding-10 flag-icon flag-icon-in float-right"
+                                    ></span>
+                                <img class="margin-right-10 padding-10 float-right" ng-src="{{rightMenuCtrl.browserLogoUrl.BASE_PATH}}{{user[4].split(' ')[0]  | lowercase}}/{{user[4].split(' ')[0]  | lowercase}}{{rightMenuCtrl.browserLogoUrl.IMAGE_CONSTRAINT}}"></img>
                             </div>
                         </li>
                     </div>
@@ -39,27 +39,26 @@
                 <div ng-if="value[rightMenuCtrl.GOAL_EVENT_NAME]" class="right-menu-day-back-ground">
                     <div>
                         <div>{{value.date | date: 'EEEE, MMMM d, y'}}</div>
-                        <div class="padding-right-5" style="position: absolute; right: 0; top: 0; color:lightgray;" ng-bind="value[rightMenuCtrl.GOAL_EVENT_NAME].length"></div>
+                        <div class="padding-right-5 right-menu-total-count" ng-bind="value[rightMenuCtrl.GOAL_EVENT_NAME].length"></div>
                     </div>
                 </div>
                 <div ng-if="value[rightMenuCtrl.GOAL_EVENT_NAME]" ng-repeat="(userKey, user) in value[rightMenuCtrl.GOAL_EVENT_NAME]">
                     <div class="right-menu-detail">
-                        <li class="none-list-type" style="font-size: larger; height:75px; background-color:#EDEEF0; border-bottom: solid 1px gray;"
+                        <li class="none-list-type right-menu-li"
                             ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
-                            <div style="height:50%"><span class="padding-10" ng-bind="$index  + 1"></span><span class="padding-10 flag-icon flag-icon-{{user[3] | lowercase}}"></span>
+                            <div class="right-menu-text-div"><span class="padding-10" ng-bind="$index  + 1"></span><span class="padding-10 flag-icon flag-icon-{{user[3] | lowercase}}"></span>
                                 <span class="padding-10" ng-bind="user[6]"></span>
                             </div>
-                            <div style="height:50%"><span class="padding-10"></span><span class="margin-right-10 padding-10 flag-icon flag-icon-in"
-                                    style="float: right;"></span><span class="margin-right-10 padding-10 flag-icon flag-icon-in"
-                                    style="float: right;"></span>
-                                <span class="margin-right-10 padding-10 flag-icon flag-icon-in" style="float: right;"></span>
+                            <div class="right-menu-text-div"><span class="padding-10"></span><span class="margin-right-10 padding-10 flag-icon flag-icon-in float-right"></span><span class="margin-right-10 padding-10 flag-icon flag-icon-in float-right"></span>
+                                <img class="margin-right-10 padding-10 float-right" ng-src="{{rightMenuCtrl.browserLogoUrl.BASE_PATH}}{{user[4].split(' ')[0]  | lowercase}}/{{user[4].split(' ')[0]  | lowercase}}{{rightMenuCtrl.browserLogoUrl.IMAGE_CONSTRAINT}}"></img>
                             </div>
                         </li>
-                        <li class="none-list-type" style="font-size: larger; height:75px; background-color:#EDEEF0; border-bottom: solid 1px gray;"
+                        <li class="none-list-type right-menu-li relative"
                             ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
-                            <div style="height:50%" ng-repeat="(keyData, valueUser) in rightMenuCtrl.getConvertedUserData(user[2])">
+                            <div class="right-menu-text-div" ng-repeat="(keyData, valueUser) in rightMenuCtrl.getConvertedUserData(user[2]).userInfo">
                                 <span class="padding-10" ng-bind="keyData | uppercase"></span> <span class="padding-10" ng-bind="valueUser"></span>
                             </div>
+                            <button href="JavaScript:Void(0);" class="right-menu-action-button">Action</button>
                         </li>
                     </div>
                 </div>

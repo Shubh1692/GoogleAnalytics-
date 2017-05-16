@@ -9,6 +9,7 @@ function _googleAnalyticsService($http, $q) {
     googleAnalyticsService.serverRequest = _serverRequest;
     googleAnalyticsService.serverError = _serverError;
     googleAnalyticsService.getFormattedCurrentDate = _getFormattedCurrentDate;
+    googleAnalyticsService.getConvertedUserData = _getConvertedUserData;
     // Method for Do Server Request
     function _serverRequest(url, method, postData) {
         var defer = $q.defer();
@@ -39,7 +40,15 @@ function _googleAnalyticsService($http, $q) {
     };
 
     function _getFormattedCurrentDate() {
-        return new Date().getFullYear() + '/' + new Date().getMonth() +  '/' + new Date().getDate();
+        var month = (new Date().getMonth() + 1).toString().length === 1 ? ('0' + (new Date().getMonth() + 1).toString()) : (new Date().getMonth() + 1).toString();
+        var day = new Date().getDate().toString().length === 1 ? ('0' + new Date().getDate().toString()) : new Date().getDate().toString();
+        return day  + '-' + month  +  '-' + new Date().getFullYear();
+    }
+
+    function _getConvertedUserData (userData) {
+        if(angular.isString(userData))
+            userData = JSON.parse(CryptoJS.enc.Base64.parse(userData).toString(CryptoJS.enc.Utf8));
+        return userData;
     }
 }
 

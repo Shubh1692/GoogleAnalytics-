@@ -3,9 +3,9 @@ angular.module('googleAnalyticsModule')
     .filter('liveUserSort', _liveUserSort)
     .filter('dateMenuSort', _dateMenuSort);
 
-_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT', 'GOAL_COMPLETE_ICON_PATH', '$filter'];
+_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT', 'GOAL_COMPLETE_ICON_PATH', '$filter', 'GOAL_EVENT_NAME'];
 _liveUserSort.$inject = ['_'];
-function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT, GOAL_COMPLETE_ICON_PATH, $filter) {
+function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT, GOAL_COMPLETE_ICON_PATH, $filter, GOAL_EVENT_NAME) {
     var googleAnalyticsCtrl = this, slider, clusterPadding = 6, // separation between different-color circles
         intervalInstance,
         subForceGlobal, subForceNodes,
@@ -186,7 +186,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
 
     // For Display Real Time API Data
     function _displayApiData(res) {
-        console.log(res)
         var exitArray = [];
         googleAnalyticsCtrl.onsiteUser = res.totalsForAllResults['rt:activeUsers'];
         if (res.rows && res.rows.length !== 0) {
@@ -286,20 +285,27 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             previousCompletedUser = angular.copy(goalCompletedUsers);
             force.stop();
             _.each(goalCompletedUsers, function (userData, userIndex) {
-                var parsedWordArray = CryptoJS.enc.Base64.parse(userData[2]).toString(CryptoJS.enc.Utf8);
-                goalCompletedUsers[userIndex][2] = JSON.parse(parsedWordArray);
+                var parsedWordArray = googleAnalyticsService.getConvertedUserData(angular.copy(userData[2]));
+                goalCompletedUsers[userIndex][2] = parsedWordArray;
                 var index = nodes.map(function (obj) {
                     return obj.userId;
-                }).indexOf(JSON.parse(parsedWordArray).id);
-                googleAnalyticsCtrl.userInfoArray.push(JSON.parse(parsedWordArray));
+                }).indexOf(parsedWordArray.id);
+                googleAnalyticsCtrl.userInfoArray.push(parsedWordArray);
                 if (index !== -1) {
                     nodes[index].cluster = 1;
-                    clusters[1] = { name: nodes[index].name, color: nodes[index].color, x: nodes[index].x + 100 || 0, y: nodes[index].y || 0, radius: 4, cluster: 1, userId: JSON.parse(parsedWordArray).id };
-                    svg.selectAll('circle[userId="' + JSON.parse(parsedWordArray).id + '"]')
+                    clusters[1] = { name: nodes[index].name, color: nodes[index].color, x: nodes[index].x + 100 || 0, y: nodes[index].y || 0, radius: 4, cluster: 1, userId: parsedWordArray.id };
+                    svg.selectAll('circle[userId="' + parsedWordArray.id + '"]')
                         .attr('r', 6)
                         .style("fill", "url(#image)")
                         .transition()
                         .each("end", function (e) {
+                            var userInfo = svg.selectAll('circle[userId="' + parsedWordArray.id + '"]')[0][0].getAttribute('userInformation').split(',');
+                            
+                            userInfo[1] = GOAL_EVENT_NAME;
+                            userInfo[2] = angular.copy(userData[2]);
+                            console.log(userInfo, googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME])
+                            googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME].unshift(userInfo);
+                            console.log(googleAnalyticsCtrl.userDataForRightMenu)
                             force.start();
                         })
                         .attr('userData', parsedWordArray)
@@ -337,12 +343,11 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     // Enter Main User with Animation
     function _enterUser(menuObj, row) {
         angular.forEach(row[2], function (userId) {
-            console.log(userId[1])
-            if (svg.selectAll('circle[userId="' + userId[1] + '"]')[0].length === 0) {
+            if (svg.selectAll('circle[userId="' + userId[2] + '"]')[0].length === 0) {
                 force.stop();
                 var indx = _uniqIndex(row[0]);
-                nodes.push({ name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: userId[1], userData: { id: userId[1] } });
-                clusters[0] = { name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: userId[1] };
+                nodes.push({ name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: userId[2], userData: { id: userId[2] } });
+                clusters[0] = { name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: userId[2] };
                 force.nodes(nodes);
                 force.start();
                 node = node.data(nodes);
@@ -352,7 +357,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                     .attr("cx", function (d) { return d.x || 0; })
                     .attr("cy", function (d) { return d.y || 0; })
                     .attr("remove", "no")
-                    .attr("userId", userId[1])
+                    .attr("userId", userId[2])
                     .attr("userInformation", userId)
                     .attr("r", 4)
                     .style("fill", function (d) {
@@ -384,8 +389,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                             .duration(500)
                             .style("opacity", 0);
                     })
-                    .call(force.drag)
-                googleAnalyticsService.getFormattedCurrentDate();
+                    .call(force.drag);
+                if(!googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()])
+                    googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()] = {
+                        onload : []
+                    };
+                googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()].onload.unshift(userId);
+
             }
         })
     }

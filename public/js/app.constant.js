@@ -55,4 +55,8 @@ angular.module('googleAnalyticsModule')
     ])
     .constant('MAX_MENU_COUNT', 10)
     .constant('GOAL_EVENT_NAME', 'login')
-    .constant('GOAL_COMPLETE_ICON_PATH', '/images/star_2.png');
+    .constant('GOAL_COMPLETE_ICON_PATH', '/images/star_2.png')
+    .constant('BROWSER_LOGOS_PATH',  {
+        'BASE_PATH' : '/lib/browser-logos/src/',
+        'IMAGE_CONSTRAINT' : '_16x16.png'
+    });

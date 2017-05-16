@@ -245,3 +245,39 @@ div.tooltip {
     color: white;
     text-align: center;
 }
+
+.right-menu-scroll-content {
+    overflow: scroll; 
+    height: 97%;
+}
+
+.right-menu-total-count {
+    position: absolute; 
+    right: 0; top: 0; 
+    color:lightgray;
+}
+
+.right-menu-li {
+    font-size: larger; 
+    height:75px; 
+    white-space: nowrap; 
+    border-bottom: solid 1px gray;
+}
+.right-menu-text-div {
+    height:50%;
+}
+
+.right-menu-action-button {
+    position: absolute;
+    margin-bottom: 10px;
+    bottom: 0;
+    right: 2%;
+    background: transparent;
+    border: none;
+    color : #B4DFF0;
+}
+
+.right-menu-li button:focus {
+    outline:0;
+    color :#1F6B8B;
+}
