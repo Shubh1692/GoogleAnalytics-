@@ -59,8 +59,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("y1", 0)
             .attr("x2", mainSvgWidth * 0.7)
             .attr("y2", mainSvgHeight * 0.5),
-    clusters = new Array(1),
-    firstFlag, previousCompletedUser;
+        clusters = new Array(1),
+        firstFlag, previousCompletedUser;
     // Controller Functions 
     googleAnalyticsCtrl.startTime = _startTime;
     googleAnalyticsCtrl.setColor = _setColor;
@@ -300,10 +300,19 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                         .transition()
                         .each("end", function (e) {
                             var userInfo = svg.selectAll('circle[userId="' + parsedWordArray.id + '"]')[0][0].getAttribute('userInformation').split(',');
-                            
+
                             userInfo[1] = GOAL_EVENT_NAME;
                             userInfo[2] = angular.copy(userData[2]);
                             console.log(userInfo, googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME])
+                            if (!googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()]) {
+                                googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()] = {
+                                    date: googleAnalyticsService.getFormattedCurrentDate()
+                                };
+                                googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME] = [];
+                            }
+                            if(!googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME])
+                                googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME] = [];
+
                             googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME].unshift(userInfo);
                             console.log(googleAnalyticsCtrl.userDataForRightMenu)
                             force.start();
@@ -390,9 +399,10 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                             .style("opacity", 0);
                     })
                     .call(force.drag);
-                if(!googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()])
+                if (!googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()])
                     googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()] = {
-                        onload : []
+                        onload: [],
+                        date: googleAnalyticsService.getFormattedCurrentDate()
                     };
                 googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()].onload.unshift(userId);
 
