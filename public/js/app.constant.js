@@ -59,4 +59,13 @@ angular.module('googleAnalyticsModule')
     .constant('BROWSER_LOGOS_PATH',  {
         'BASE_PATH' : '/lib/browser-logos/src/',
         'IMAGE_CONSTRAINT' : '_16x16.png'
+    })
+     .constant('VISITOR_ICONS_PATH',  {
+        'BASE_PATH' : '/images/visitor_analytics_icons/',
+        'IMAGE_CONSTRAINT' : '.svg'
+    })
+    .constant('NODE_WEB_API_DEMO', {
+        'REAL_TIME_DATA_API': 'getRealTimeDataDemoAPI',
+        'ALL_TIME_DATA_API': 'getGoogleAnalyticsAllData',
+        'ALL_TIME_USER_DATA_API': 'getGoogleAnalyticsUserData'
     });

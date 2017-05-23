@@ -127,7 +127,7 @@ app.get('/getGoogleAnalyticsUserData', function (req, res) {
         'metrics': 'ga:users',
         'dimensions': 'ga:date, ga:eventCategory, ga:eventAction, ga:countryIsoCode, ga:browser, ga:deviceCategory, ga:userType',
         'sort': '-ga:date',
-       // 'filters' : 'ga:userType==New Visitor,ga:userType==Returning Visitor'
+        // 'filters' : 'ga:userType==New Visitor,ga:userType==Returning Visitor'
     }, function (err, response) {
         if (err) {
             res.send({
@@ -156,7 +156,58 @@ app.get('/getGoogleAnalyticsUserData', function (req, res) {
         });
     });
 })
+
+app.get('/getRealTimeDataDemoAPI', function (req, res) {
+    response = _createDynmicDemoData(req.query.dimensionsId)
+    var rowArray = [];
+    var userInfo = [];
+    response.totalsForAllResults = {};
+    response.totalsForAllResults['rt:activeUsers'] = 0;
+    _.each(response.rows, function (value) {
+        if (value[2] !== '(not set)' && value[1] === 'onload') {
+            var countryName = _.find(countryCodes, function (countryValue) {
+                if (countryValue.name === value[3]) {
+                    return countryValue;
+                }
+            });
+            value[3] = countryName.alpha2;
+            response.totalsForAllResults['rt:activeUsers']++;
+            var index = rowArray.map(function (obj) {
+                return obj[0];
+            }).indexOf(value[0]);
+            if (index === -1) {
+                rowArray.push([value[0], 1, [value]])
+            } else {
+                rowArray[index][1]++;
+                rowArray[index][2].push(value)
+            }
+        } else if (value[1] !== '(not set)') {
+            userInfo.push([value[0], 1, value[2], value[1]])
+        }
+    });
+    response.rows = rowArray;
+    response.userInfo = userInfo;
+    res.send({
+        successMessage: CONFIG.REAL_TIME_API_SUCCESS_MESSAGE,
+        data: response
+    });
+})
 // For Check Start Server function
 app.listen(CONFIG.NODE_SERVER_PORT, function () {
     console.log('Server Started In Rest Api on port ' + CONFIG.NODE_SERVER_PORT);
 });
+
+function _createDynmicDemoData(dimensionsId) {
+    var response = {
+        rows : []
+    },
+    countries = [];
+    _.each(countryCodes, function(country){
+        countries.push(country);
+    });
+    for(var i= 0; i <2; i++) {
+        var name = countries[parseInt(Math.random() * 20)].name || 'India';
+        response.rows.push([name.split(' ')[0], 'onload', parseInt(Math.random() * countries.length), 'India', 'Chrome', 'DESKTOP', 'NEW', 1])
+    }
+    return response;
+}

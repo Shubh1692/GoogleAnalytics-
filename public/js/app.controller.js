@@ -3,9 +3,9 @@ angular.module('googleAnalyticsModule')
     .filter('liveUserSort', _liveUserSort)
     .filter('dateMenuSort', _dateMenuSort);
 
-_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT', 'GOAL_COMPLETE_ICON_PATH', '$filter', 'GOAL_EVENT_NAME'];
+_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT', 'GOAL_COMPLETE_ICON_PATH', '$filter', 'GOAL_EVENT_NAME', 'NODE_WEB_API_DEMO'];
 _liveUserSort.$inject = ['_'];
-function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT, GOAL_COMPLETE_ICON_PATH, $filter, GOAL_EVENT_NAME) {
+function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT, GOAL_COMPLETE_ICON_PATH, $filter, GOAL_EVENT_NAME, NODE_WEB_API_DEMO) {
     var googleAnalyticsCtrl = this, slider, clusterPadding = 6, // separation between different-color circles
         intervalInstance,
         subForceGlobal, subForceNodes,
@@ -88,6 +88,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     googleAnalyticsCtrl.onsiteUser = 0;
     googleAnalyticsCtrl.goalOneDivWidth = mainSvgWidth - (mainSvgWidth * 0.7);
     googleAnalyticsCtrl.userDataForRightMenu = {};
+    googleAnalyticsCtrl.demoApiFlag = true;
     //Init Functions or Variables
     menuObjectInstanceName = VIEWING_BY_SOURCE[0].name;
     _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
@@ -157,8 +158,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         //         'rt:activeUsers': 10
         //     }
         // }
-        googleAnalyticsService.serverRequest(NODE_WEB_API.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
-            .then(_displayApiData);
+        if (!googleAnalyticsCtrl.demoApiFlag)
+            googleAnalyticsService.serverRequest(NODE_WEB_API.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
+                .then(_displayApiData);
+        else
+            googleAnalyticsService.serverRequest(NODE_WEB_API_DEMO.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
+                .then(_displayApiData);
         // if (flag) {
         //     res.rows = [["India", 2, ['11111', '11112']]]
         // } else {
@@ -186,6 +191,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
 
     // For Display Real Time API Data
     function _displayApiData(res) {
+        console.log('res', angular.copy(res))
         var exitArray = [];
         googleAnalyticsCtrl.onsiteUser = res.totalsForAllResults['rt:activeUsers'];
         if (res.rows && res.rows.length !== 0) {
@@ -255,6 +261,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 } else if (parseInt(value[1], 10) - dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length < 0) {
                     var length = dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].length;
                     var rotation = length - parseInt(value[1], 10);
+                    console.log(rotation)
                     angular.forEach(node[0], function (nodeValue) {
                         if (nodeValue.getAttribute("show-menu") === value[0] && nodeValue.getAttribute("remove") === "no" && rotation) {
                             dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'].pop();
@@ -303,14 +310,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
 
                             userInfo[1] = GOAL_EVENT_NAME;
                             userInfo[2] = angular.copy(userData[2]);
-                            console.log(userInfo, googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME])
                             if (!googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()]) {
                                 googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()] = {
                                     date: googleAnalyticsService.getFormattedCurrentDate()
                                 };
                                 googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME] = [];
                             }
-                            if(!googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME])
+                            if (!googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME])
                                 googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME] = [];
 
                             googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME].unshift(userInfo);
@@ -348,17 +354,22 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("cx", function (d) { return d.x; })
             .attr("cy", function (d) { return d.y; });
     }
-
+    var flagS = true
     // Enter Main User with Animation
     function _enterUser(menuObj, row) {
+        console.log('enteruser')
         angular.forEach(row[2], function (userId) {
             if (svg.selectAll('circle[userId="' + userId[2] + '"]')[0].length === 0) {
-                force.stop();
+                console.log('enteruser vijay',row[0])
+                //force.stop();
                 var indx = _uniqIndex(row[0]);
                 nodes.push({ name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: userId[2], userData: { id: userId[2] } });
                 clusters[0] = { name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: userId[2] };
                 force.nodes(nodes);
-                force.start();
+                if(flagS)
+                    force.start();
+                else 
+                    force.resume();
                 node = node.data(nodes);
                 node.enter().append("circle")
                     .attr("class", "node main_circle")
@@ -421,6 +432,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
 
     // Exit User with Animation
     function _exitUser(elementId, name) {
+        console.log('exit', elementId)
         var index = elementId.split('_')[elementId.split('_').length - 1];
         var mergeNode = svg.selectAll("circle[name='" + name + "']");
         d3.select("#" + elementId)
@@ -459,8 +471,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     // For All Time Data API Calling
     function _getAnalyticsDataByTime(selectedTime) {
         //firstFlag = true;
-        googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' + selectedTime.time.startDate + '&endDate=' + selectedTime.time.endDate + '&dimensionsId=' + googleAnalyticsCtrl.selectedSource.gaValue, 'GET')
-            .then(_setAllTimeAPIData);
+        if (!googleAnalyticsCtrl.demoApiFlag)
+            googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' + selectedTime.time.startDate + '&endDate=' + selectedTime.time.endDate + '&dimensionsId=' + googleAnalyticsCtrl.selectedSource.gaValue, 'GET')
+                .then(_setAllTimeAPIData);
+        else
+            googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' + selectedTime.time.startDate + '&endDate=' + selectedTime.time.endDate + '&dimensionsId=' + googleAnalyticsCtrl.selectedSource.gaValue, 'GET')
+                .then(_setAllTimeAPIData);
     }
 
     // For Display All Time API Data

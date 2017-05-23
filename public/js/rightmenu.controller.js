@@ -1,7 +1,7 @@
 angular.module('googleAnalyticsModule')
     .controller('rightMenuController', _rightMenuController);
-_rightMenuController.$inject = ['$timeout', 'googleAnalyticsService', '$window', 'NODE_WEB_API', 'GOAL_EVENT_NAME', 'BROWSER_LOGOS_PATH'];
-function _rightMenuController($timeout, googleAnalyticsService, $window, NODE_WEB_API, GOAL_EVENT_NAME, BROWSER_LOGOS_PATH) {
+_rightMenuController.$inject = ['$timeout', 'googleAnalyticsService', '$window', 'NODE_WEB_API', 'GOAL_EVENT_NAME', 'BROWSER_LOGOS_PATH', 'VISITOR_ICONS_PATH'];
+function _rightMenuController($timeout, googleAnalyticsService, $window, NODE_WEB_API, GOAL_EVENT_NAME, BROWSER_LOGOS_PATH, VISITOR_ICONS_PATH) {
     var rightMenuCtrl = this;
     
     // 
@@ -12,6 +12,7 @@ function _rightMenuController($timeout, googleAnalyticsService, $window, NODE_WE
     // Controller Function
     rightMenuCtrl.getConvertedUserData = googleAnalyticsService.getConvertedUserData;
     rightMenuCtrl.browserLogoUrl = BROWSER_LOGOS_PATH;
+    rightMenuCtrl.VISITOR_ICONS_PATH = VISITOR_ICONS_PATH;
     console.log(rightMenuCtrl.browserLogoUrl)
     $timeout(function () {
         rightMenuCtrl.setBackGroundColorFlag = true;
