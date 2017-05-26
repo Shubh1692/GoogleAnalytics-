@@ -7,6 +7,7 @@ var express = require('express'), // require express code
     app = express(),
     CONFIG = require('./app.config'),
     _ = require('lodash'),
+    CryptoJS = require("crypto-js"),
     countryCodes = require('country-data').countries;
 app.use(bodyParser.urlencoded({
     extended: false
@@ -49,34 +50,26 @@ app.get('/getGoogleAnalyticsRealTimeData', function (req, res) {
             });
             return;
         }
-        var rowArray = [];
-        var userInfo = [];
-        response.totalsForAllResults['rt:activeUsers'] = 0;
-        _.each(response.rows, function (value) {
-            if (value[2] !== '(not set)' && value[1] === 'onload') {
-                var countryName = _.find(countryCodes, function (countryValue) {
+        response = {
+            rows: response.rows,
+            totalsForAllResults: {
+                'rt:activeUsers': 0
+            }
+        }
+        _.each(response.rows, function (value, key) {
+            if (value && (value[1] === '(not set)' || value[2] === '(not set)'))
+                response.rows.splice(key, 1);
+            else if (value && (value[1] !== '(not set)' && value[2] !== '(not set)')) {
+                var countryCode = _.find(countryCodes, function (countryValue) {
                     if (countryValue.name === value[3]) {
                         return countryValue;
                     }
                 });
-                value[3] = countryName.alpha2;
-                response.totalsForAllResults['rt:activeUsers']++;
-                var index = rowArray.map(function (obj) {
-                    return obj[0];
-                }).indexOf(value[0]);
-                console.log(value)
-                if (index === -1) {
-                    rowArray.push([value[0], 1, [value]])
-                } else {
-                    rowArray[index][1]++;
-                    rowArray[index][2].push(value)
-                }
-            } else if (value[1] !== '(not set)') {
-                userInfo.push([value[0], 1, value[2], value[1]])
+                response.rows[key][3] = countryCode.alpha2;
             }
+            if (value && (value[1] !== 'onload'))
+                response.totalsForAllResults['rt:activeUsers']++;
         });
-        response.rows = rowArray;
-        response.userInfo = userInfo;
         res.send({
             successMessage: CONFIG.REAL_TIME_API_SUCCESS_MESSAGE,
             data: response
@@ -105,6 +98,10 @@ app.get('/getGoogleAnalyticsAllData', function (req, res) {
                 data: err
             });
             return;
+        }
+        response = {
+            rows: response.rows,
+            totalsForAllResults: response.totalsForAllResults
         }
         res.send({
             successMessage: CONFIG.ALL_TIME_API_SUCCESS_MESSAGE,
@@ -146,7 +143,8 @@ app.get('/getGoogleAnalyticsUserData', function (req, res) {
             successMessage: CONFIG.ALL_TIME_API_SUCCESS_MESSAGE,
             data: {
                 data: groupByEventCategory,
-                total: response.rows.length
+                total: response.rows.length,
+                res: response
             }
         });
     }, function (err) {
@@ -162,31 +160,7 @@ app.get('/getRealTimeDataDemoAPI', function (req, res) {
     var rowArray = [];
     var userInfo = [];
     response.totalsForAllResults = {};
-    response.totalsForAllResults['rt:activeUsers'] = 0;
-    _.each(response.rows, function (value) {
-        if (value[2] !== '(not set)' && value[1] === 'onload') {
-            var countryName = _.find(countryCodes, function (countryValue) {
-                if (countryValue.name === value[3]) {
-                    return countryValue;
-                }
-            });
-            value[3] = countryName.alpha2;
-            response.totalsForAllResults['rt:activeUsers']++;
-            var index = rowArray.map(function (obj) {
-                return obj[0];
-            }).indexOf(value[0]);
-            if (index === -1) {
-                rowArray.push([value[0], 1, [value]])
-            } else {
-                rowArray[index][1]++;
-                rowArray[index][2].push(value)
-            }
-        } else if (value[1] !== '(not set)') {
-            userInfo.push([value[0], 1, value[2], value[1]])
-        }
-    });
-    response.rows = rowArray;
-    response.userInfo = userInfo;
+    response.totalsForAllResults['rt:activeUsers'] = 2;
     res.send({
         successMessage: CONFIG.REAL_TIME_API_SUCCESS_MESSAGE,
         data: response
@@ -199,15 +173,71 @@ app.listen(CONFIG.NODE_SERVER_PORT, function () {
 
 function _createDynmicDemoData(dimensionsId) {
     var response = {
-        rows : []
-    },
-    countries = [];
-    _.each(countryCodes, function(country){
-        countries.push(country);
-    });
-    for(var i= 0; i <2; i++) {
-        var name = countries[parseInt(Math.random() * 20)].name || 'India';
-        response.rows.push([name.split(' ')[0], 'onload', parseInt(Math.random() * countries.length), 'India', 'Chrome', 'DESKTOP', 'NEW', 1])
+        rows: []
+    }, countries, randomValue, userInfoData, encodeString;
+    if (dimensionsId === 'rt:country') {
+        countries = _getCountryCode();
+        for (var i = 0; i < CONFIG.DUMMY_DATA_LIST.MAX_COUNT; i++) {
+            randomValue = Math.random();
+            var name = countries[parseInt(randomValue * 20)].name || 'India';
+            var countryCodeVar = countries[parseInt(randomValue * 20)].alpha2 || 'IN';
+            response.rows.push([name.split(' ')[0], 'onload', parseInt(randomValue * countries.length), countryCodeVar, 'Chrome', 'DESKTOP', 'NEW', 1]);
+            if (randomValue > 0.5) {
+                userInfoData = {
+                    "userInfo": {
+                        "NAME": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME.length * randomValue)],
+                        "EMAIL": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL.length * randomValue)]
+                    },
+                    "id": parseInt(randomValue * countries.length)
+                }
+                encodeString = CryptoJS.enc.Utf8.parse(JSON.stringify(userInfoData));
+                encodeString = CryptoJS.enc.Base64.stringify(encodeString);
+                response.rows.push([name.split(' ')[0], CONFIG.DUMMY_DATA_LIST.GOAL_EVENT_NAME, encodeString, countryCodeVar, 'Chrome', 'DESKTOP', 'NEW', 1]);
+            }
+
+        }
+    } else if (dimensionsId === 'rt:browser') {
+        for (var i = 0; i < CONFIG.DUMMY_DATA_LIST.MAX_COUNT; i++) {
+            randomValue = Math.random();
+            response.rows.push([CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST.length)], 'onload', parseInt(randomValue * 5000), 'IN', CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST.length)], 'DESKTOP', 'NEW', 1]);
+            if (randomValue > 0.5) {
+                userInfoData = {
+                     "userInfo": {
+                        "NAME": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME.length * randomValue)],
+                        "EMAIL": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL.length * randomValue)]
+                    },
+                    "id": parseInt(randomValue * 5000)
+                }
+                encodeString = CryptoJS.enc.Utf8.parse(JSON.stringify(userInfoData));
+                encodeString = CryptoJS.enc.Base64.stringify(encodeString);
+                response.rows.push([CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST.length)], 'onload', encodeString, 'IN', CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST.length)], 'DESKTOP', 'NEW', 1]);
+            }
+        }
+    } else if (dimensionsId === 'rt:operatingSystem') {
+        for (var i = 0; i < CONFIG.DUMMY_DATA_LIST.MAX_COUNT; i++) {
+            randomValue = Math.random();
+            response.rows.push([CONFIG.DUMMY_DATA_LIST.DUMMY_OS_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_OS_LIST.length)], 'onload', parseInt(randomValue * 5000), 'IN', 'Chrome', 'DESKTOP', 'NEW', 1]);
+            if (randomValue > 0.5) {
+                userInfoData = {
+                     "userInfo": {
+                        "NAME": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME.length * randomValue)],
+                        "EMAIL": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL.length * randomValue)]
+                    },
+                    "id": parseInt(randomValue * 5000)
+                }
+                encodeString = CryptoJS.enc.Utf8.parse(JSON.stringify(userInfoData));
+                encodeString = CryptoJS.enc.Base64.stringify(encodeString);
+                response.rows.push([CONFIG.DUMMY_DATA_LIST.DUMMY_OS_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_OS_LIST.length)], 'onload', encodeString, 'IN', 'Chrome', 'DESKTOP', 'NEW', 1])
+            }
+        }
     }
     return response;
+}
+
+function _getCountryCode() {
+    var countries = [];
+    _.each(countryCodes, function (country) {
+        countries.push(country);
+    });
+    return countries;
 }

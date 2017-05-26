@@ -24,6 +24,16 @@ module.exports = {
         'Access-Control-Allow-Headers': 'X-Requested-With,content-type',
         'Access-Control-Allow-Credentials': true
     },
-    GOOGLE_MENU_DATA_START_DATE : new Date('2007-01-01').toISOString().slice(0, 10),
-    GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS : ['rt:country', 'rt:browser', 'rt:deviceCategory', 'rt:userType']
+    GOOGLE_MENU_DATA_START_DATE: new Date('2007-01-01').toISOString().slice(0, 10),
+    GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS: ['rt:country', 'rt:browser', 'rt:deviceCategory', 'rt:userType'],
+    DUMMY_DATA_LIST: {
+        DUMMY_BROWSER_LIST: ['Chrome', 'Firefox', 'Safari', 'Android Webview'],
+        DUMMY_OS_LIST: ['Windows', 'Macintosh', 'iOS', 'Android'],
+        MAX_COUNT: 5,
+        GOAL_EVENT_NAME: 'login',
+        DUMMY_USERS : {
+            NAME: ['chocolate bunny', 'red penguin', 'blue otter', 'pink wombat', 'grey sloth', 'purple sloth', 'black koala', 'white panther', 'green shrimp', 'fast crab', 'slow tuna', 'sleepy salmon', 'cooked cod', 'silly python', 'yummy flamingo', 'running moose', 'flying hawk', 'sitting racoon',],
+            EMAIL: ['bunny@demo.com', 'penguin@demo.com', 'otter@demo.com', 'wombat@demo.com', 'sloth@demo.com', 'koala@demo.com', 'panther@demo.com', 'shrimp@demo.com', 'crab@demo.com', 'tuna@demo.com', 'salmon@demo.com', 'cod@demo.com', 'python@demo.com', 'flamingo@demo.com', 'moose@demo.com', 'hawk@demo.com', 'eagle@demo.com', 'racoon@demo.com']
+        }
+    }
 };

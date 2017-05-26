@@ -67,5 +67,6 @@ angular.module('googleAnalyticsModule')
     .constant('NODE_WEB_API_DEMO', {
         'REAL_TIME_DATA_API': 'getRealTimeDataDemoAPI',
         'ALL_TIME_DATA_API': 'getGoogleAnalyticsAllData',
-        'ALL_TIME_USER_DATA_API': 'getGoogleAnalyticsUserData'
+        'ALL_TIME_USER_DATA_API': 'getGoogleAnalyticsUserData',
+        'DUMMY_API_DEFAULT_FLAG' : true
     });

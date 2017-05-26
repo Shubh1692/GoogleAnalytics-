@@ -1,7 +1,7 @@
 angular.module('googleAnalyticsModule')
     .controller('rightMenuController', _rightMenuController);
-_rightMenuController.$inject = ['$timeout', 'googleAnalyticsService', '$window', 'NODE_WEB_API', 'GOAL_EVENT_NAME', 'BROWSER_LOGOS_PATH', 'VISITOR_ICONS_PATH'];
-function _rightMenuController($timeout, googleAnalyticsService, $window, NODE_WEB_API, GOAL_EVENT_NAME, BROWSER_LOGOS_PATH, VISITOR_ICONS_PATH) {
+_rightMenuController.$inject = ['$timeout', 'googleAnalyticsService', '$window', 'NODE_WEB_API', 'GOAL_EVENT_NAME', 'BROWSER_LOGOS_PATH', 'VISITOR_ICONS_PATH', '_'];
+function _rightMenuController($timeout, googleAnalyticsService, $window, NODE_WEB_API, GOAL_EVENT_NAME, BROWSER_LOGOS_PATH, VISITOR_ICONS_PATH, _) {
     var rightMenuCtrl = this;
     
     // 
@@ -13,7 +13,6 @@ function _rightMenuController($timeout, googleAnalyticsService, $window, NODE_WE
     rightMenuCtrl.getConvertedUserData = googleAnalyticsService.getConvertedUserData;
     rightMenuCtrl.browserLogoUrl = BROWSER_LOGOS_PATH;
     rightMenuCtrl.VISITOR_ICONS_PATH = VISITOR_ICONS_PATH;
-    console.log(rightMenuCtrl.browserLogoUrl)
     $timeout(function () {
         rightMenuCtrl.setBackGroundColorFlag = true;
         googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_USER_DATA_API, 'GET')
@@ -22,10 +21,20 @@ function _rightMenuController($timeout, googleAnalyticsService, $window, NODE_WE
 
     function _getHistoricalUserData(result) {
         if(angular.isObject(rightMenuCtrl.userData) && Object.keys(rightMenuCtrl.userData).length) {
-            console.log(rightMenuCtrl.userData)
-        } else {
-            rightMenuCtrl.userData = result.data;
+            _.each(rightMenuCtrl.userData[googleAnalyticsService.getFormattedCurrentDate()].onload, function(value){
+                if(!result.data[googleAnalyticsService.getFormattedCurrentDate()]) {
+                    result.data[googleAnalyticsService.getFormattedCurrentDate()] = {
+                        onload : [],
+                        date : new Date()
+                    };
+                    result.data[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME] = [];
+                }
+                if(value[1] === 'onload')
+                    result.data[googleAnalyticsService.getFormattedCurrentDate()].onload.push(value);
+                else if(value[1] === GOAL_EVENT_NAME)
+                    result.data[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME].push(value);
+            })
         }
-        console.log(rightMenuCtrl.userData)
+        rightMenuCtrl.userData = result.data;
     }
 }
