@@ -265,7 +265,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             });
         }
         svg.selectAll(".main_circle")
-            .each(_mainCluster(10 * e.alpha * e.alpha))
+            .each(_mainCluster(0.5 * e.alpha * e.alpha))
             .each(_mainCollides(.5))
             .attr("cx", function (d) { return d.x; })
             .attr("cy", function (d) { return d.y; });
