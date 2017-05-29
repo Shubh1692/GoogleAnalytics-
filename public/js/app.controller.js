@@ -471,7 +471,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         return scaleIndex;
     }
 
-    function _enterSubUser(nodeData, totalUser) {
+    function _enterSubUser(nodeData, totalUser) { 
         if (!nodeData)
             nodeData = [];
         if (subForceGlobal && angular.isFunction(subForceGlobal.stop))
