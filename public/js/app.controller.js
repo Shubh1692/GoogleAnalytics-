@@ -232,72 +232,23 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 }
                 _enterUser(dataPassingService.menuObj[menuObjectInstanceName], dataValue);
             });
-            _.each(node[0], function (existDataValue) {
+            _.each(node[0], function (existDataValue, existDataKey) {
                 if (existDataValue.getAttribute('remove') === 'no') {
                     var exitExits = _.findIndex(res.rows, function (dataValue) {
                         return (parseInt(existDataValue.getAttribute('userId')) === parseInt(dataValue[2]));
                     })
                     if (exitExits === -1)
-                        _exitUser(existDataValue);
+                        _exitUser(existDataValue, existDataKey);
                 }
             })
         } else {
-            _.each(node[0], function (existDataValue) {
+            _.each(node[0], function (existDataValue, existDataKey) {
                 if (existDataValue.getAttribute('remove') === 'no')
-                    _exitUser(existDataValue);
+                    _exitUser(existDataValue, existDataKey);
             })
         }
         googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
     };
-
-    // For Complete Goal Real Time Display
-    function _completeGoal(goalCompletedUsers) {
-        if (firstFlag && !angular.equals(goalCompletedUsers, previousCompletedUser)) {
-            googleAnalyticsCtrl.userInfoArray = [];
-            previousCompletedUser = angular.copy(goalCompletedUsers);
-            force.stop();
-            _.each(goalCompletedUsers, function (userData, userIndex) {
-                var parsedWordArray = googleAnalyticsService.getConvertedUserData(angular.copy(userData[2]));
-                goalCompletedUsers[userIndex][2] = parsedWordArray;
-                var index = nodes.map(function (obj) {
-                    return obj.userId;
-                }).indexOf(parsedWordArray.id);
-                googleAnalyticsCtrl.userInfoArray.push(parsedWordArray);
-                if (index !== -1) {
-                    nodes[index].cluster = 1;
-                    clusters[1] = { name: nodes[index].name, color: nodes[index].color, x: nodes[index].x + 100 || 0, y: nodes[index].y || 0, radius: 4, cluster: 1, userId: parsedWordArray.id };
-                    svg.selectAll('circle[userId="' + parsedWordArray.id + '"]')
-                        .attr('r', 6)
-                        .style("fill", "url(#image)")
-                        .transition()
-                        .each("end", function (e) {
-                            var userInfo = svg.selectAll('circle[userId="' + parsedWordArray.id + '"]')[0][0].getAttribute('userInformation').split(',');
-
-                            userInfo[1] = GOAL_EVENT_NAME;
-                            userInfo[2] = angular.copy(userData[2]);
-                            if (!googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()]) {
-                                googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()] = {
-                                    date: googleAnalyticsService.getFormattedCurrentDate()
-                                };
-                                googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME] = [];
-                            }
-                            if (!googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME])
-                                googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME] = [];
-
-                            googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME].unshift(userInfo);
-                            //console.log(googleAnalyticsCtrl.userDataForRightMenu)
-                            force.start();
-                        })
-                        .attr('userData', parsedWordArray)
-                        .attr("transform", "translate(" + 500 + "," + 0 + ")")
-                        .duration(1400);
-                }
-            });
-        } else {
-            firstFlag = true
-        }
-    }
-
 
     // For MainEnter Tick Function
     function tick(e) {
@@ -319,7 +270,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("cx", function (d) { return d.x; })
             .attr("cy", function (d) { return d.y; });
     }
-    var flagS = true
     // Enter Main User with Animation
     function _enterUser(menuObj, row) {
         var usrInfo = {};
@@ -330,15 +280,11 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         if (svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0].length === 0 && row[1] === 'onload') {
             dataPassingService.menuObj[menuObjectInstanceName][row[0]]['data'].push({ name: row[0], color: dataPassingService.menuObj[menuObjectInstanceName][row[0]]['color'], userId: row[2] });
             dataPassingService.menuObj[menuObjectInstanceName][row[0]]['display'] = true;
-            //force.stop();
+            force.stop();
             var indx = _uniqIndex(row[0]);
             nodes.push({ name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: row[2], userData: { id: row[2] } });
             clusters[0] = { name: row[0], color: menuObj[row[0]]['color'], x: 150, y: (indx + 1) * 20 + 10, radius: 4, cluster: 0, userId: row[2] };
             force.nodes(nodes);
-            if (flagS)
-                force.start();
-            else
-                force.resume();
             node = node.data(nodes);
             node.enter().append("circle")
                 .attr("class", "node main_circle")
@@ -364,7 +310,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 .style("stroke", function (d) { return d3.rgb(fill(d.color)).darker(2); })
                 .on("mouseover", function (d) {
                     if (node[0][d.index].getAttribute('userData')) {
-                        console.log(node[0][d.index].getAttribute('userData'))
                         var data = JSON.parse(node[0][d.index].getAttribute('userData'));
                         div.transition()
                             .duration(200)
@@ -386,6 +331,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                     date: new Date()
                 };
             googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()].onload.unshift(row);
+            force.start();
         } else if (svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0].length && row[1] === GOAL_EVENT_NAME && !svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0][0].getAttribute(GOAL_EVENT_NAME)) {
             var index = nodes.map(function (obj) {
                 return obj.userId;
@@ -430,11 +376,11 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
 
     // Exit User with Animation
-    function _exitUser(dataValueForExit) {
-        console.log(dataValueForExit.getAttribute('show-menu'))
-        console.log(dataPassingService.menuObj[menuObjectInstanceName][dataValueForExit.getAttribute('show-menu')])
-
-        var index = dataValueForExit.getAttribute('id').split('_')[dataValueForExit.getAttribute('id').split('_').length - 1];
+    function _exitUser(dataValueForExit, dataKeyForExit) {
+        console.log('_exitUser')
+        var index = _.findIndex(nodes, function (obj) {
+            return parseInt(obj.userId) === parseInt(dataValueForExit.getAttribute('userId'));
+        });
         var mergeNode = svg.selectAll("circle[name='" + dataValueForExit.getAttribute('show-menu') + "']");
         var dataIndex = _.findIndex(dataPassingService.menuObj[menuObjectInstanceName][dataValueForExit.getAttribute('show-menu')]['data'], function (menuData) {
             return parseInt(dataValueForExit.getAttribute('userId')) === parseInt(menuData.userId);
@@ -445,7 +391,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("remove", "yes")
             .transition()
             .each("end", function (e) {
-                subForceGlobal.stop()
+                subForceGlobal.stop();
                 var user = (parseInt(mergeNode[0][0].getAttribute("user")) + 1);
                 mergeNode.attr("r", function (d) {
                     subForceNodes[d.index].radius = Math.log(user) * 4 + 4;
@@ -526,6 +472,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
 
     function _enterSubUser(nodeData, totalUser) {
+        if (!nodeData)
+            nodeData = [];
         if (subForceGlobal && angular.isFunction(subForceGlobal.stop))
             subForceGlobal.stop();
         var padding = 1.5, // separation between same-color circles
