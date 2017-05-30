@@ -175,7 +175,7 @@ function _createDynmicDemoData(dimensionsId, changeFlag) {
     var countries, randomValue, userInfoData, encodeString,
         MaxCount = parseInt(Math.random() * CONFIG.DUMMY_DATA_LIST.MAX_COUNT);
     response.totalsForAllResults['rt:activeUsers'] = MaxCount;
-    if(changeFlag === 'true' || changeFlag === true) {
+    if (changeFlag === 'true' || changeFlag === true) {
         response.rows = [];
     }
     if (dimensionsId === 'rt:country') {
@@ -188,16 +188,21 @@ function _createDynmicDemoData(dimensionsId, changeFlag) {
             response.rows.push([name.split(' ')[0], 'onload', userId, countryCodeVar, 'Chrome', 'DESKTOP', 'NEW', 1]);
             if (randomValue > 0.5) {
                 response.rows.splice(parseInt(randomValue * response.rows.length - 1), 1);
-                // userInfoData = {
-                //     "userInfo": {
-                //         "NAME": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME.length * randomValue)],
-                //         "EMAIL": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL.length * randomValue)]
-                //     },
-                //     "id": userId
-                // }
-                // encodeString = CryptoJS.enc.Utf8.parse(JSON.stringify(userInfoData));
-                // encodeString = CryptoJS.enc.Base64.stringify(encodeString);
-                // response.rows.push([name.split(' ')[0], CONFIG.DUMMY_DATA_LIST.GOAL_EVENT_NAME, encodeString, countryCodeVar, 'Chrome', 'DESKTOP', 'NEW', 1]);   
+                if (response.rows[parseInt(randomValue * (response.rows.length - 1))] && response.rows[parseInt(randomValue * (response.rows.length - 1))][1] === 'onload') {
+                    var goalData = JSON.parse(JSON.stringify(response.rows[parseInt(randomValue * (response.rows.length - 1))]));
+                    userInfoData = {
+                        "userInfo": {
+                            "NAME": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME.length * randomValue)],
+                            "EMAIL": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL.length * randomValue)]
+                        },
+                        "id": goalData[2]
+                    }
+                    encodeString = CryptoJS.enc.Utf8.parse(JSON.stringify(userInfoData));
+                    encodeString = CryptoJS.enc.Base64.stringify(encodeString);
+                    goalData[1] = CONFIG.DUMMY_DATA_LIST.GOAL_EVENT_NAME;
+                    goalData[2] = encodeString;
+                    response.rows.push(goalData);
+                }
             }
 
         }
@@ -207,17 +212,22 @@ function _createDynmicDemoData(dimensionsId, changeFlag) {
             randomValue = Math.random();
             response.rows.push([CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST.length)], 'onload', userId, 'IN', CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST.length)], 'DESKTOP', 'NEW', 1]);
             if (randomValue > 0.5) {
-                // userInfoData = {
-                //      "userInfo": {
-                //         "NAME": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME.length * randomValue)],
-                //         "EMAIL": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL.length * randomValue)]
-                //     },
-                //     "id": userId
-                // }
-                // encodeString = CryptoJS.enc.Utf8.parse(JSON.stringify(userInfoData));
-                // encodeString = CryptoJS.enc.Base64.stringify(encodeString);
-                // response.rows.push([CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST.length)], 'onload', encodeString, 'IN', CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST.length)], 'DESKTOP', 'NEW', 1]);
                 response.rows.splice(parseInt(randomValue * response.rows.length - 1), 1)
+                if (response.rows[parseInt(randomValue * (response.rows.length - 1))] && response.rows[parseInt(randomValue * (response.rows.length - 1))][1] === 'onload') {
+                    var goalData = JSON.parse(JSON.stringify(response.rows[parseInt(randomValue * (response.rows.length - 1))]));
+                    userInfoData = {
+                        "userInfo": {
+                            "NAME": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME.length * randomValue)],
+                            "EMAIL": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL.length * randomValue)]
+                        },
+                        "id": goalData[2]
+                    }
+                    encodeString = CryptoJS.enc.Utf8.parse(JSON.stringify(userInfoData));
+                    encodeString = CryptoJS.enc.Base64.stringify(encodeString);
+                    goalData[1] = CONFIG.DUMMY_DATA_LIST.GOAL_EVENT_NAME;
+                    goalData[2] = encodeString;
+                    response.rows.push(goalData);
+                }
             }
         }
     } else if (dimensionsId === 'rt:operatingSystem') {
@@ -226,17 +236,22 @@ function _createDynmicDemoData(dimensionsId, changeFlag) {
             randomValue = Math.random();
             response.rows.push([CONFIG.DUMMY_DATA_LIST.DUMMY_OS_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_OS_LIST.length)], 'onload', userId, 'IN', 'Chrome', 'DESKTOP', 'NEW', 1]);
             if (randomValue > 0.5) {
-                // userInfoData = {
-                //      "userInfo": {
-                //         "NAME": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME.length * randomValue)],
-                //         "EMAIL": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL.length * randomValue)]
-                //     },
-                //     "id": userId
-                // }
-                // encodeString = CryptoJS.enc.Utf8.parse(JSON.stringify(userInfoData));
-                // encodeString = CryptoJS.enc.Base64.stringify(encodeString);
-                // response.rows.push([CONFIG.DUMMY_DATA_LIST.DUMMY_OS_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_OS_LIST.length)], 'onload', encodeString, 'IN', 'Chrome', 'DESKTOP', 'NEW', 1])
-                response.rows.splice(parseInt(randomValue * response.rows.length - 1), 1)
+                response.rows.splice(parseInt(randomValue * response.rows.length - 1), 1);
+                if (response.rows[parseInt(randomValue * (response.rows.length - 1))] && response.rows[parseInt(randomValue * (response.rows.length - 1))][1] === 'onload') {
+                    var goalData = JSON.parse(JSON.stringify(response.rows[parseInt(randomValue * (response.rows.length - 1))]));
+                    userInfoData = {
+                        "userInfo": {
+                            "NAME": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME.length * randomValue)],
+                            "EMAIL": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.EMAIL.length * randomValue)]
+                        },
+                        "id": goalData[2]
+                    }
+                    encodeString = CryptoJS.enc.Utf8.parse(JSON.stringify(userInfoData));
+                    encodeString = CryptoJS.enc.Base64.stringify(encodeString);
+                    goalData[1] = CONFIG.DUMMY_DATA_LIST.GOAL_EVENT_NAME;
+                    goalData[2] = encodeString;
+                    response.rows.push(goalData);
+                }
             }
         }
     }

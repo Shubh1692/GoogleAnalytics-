@@ -163,6 +163,7 @@ li {
     text-align: right;
     position: relative;
     bottom: 25%;
+    margin-left: -5px;
 }
 
 .width-auto {

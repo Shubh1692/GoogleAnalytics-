@@ -153,9 +153,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
     // For Get API Data
     function _callRealtimeDataAPI(changeFlag) {
-        console.log('changeFlag', changeFlag);
         changeFlag = angular.isUndefined(changeFlag) ? true : false;
-        console.log(changeFlag)
         if (!googleAnalyticsCtrl.demoApiFlag)
             googleAnalyticsService.serverRequest(NODE_WEB_API.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
                 .then(_displayApiData);
@@ -182,7 +180,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
 
     // For Display Real Time API Data
     function _displayApiData(res) {
-        console.log(res)
         var exitArray = [];
         googleAnalyticsCtrl.onsiteUser = res.totalsForAllResults['rt:activeUsers'];
         if (res.rows && res.rows.length !== 0) {
