@@ -187,7 +187,7 @@ function _createDynmicDemoData(dimensionsId, changeFlag) {
             var countryCodeVar = countries[parseInt(randomValue * 20)].alpha2 || 'IN';
             response.rows.push([name.split(' ')[0], 'onload', userId, countryCodeVar, 'Chrome', 'DESKTOP', 'NEW', 1]);
             if (randomValue > 0.5) {
-                // response.rows.splice(parseInt(randomValue * response.rows.length - 1), 1);
+                response.rows.splice(parseInt(randomValue * response.rows.length - 1), 1);
                 // userInfoData = {
                 //     "userInfo": {
                 //         "NAME": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME.length * randomValue)],
@@ -197,7 +197,7 @@ function _createDynmicDemoData(dimensionsId, changeFlag) {
                 // }
                 // encodeString = CryptoJS.enc.Utf8.parse(JSON.stringify(userInfoData));
                 // encodeString = CryptoJS.enc.Base64.stringify(encodeString);
-                response.rows.push([name.split(' ')[0], CONFIG.DUMMY_DATA_LIST.GOAL_EVENT_NAME, encodeString, countryCodeVar, 'Chrome', 'DESKTOP', 'NEW', 1]);   
+                // response.rows.push([name.split(' ')[0], CONFIG.DUMMY_DATA_LIST.GOAL_EVENT_NAME, encodeString, countryCodeVar, 'Chrome', 'DESKTOP', 'NEW', 1]);   
             }
 
         }
