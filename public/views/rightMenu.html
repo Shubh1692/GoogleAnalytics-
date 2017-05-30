@@ -1,13 +1,16 @@
 <div class="right-side-menu-content" ng-style="rightMenuCtrl.setBackGroundColorFlag && {'background-color': 'cyan'}">
     <div class="right-menu-tab">
         <div class="right-menu-tab-content">
-            <button href="JavaScript:Void(0);" ng-click="rightMenuCtrl.showVisitiors = true;rightMenuCtrl.showConversions = false;rightMenuCtrl.showSettings = false;" ng-style="rightMenuCtrl.showVisitiors && {'color': 'white'} || {'color': 'gray'}">Visitiors</button>
+            <button href="JavaScript:Void(0);" ng-click="rightMenuCtrl.showVisitiors = true;rightMenuCtrl.showConversions = false;rightMenuCtrl.showSettings = false;"
+                ng-style="rightMenuCtrl.showVisitiors && {'color': 'white'} || {'color': 'gray'}">Visitiors</button>
         </div>
         <div class="right-menu-tab-content">
-            <button href="JavaScript:Void(0);" ng-click="rightMenuCtrl.showVisitiors = false;rightMenuCtrl.showConversions = true;rightMenuCtrl.showSettings = false;" ng-style="rightMenuCtrl.showConversions && {'color': 'white'} || {'color': 'gray'}">Conversions</button>
+            <button href="JavaScript:Void(0);" ng-click="rightMenuCtrl.showVisitiors = false;rightMenuCtrl.showConversions = true;rightMenuCtrl.showSettings = false;"
+                ng-style="rightMenuCtrl.showConversions && {'color': 'white'} || {'color': 'gray'}">Conversions</button>
         </div>
         <div class="right-menu-tab-content">
-            <button href="JavaScript:Void(0);" ng-click="rightMenuCtrl.showVisitiors = false;rightMenuCtrl.showConversions = false;rightMenuCtrl.showSettings = true;" ng-style="rightMenuCtrl.showSettings && {'color': 'white'} || {'color': 'gray'}">Settings</button>
+            <button href="JavaScript:Void(0);" ng-click="rightMenuCtrl.showVisitiors = false;rightMenuCtrl.showConversions = false;rightMenuCtrl.showSettings = true;"
+                ng-style="rightMenuCtrl.showSettings && {'color': 'white'} || {'color': 'gray'}">Settings</button>
         </div>
     </div>
     <div class="right-menu-scroll-content">
@@ -21,8 +24,7 @@
                 </div>
                 <div ng-if="value.onload" ng-repeat="(userKey, user) in value.onload">
                     <div class="right-menu-detail">
-                        <li class="none-list-type right-menu-li"
-                            ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
+                        <li class="none-list-type right-menu-li" ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
                             <div class="right-menu-text-div"><span class="padding-10" ng-bind="$index + 1"></span><span class="padding-10 flag-icon flag-icon-{{user[3] | lowercase}}"></span>
                                 <span class="padding-10" ng-bind="user[6]"></span>
                             </div>
@@ -43,8 +45,7 @@
                 </div>
                 <div ng-if="value[rightMenuCtrl.GOAL_EVENT_NAME]" ng-repeat="(userKey, user) in value[rightMenuCtrl.GOAL_EVENT_NAME]">
                     <div class="right-menu-detail">
-                        <li class="none-list-type right-menu-li"
-                            ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
+                        <li class="none-list-type right-menu-li" ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
                             <div class="right-menu-text-div"><span class="padding-10" ng-bind="$index  + 1"></span><span class="padding-10 flag-icon flag-icon-{{user[3] | lowercase}}"></span>
                                 <span class="padding-10" ng-bind="user[6]"></span>
                             </div>
@@ -53,8 +54,7 @@
                                 <img class="margin-right-10 padding-5 float-right" ng-src="{{rightMenuCtrl.browserLogoUrl.BASE_PATH}}{{user[4].split(' ')[0]  | lowercase}}/{{user[4].split(' ')[0]  | lowercase}}{{rightMenuCtrl.browserLogoUrl.IMAGE_CONSTRAINT}}"></img>
                             </div>
                         </li>
-                        <li class="none-list-type right-menu-li relative"
-                            ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
+                        <li class="none-list-type right-menu-li relative" ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
                             <div class="right-menu-text-div" ng-repeat="(keyData, valueUser) in rightMenuCtrl.getConvertedUserData(user[2]).userInfo">
                                 <span class="padding-10" ng-bind="keyData | uppercase"></span> <span class="padding-10" ng-bind="valueUser"></span>
                             </div>
@@ -66,6 +66,10 @@
         </div>
         <div ng-if="rightMenuCtrl.showSettings">
             Settings
+            <!--<label  ng-repeat="(key, speed) in rightMenuCtrl.SPEED_ARRAY">
+                <input type="radio" ng-model="rightMenuCtrl.speed" value="{{speed.value}}">
+                {{speed.textField}}
+            </label><br>-->
         </div>
     </div>
 </div>

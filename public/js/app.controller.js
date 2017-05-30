@@ -27,8 +27,9 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         force = d3.layout.force()
             .nodes(nodes)
             .size([mainSvgWidth, mainSvgHeight])
-            .gravity(.02)
-            .charge(0)
+            .gravity(.1)
+            .charge(1)
+            .friction(0.00002)
             .on("tick", tick),
         node = svg.selectAll(".main_circle"),
         rectangleMenu = svg.append("rect")
@@ -151,12 +152,15 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         };
     }
     // For Get API Data
-    function _callRealtimeDataAPI() {
+    function _callRealtimeDataAPI(changeFlag) {
+        console.log('changeFlag', changeFlag);
+        changeFlag = angular.isUndefined(changeFlag) ? true : false;
+        console.log(changeFlag)
         if (!googleAnalyticsCtrl.demoApiFlag)
             googleAnalyticsService.serverRequest(NODE_WEB_API.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
                 .then(_displayApiData);
         else
-            googleAnalyticsService.serverRequest(NODE_WEB_API_DEMO.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
+            googleAnalyticsService.serverRequest(NODE_WEB_API_DEMO.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value + '&changeFlag=' + changeFlag, 'GET')
                 .then(_displayApiData);
     }
 
@@ -178,6 +182,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
 
     // For Display Real Time API Data
     function _displayApiData(res) {
+        console.log(res)
         var exitArray = [];
         googleAnalyticsCtrl.onsiteUser = res.totalsForAllResults['rt:activeUsers'];
         if (res.rows && res.rows.length !== 0) {
@@ -377,7 +382,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
 
     // Exit User with Animation
     function _exitUser(dataValueForExit, dataKeyForExit) {
-        console.log('_exitUser')
         var index = _.findIndex(nodes, function (obj) {
             return parseInt(obj.userId) === parseInt(dataValueForExit.getAttribute('userId'));
         });
@@ -471,7 +475,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         return scaleIndex;
     }
 
-    function _enterSubUser(nodeData, totalUser) { 
+    function _enterSubUser(nodeData, totalUser) {
         if (!nodeData)
             nodeData = [];
         if (subForceGlobal && angular.isFunction(subForceGlobal.stop))

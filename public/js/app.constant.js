@@ -69,4 +69,14 @@ angular.module('googleAnalyticsModule')
         'ALL_TIME_DATA_API': 'getGoogleAnalyticsAllData',
         'ALL_TIME_USER_DATA_API': 'getGoogleAnalyticsUserData',
         'DUMMY_API_DEFAULT_FLAG' : true
-    });
+    })
+    .constant('SPEED_ARRAY', [{
+        'textField' : 'Slow',
+        'value' : 0.00000000000000000001
+    },{
+        'textField' : 'Medium',
+        'value' : 0.00001
+    },{
+        'textField' : 'Fast',
+        'value' : 2
+    }]);

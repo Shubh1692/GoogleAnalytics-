@@ -1,11 +1,12 @@
 angular.module('googleAnalyticsModule')
     .controller('rightMenuController', _rightMenuController);
-_rightMenuController.$inject = ['$timeout', 'googleAnalyticsService', '$window', 'NODE_WEB_API', 'GOAL_EVENT_NAME', 'BROWSER_LOGOS_PATH', 'VISITOR_ICONS_PATH', '_'];
-function _rightMenuController($timeout, googleAnalyticsService, $window, NODE_WEB_API, GOAL_EVENT_NAME, BROWSER_LOGOS_PATH, VISITOR_ICONS_PATH, _) {
+_rightMenuController.$inject = ['$timeout', 'googleAnalyticsService', '$window', 'NODE_WEB_API', 'GOAL_EVENT_NAME', 'BROWSER_LOGOS_PATH', 'VISITOR_ICONS_PATH', '_', 'SPEED_ARRAY'];
+function _rightMenuController($timeout, googleAnalyticsService, $window, NODE_WEB_API, GOAL_EVENT_NAME, BROWSER_LOGOS_PATH, VISITOR_ICONS_PATH, _, SPEED_ARRAY) {
     var rightMenuCtrl = this;
     
     // 
     rightMenuCtrl.GOAL_EVENT_NAME = GOAL_EVENT_NAME;
+    rightMenuCtrl.SPEED_ARRAY = SPEED_ARRAY;
     rightMenuCtrl.showVisitiors = true;
     rightMenuCtrl.showConversions = false;
     rightMenuCtrl.showSettings = false;
