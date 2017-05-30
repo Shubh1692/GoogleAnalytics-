@@ -274,6 +274,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .each(_mainCollides(.5))
             .attr("cx", function (d) { return d.x; })
             .attr("cy", function (d) { return d.y; });
+        force.start();
     }
     // Enter Main User with Animation
     function _enterUser(menuObj, row) {
@@ -338,6 +339,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()].onload.unshift(row);
             force.start();
         } else if (svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0].length && row[1] === GOAL_EVENT_NAME && !svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0][0].getAttribute(GOAL_EVENT_NAME)) {
+            force.stop();
             var index = nodes.map(function (obj) {
                 return obj.userId;
             }).indexOf(usrInfo.id);
@@ -360,12 +362,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                             googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME] = [];
 
                         googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME].unshift(row);
-                        force.resume();
+                        force.start();
                     })
                     .attr('userData', JSON.stringify(usrInfo))
                     .attr(GOAL_EVENT_NAME, 'done')
                     .attr("transform", "translate(" + 500 + "," + 0 + ")")
                     .duration(1400);
+                force.start();
             }
         }
     }
