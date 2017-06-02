@@ -22,14 +22,15 @@
     <script src="js/app.constant.js"></script>
     <script src="js/app.controller.js"></script>
     <script src="js/rightmenu.controller.js"></script>
+    <script src="js/d3.controller.js"></script>
     <script src="js/app.component.js"></script>
     <script src="js/app.service.js"></script>
 </head>
 
 <!-- Html Code -->
 
-<body ng-app="googleAnalyticsModule" ng-init="googleAnalyticsCtrl.startTime()" ng-controller="googleAnalyticsController as googleAnalyticsCtrl">
-    <div id='slider' class="right-menu-z-index">
+<body ng-app="googleAnalyticsModule" >
+    <!--<div id='slider' class="right-menu-z-index" ng-init="googleAnalyticsCtrl.startTime()" ng-controller="googleAnalyticsController as googleAnalyticsCtrl">
         <div class="handle" ng-click="googleAnalyticsCtrl.sideBarInstance.slideReveal('toggle');" ng-class="googleAnalyticsCtrl.sideBarFlag ? 'rotate':''">&#8249;</div>
         <right-menu user-data="googleAnalyticsCtrl.userDataForRightMenu" speed="googleAnalyticsCtrl.realTimeCircleSpeed"></right-menu>
     </div>
@@ -213,6 +214,10 @@
                 </div>
             </div>
         </div>
-
-        <script src="http://d3js.org/d3.v3.min.js"></script>
+    </div>-->
+    <d3control></d3control>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    
+        
+        <!--<script src="https://d3js.org/d3.v4.js"></script>-->
 </body>

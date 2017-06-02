@@ -1,0 +1,12 @@
+<div>
+    <button ng-click="d3Ctrl.makeCircle()">Make</button>
+    <button ng-click="d3Ctrl.moveCircle(1)">Move To Another Cluster Two</button>
+    <button ng-click="d3Ctrl.moveCircle(2)">Move To Another Cluster Three</button>
+    <button ng-click="d3Ctrl.removeCircle()">Remove Circle</button>
+    <select class="drop-dwon-label" ng-model="d3Ctrl.speed">
+        <option value="0.1">High</option>
+        <option value="100">Medium</option>
+        <option value="1000">Slow</option>
+    </select>
+</div>
+<div id="d3_layout_window" style="height: 800px"></div>

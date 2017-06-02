@@ -339,3 +339,11 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+
+
+
+.d3-control-svg {
+    stroke: black;
+    background-color: #f0f0f0;
+    margin-right: 0px
+}
