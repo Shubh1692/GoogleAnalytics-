@@ -7,14 +7,15 @@ function _d3Controller($timeout, $window, $document, $interval) {
     // Controller Function
     d3Ctrl.makeCircle = _makeCircle;
     d3Ctrl.moveCircle = _moveCircle;
+    d3Ctrl.changeSpeed = _changeSpeed;
     var x = d3.scale.ordinal()
         .domain(d3.range(1))
         .rangePoints([0, 1000], 1);
     // Controller Variable // 36 to 50
     d3Ctrl.focusId = '0';
-    d3Ctrl.speed = '0.1';
+    d3Ctrl.speed = '1';
     var mainWidth = 1000, mainHeight = 1000, nodes = [], padding = 1, clusterPadding = 2, clusters = new Array(3),
-        center = [{ x: 250, y: 250 }, { x: 500, y: 250, exteraX : 600, exteraY : 250 }, { x: 750, y: 250, exteraX : 948 , exteraY : 250}, { x: 250, y: 500 , exteraX : 250, exteraY : 600}],
+        center = [{ x: 250, y: 250, exteraX : 250, exteraY : 250 }, { x: 500, y: 250, exteraX : 600, exteraY : 250 }, { x: 750, y: 250, exteraX : 948 , exteraY : 250}, { x: 250, y: 500 , exteraX : 250, exteraY : 600}],
         fill = d3.scale.category20(),
         svg = d3.select("#d3_layout_window").append("svg")
             .attr("width", mainWidth)
@@ -26,7 +27,7 @@ function _d3Controller($timeout, $window, $document, $interval) {
             .size([500, 500])
             .gravity(.2)
             .charge(-30)
-            .friction(0.00002)
+            .friction(JSON.parse(d3Ctrl.speed))
             .on("tick", _tick)
             .on("end", function(e){
                 console.log('e', e)
@@ -36,11 +37,12 @@ function _d3Controller($timeout, $window, $document, $interval) {
     $interval(force.start, 1);
     _createFocusPostion()
     function gravity(alpha) {
+        console.log(alpha)
         return function (d) {
-             if (d.id !== 0) {
+         //    if (d.id !== 0) {
                 d.y += (center[d.id].exteraY - d.y) * alpha;
                 d.x += (center[d.id].exteraX - d.x) * alpha;
-           }
+          // }
         };
     }
     function _tick(e) {
@@ -175,6 +177,11 @@ function _d3Controller($timeout, $window, $document, $interval) {
                 .style("fill", d3.rgb(fill(9)))
         })
 
+    }
+
+    function _changeSpeed() {
+        force.friction(JSON.parse(d3Ctrl.speed))
+        console.log(JSON.parse(d3Ctrl.speed))
     }
 
 }

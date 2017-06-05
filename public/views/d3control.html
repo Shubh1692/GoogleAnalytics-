@@ -3,10 +3,13 @@
     <button ng-click="d3Ctrl.moveCircle(1)">Move To Another Cluster Two</button>
     <button ng-click="d3Ctrl.moveCircle(2)">Move To Another Cluster Three</button>
     <button ng-click="d3Ctrl.moveCircle(3)">Remove Circle</button>
-    <select class="drop-dwon-label" ng-model="d3Ctrl.speed">
-        <option value="0.1">High</option>
-        <option value="100">Medium</option>
-        <option value="1000">Slow</option>
-    </select>
+    <label>
+        <input type="radio" ng-model="d3Ctrl.speed" ng-change="d3Ctrl.changeSpeed()" value="1">
+        High
+    </label>
+    <label>
+        <input type="radio" ng-model="d3Ctrl.speed" ng-change="d3Ctrl.changeSpeed()" value="0.00002">
+        Medium
+    </label>
 </div>
 <div id="d3_layout_window" style="height: 800px"></div>
