@@ -7,15 +7,18 @@ function _d3Controller($timeout, $window, $document, $interval) {
     // Controller Function
     d3Ctrl.makeCircle = _makeCircle;
     d3Ctrl.moveCircle = _moveCircle;
-    d3Ctrl.changeSpeed = _changeSpeed;
-    var x = d3.scale.ordinal()
-        .domain(d3.range(1))
-        .rangePoints([0, 1000], 1);
+    d3Ctrl.gravityRangeChange = _gravityRangeChange;
+    d3Ctrl.chargeRangeChange = _chargeRangeChange;
+    d3Ctrl.frictionRangeChange = _frictionRangeChange;
     // Controller Variable // 36 to 50
     d3Ctrl.focusId = '0';
-    d3Ctrl.speed = '1';
-    var mainWidth = 1000, mainHeight = 1000, nodes = [], padding = 1, clusterPadding = 2, clusters = new Array(3),
-        center = [{ x: 250, y: 250, exteraX : 250, exteraY : 250 }, { x: 500, y: 250, exteraX : 600, exteraY : 250 }, { x: 750, y: 250, exteraX : 948 , exteraY : 250}, { x: 250, y: 500 , exteraX : 250, exteraY : 600}],
+    d3Ctrl.speed = '0';
+    d3Ctrl.gravityRange = 0.2;
+    d3Ctrl.chargeRange = -30;
+    d3Ctrl.frictionRange = 0.00002;
+    d3Ctrl.totalValue = {};
+    var mainWidth = 1000, mainHeight = 1000, nodes = [], padding = 0, clusterPadding = 2, clusters = new Array(3),
+        center = [{ x: 250, y: 250, exteraX: 250, exteraY: 250, color: "green" }, { x: 500, y: 250, exteraX: 600, exteraY: 250, color: "yellow" }, { x: 750, y: 250, exteraX: 948, exteraY: 250, color: "cyan" }, { x: 250, y: 500, exteraX: 250, exteraY: 600, color: "red" }],
         fill = d3.scale.category20(),
         svg = d3.select("#d3_layout_window").append("svg")
             .attr("width", mainWidth)
@@ -27,9 +30,9 @@ function _d3Controller($timeout, $window, $document, $interval) {
             .size([500, 500])
             .gravity(.2)
             .charge(-30)
-            .friction(JSON.parse(d3Ctrl.speed))
+            .friction(0.00002)
             .on("tick", _tick)
-            .on("end", function(e){
+            .on("end", function (e) {
                 console.log('e', e)
             })
             .start(),
@@ -37,26 +40,26 @@ function _d3Controller($timeout, $window, $document, $interval) {
     $interval(force.start, 1);
     _createFocusPostion()
     function gravity(alpha) {
-        console.log(alpha)
         return function (d) {
-         //    if (d.id !== 0) {
-                d.y += (center[d.id].exteraY - d.y) * alpha;
-                d.x += (center[d.id].exteraX - d.x) * alpha;
-          // }
+            d.y += (center[d.id].exteraY - d.y) * alpha;
+            d.x += (center[d.id].exteraX - d.x) * alpha;
         };
     }
     function _tick(e) {
         if (nodes.length) {
-            node
-                .each(_handelCluster(0.5 * e.alpha * e.alpha))
+            node.each(_handelCluster(0.1 * e.alpha * e.alpha))
                 .each(_handelCollides(.5))
                 .each(gravity(.5 * e.alpha))
-                .attr("cx", function (d) {
-                    return d.x;
+                .transition()
+                .ease('linear')
+                .duration(JSON.parse(d3Ctrl.speed))
+                .attr('cx', function (d) { return d.x; })
+                .attr('cy', function (d) { return d.y; })
+                .each('end', function (d) {
+                    if (d.cluster === 3 && d.x <= center[d.id].x + 2 && d.y >= center[d.id].y- 2)
+                        d3.select('circle[id="' + d.index + '"]')
+                            .remove();
                 })
-                .attr("cy", function (d) {
-                    return d.y;
-                });
         }
     }
     var drag = force.drag()
@@ -68,21 +71,22 @@ function _d3Controller($timeout, $window, $document, $interval) {
         })
 
     function _makeCircle() {
+        var randomCircle = ~~(Math.random() * center.length - 1);
         nodes.push({
-            x: 0,
-            y: 0,
+            x: 100,
+            y: 100 + randomCircle * 100,
             cx: center[0].x,
             cy: center[0].y,
             radius: 4,
-            color: 1,
+            color: center[randomCircle].color,
             cluster: 0,
-            id: 0
+            id: randomCircle
         });
+        d3Ctrl.totalValue[center[randomCircle].color].push(nodes.length - 1);
         clusters[0] = {
             x: 0,
             y: 0,
             radius: 4,
-            color: 1,
             cluster: 0
         };
         node = node.data(nodes);
@@ -92,7 +96,7 @@ function _d3Controller($timeout, $window, $document, $interval) {
             .attr("r", 4)
             .attr("id", nodes.length - 1)
             .style("fill", function (d) {
-                return d3.rgb(fill(d.color));
+                return d.color;
             })
             .style("stroke", function (d) { return d3.rgb(fill(d.color)).darker(2); })
             .call(drag);
@@ -145,10 +149,10 @@ function _d3Controller($timeout, $window, $document, $interval) {
         };
     }
 
-    function _moveCircle(focusId) {
-        var randomIndex = ~~(Math.random() * node[0].length);
-        console.log(JSON.stringify(nodes[randomIndex]))
-        if (nodes[randomIndex].cluster !== focusId) {
+    function _moveCircle(focusId, randomIndex) {
+        if (angular.isDefined(randomIndex) && nodes[randomIndex].cluster !== focusId) {
+            d3.select('circle[id="' + randomIndex + '"]')
+                .style('fill', center[focusId].color);
             clusters[focusId] = {
                 x: 450,
                 y: 450,
@@ -158,9 +162,13 @@ function _d3Controller($timeout, $window, $document, $interval) {
             };
             nodes[randomIndex].cluster = focusId;
             nodes[randomIndex].id = focusId;
+            d3Ctrl.totalValue[nodes[randomIndex].color].pop();
+            nodes[randomIndex].color = center[focusId].color;
+            d3Ctrl.totalValue[center[focusId].color].push(randomIndex);
+
         }
         force.start();
-        if(focusId === 3) {
+        if (focusId === 3) {
             d3.select('circle[id="' + randomIndex + '"]')
                 .transition()
                 .duration(1400)
@@ -169,19 +177,41 @@ function _d3Controller($timeout, $window, $document, $interval) {
     }
 
     function _createFocusPostion() {
+
         angular.forEach(center, function (value) {
             d3.select('svg').append('circle')
                 .attr("cx", value.x)
                 .attr("cy", value.y)
-                .attr("r", 4)
-                .style("fill", d3.rgb(fill(9)))
+                .attr("r", 2)
+                .style("fill", value.color)
+        });
+        angular.forEach(center, function (value, key) {
+            d3Ctrl.totalValue[value.color] = [];
+            if (key !== center.length - 1) {
+                d3.select('svg').append('circle')
+                    .attr("cx", 100)
+                    .attr("cy", 100 + key * 100)
+                    .attr("r", 4)
+                    .style("fill", value.color);
+            }
         })
 
     }
 
-    function _changeSpeed() {
-        force.friction(JSON.parse(d3Ctrl.speed))
-        console.log(JSON.parse(d3Ctrl.speed))
+
+    function _gravityRangeChange() {
+        force.gravity(d3Ctrl.gravityRange);
+        console.log(d3Ctrl.gravityRange)
+    }
+
+    function _chargeRangeChange() {
+        force.charge(d3Ctrl.chargeRange);
+        console.log(d3Ctrl.chargeRange)
+    }
+
+    function _frictionRangeChange() {
+        force.friction(d3Ctrl.frictionRange);
+        console.log(d3Ctrl.frictionRange)
     }
 
 }

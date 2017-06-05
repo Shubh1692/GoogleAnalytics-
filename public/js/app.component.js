@@ -1,10 +1,17 @@
 angular.module('googleAnalyticsModule')
+    .component('gad3MainComponent', {
+        templateUrl: 'views/gad3MainComponent.html',
+        controller: 'googleAnalyticsController',
+        controllerAs: 'googleAnalyticsCtrl',
+        bindings: {
+        }
+    })
     .component('rightMenu', {
         templateUrl: 'views/rightMenu.html',
         controller: 'rightMenuController',
         controllerAs: 'rightMenuCtrl',
         bindings: {
-            userData : '='
+            userData: '='
         }
     })
     .component('d3control', {

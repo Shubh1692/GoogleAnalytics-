@@ -220,6 +220,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                             return d.name
                         })
                         .style("fill", function (d) {
+                            console.log(d.color, d3.rgb(fill(d.color)));
                             return d3.rgb(fill(d.color));
                         })
                         .attr("show-menu", function (d, i) {

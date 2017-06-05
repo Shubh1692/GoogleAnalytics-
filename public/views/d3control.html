@@ -1,15 +1,38 @@
 <div>
     <button ng-click="d3Ctrl.makeCircle()">Make</button>
-    <button ng-click="d3Ctrl.moveCircle(1)">Move To Another Cluster Two</button>
-    <button ng-click="d3Ctrl.moveCircle(2)">Move To Another Cluster Three</button>
-    <button ng-click="d3Ctrl.moveCircle(3)">Remove Circle</button>
-    <label>
-        <input type="radio" ng-model="d3Ctrl.speed" ng-change="d3Ctrl.changeSpeed()" value="1">
-        High
-    </label>
-    <label>
-        <input type="radio" ng-model="d3Ctrl.speed" ng-change="d3Ctrl.changeSpeed()" value="0.00002">
-        Medium
-    </label>
+    <button ng-disabled="d3Ctrl.totalValue.green.length === 0" ng-click="d3Ctrl.moveCircle(1, d3Ctrl.totalValue.green[d3Ctrl.totalValue.green.length -1])">G to Y</button>
+    <button ng-disabled="d3Ctrl.totalValue.yellow.length === 0" ng-click="d3Ctrl.moveCircle(2, d3Ctrl.totalValue.yellow[d3Ctrl.totalValue.yellow.length -1])">Y to C</button>
+    <button ng-disabled="d3Ctrl.totalValue.cyan.length === 0" ng-click="d3Ctrl.moveCircle(3, d3Ctrl.totalValue.cyan[d3Ctrl.totalValue.cyan.length -1])">C to R</button>
+
+    <div class="padding-right-10" style="position: absolute; right: 0;">
+        <div>
+            Speed:<br>
+            <label><input type="radio" ng-model="d3Ctrl.speed" value="0"> Fast</label>
+            <label><input type="radio" ng-model="d3Ctrl.speed" value="1000">Medium</label>
+            <label><input type="radio" ng-model="d3Ctrl.speed" value="5000">Slow</label>
+        </div>
+        <div>
+            Gravity Range (It Will Change The Focus Point):
+            <input type="range" ng-model="d3Ctrl.gravityRange" min="0.01" max="5" step="0.1" ng-change="d3Ctrl.gravityRangeChange()"><br>
+            Max: 5<br>
+            Min: 0.01<br>
+            Value: <span ng-bind="d3Ctrl.gravityRange"></span><br>
+        </div>
+        <div>
+            Charge Range:
+            <input type="range" ng-model="d3Ctrl.chargeRange" min="-3000" max="3000" step="5" ng-change="d3Ctrl.chargeRangeChange()"><br>
+            Max: 3000<br>
+            Min: -3000<br>
+            Value: <span ng-bind="d3Ctrl.chargeRange"></span><br>
+        </div>
+        <div>
+            Friction Range:
+            <input type="range" ng-model="d3Ctrl.frictionRange" min="0.0001" max="1" step="0.01" ng-change="d3Ctrl.frictionRangeChange()"><br>
+            Max: 1<br>
+            Min: 0.0001<br>
+            Value: <span ng-bind="d3Ctrl.frictionRange"></span>
+        </div>
+    </div>
+
 </div>
 <div id="d3_layout_window" style="height: 800px"></div>
