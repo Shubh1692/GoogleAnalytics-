@@ -173,7 +173,7 @@ var userId = 0, response = {
 }, onload = [];
 function _createDynmicDemoData(dimensionsId, changeFlag) {
     var countries, randomValue, userInfoData, encodeString,
-        MaxCount = parseInt(Math.random() * CONFIG.DUMMY_DATA_LIST.MAX_COUNT);
+        MaxCount = 2 //parseInt(Math.random() * CONFIG.DUMMY_DATA_LIST.MAX_COUNT);
     response.totalsForAllResults['rt:activeUsers'] = MaxCount;
     if (changeFlag === 'true' || changeFlag === true) {
         response.rows = [];

@@ -5,7 +5,7 @@ function _rightMenuController($timeout, googleAnalyticsService, $window, NODE_WE
     var rightMenuCtrl = this;
     
     // 
-    rightMenuCtrl.GOAL_EVENT_NAME = GOAL_EVENT_NAME;
+    rightMenuCtrl.GOAL_EVENT_NAME = GOAL_EVENT_NAME[0];
     rightMenuCtrl.SPEED_ARRAY = SPEED_ARRAY;
     rightMenuCtrl.showVisitiors = true;
     rightMenuCtrl.showConversions = false;
@@ -28,12 +28,12 @@ function _rightMenuController($timeout, googleAnalyticsService, $window, NODE_WE
                         onload : [],
                         date : new Date()
                     };
-                    result.data[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME] = [];
+                    result.data[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME[0]] = [];
                 }
                 if(value[1] === 'onload')
                     result.data[googleAnalyticsService.getFormattedCurrentDate()].onload.push(value);
-                else if(value[1] === GOAL_EVENT_NAME)
-                    result.data[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME].push(value);
+                else if(value[1] === GOAL_EVENT_NAME[0])
+                    result.data[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME[0]].push(value);
             })
         }
         rightMenuCtrl.userData = result.data;

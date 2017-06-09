@@ -12,22 +12,28 @@
             <label><input type="radio" ng-model="d3Ctrl.speed" value="5000">Slow</label>
         </div>
         <div>
-            Gravity Range (It Will Change The Focus Point):
-            <input type="range" ng-model="d3Ctrl.gravityRange" min="0.01" max="5" step="0.1" ng-change="d3Ctrl.gravityRangeChange()"><br>
+            Gravity Range (It Will Change The Focus Point):<br>
+            <input type="checkbox" ng-model="d3Ctrl.gravityRangeChecked"> Checked for Input Box<br>
+            <input ng-if="!d3Ctrl.gravityRangeChecked" type="range" ng-model="d3Ctrl.gravityRange" min="0.01" max="5" step="0.1" ng-change="d3Ctrl.gravityRangeChange()"><br>
+            <input ng-if="d3Ctrl.gravityRangeChecked" type="number" ng-model="d3Ctrl.gravityRange" ng-change="d3Ctrl.gravityRangeChange()"><br>
             Max: 5<br>
             Min: 0.01<br>
             Value: <span ng-bind="d3Ctrl.gravityRange"></span><br>
         </div>
         <div>
-            Charge Range:
-            <input type="range" ng-model="d3Ctrl.chargeRange" min="-3000" max="3000" step="5" ng-change="d3Ctrl.chargeRangeChange()"><br>
+            Charge Range:<br>
+            <input type="checkbox" ng-model="d3Ctrl.chargeRangeChecked"> Checked for Input Box<br>
+            <input ng-if="!d3Ctrl.chargeRangeChecked" type="range" ng-model="d3Ctrl.chargeRange" min="-3000" max="3000" step="5" ng-change="d3Ctrl.chargeRangeChange()"><br>
+            <input ng-if="d3Ctrl.chargeRangeChecked" type="number" ng-model="d3Ctrl.chargeRange" ng-change="d3Ctrl.chargeRangeChange()"><br>
             Max: 3000<br>
             Min: -3000<br>
             Value: <span ng-bind="d3Ctrl.chargeRange"></span><br>
         </div>
         <div>
-            Friction Range:
-            <input type="range" ng-model="d3Ctrl.frictionRange" min="0.0001" max="1" step="0.01" ng-change="d3Ctrl.frictionRangeChange()"><br>
+            Friction Range:<br>
+            <input type="checkbox" ng-model="d3Ctrl.frictionRangeChecked"> Checked for Input Box<br>
+            <input ng-if="!d3Ctrl.frictionRangeChecked" type="range" ng-model="d3Ctrl.frictionRange" min="0.0001" max="1" step="0.01" ng-change="d3Ctrl.frictionRangeChange()"><br>
+            <input ng-if="d3Ctrl.frictionRangeChecked" type="number" ng-model="d3Ctrl.frictionRange" ng-change="d3Ctrl.frictionRangeChange()"><br>
             Max: 1<br>
             Min: 0.0001<br>
             Value: <span ng-bind="d3Ctrl.frictionRange"></span>

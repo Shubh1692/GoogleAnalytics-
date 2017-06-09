@@ -70,6 +70,7 @@ function _d3Controller($timeout, $window, $document, $interval) {
             console.log('end')
         })
 
+
     function _makeCircle() {
         var randomCircle = ~~(Math.random() * center.length - 1);
         nodes.push({
@@ -177,7 +178,6 @@ function _d3Controller($timeout, $window, $document, $interval) {
     }
 
     function _createFocusPostion() {
-
         angular.forEach(center, function (value) {
             d3.select('svg').append('circle')
                 .attr("cx", value.x)
@@ -201,17 +201,14 @@ function _d3Controller($timeout, $window, $document, $interval) {
 
     function _gravityRangeChange() {
         force.gravity(d3Ctrl.gravityRange);
-        console.log(d3Ctrl.gravityRange)
     }
 
     function _chargeRangeChange() {
         force.charge(d3Ctrl.chargeRange);
-        console.log(d3Ctrl.chargeRange)
     }
 
     function _frictionRangeChange() {
         force.friction(d3Ctrl.frictionRange);
-        console.log(d3Ctrl.frictionRange)
     }
 
 }
