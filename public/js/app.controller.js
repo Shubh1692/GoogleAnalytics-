@@ -254,7 +254,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     function _handelCollides(alpha) {
         var quadtree = d3.geom.quadtree(nodes);
         return function (d) {
-            var r = d.radius + 6 + Math.max(padding, 6),
+            var r = d.radius + 32 + Math.max(padding, 32),
                 nx1 = d.x - r,
                 nx2 = d.x + r,
                 ny1 = d.y - r,
@@ -266,12 +266,16 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                         l = Math.sqrt(x * x + y * y),
                         r = d.radius + quad.point.radius + (d.cluster === quad.point.cluster ? padding : clusterPadding);
                     if (l < r) {
-                        console.log(quad, d)
+
                         l = (l - r) / l * alpha;
                         d.x -= x *= l;
                         d.y -= y *= l;
                         quad.point.x += x;
                         quad.point.y += y;
+                    }
+                    if (d.cluster === 2 && d.name && d.x <= d.reachedX && d.reachedY >= d.y) {
+                        d3.select('circle[userId="' + d.userId + '"]')
+                            .remove();
                     }
                 }
                 return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
@@ -456,7 +460,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         _enterSubUser(resultWeb.rows, googleAnalyticsCtrl.totalUserWithinTime);
         googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
         _callRealtimeDataAPI();
-        //intervalInstance = $interval(_callRealtimeDataAPI, REAL_TIME_API_TIME_INTERVAL);
+        intervalInstance = $interval(_callRealtimeDataAPI, REAL_TIME_API_TIME_INTERVAL);
     }
 
     function _enterSubUser(nodeData) {
