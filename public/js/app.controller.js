@@ -6,21 +6,23 @@ angular.module('googleAnalyticsModule')
 _googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT', 'GOAL_COMPLETE_ICON_PATH', '$filter', 'GOAL_EVENT_NAME', 'NODE_WEB_API_DEMO'];
 _liveUserSort.$inject = ['_'];
 function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT, GOAL_COMPLETE_ICON_PATH, $filter, GOAL_EVENT_NAME, NODE_WEB_API_DEMO) {
+    console.log(mainSvgHeight)
     var googleAnalyticsCtrl = this,
         padding = 0, clusterPadding = 2, clusters = new Array(3),
         intervalInstance,
-        center = [{ x: 250, y: 250, exteraX: 250, exteraY: 250, color: "green" }, { x: 500, y: 250, exteraX: 600, exteraY: 250, color: "yellow" }, { x: 750, y: 250, exteraX: 948, exteraY: 250, color: "cyan" }, { x: 250, y: 500, exteraX: 250, exteraY: 600, color: "red" }],
         subForceGlobal, subForceNodes = [],
         menuObjectInstanceName,
         fill = d3.scale.category20(),
         color = 1,
         nodes = [],
         padding = 1,
+        maxRadius = 32,
         cluster_padding = 1000,
         mainSvgHeight = $window.innerHeight * 0.78,
         mainSvgWidth = $window.innerWidth,
         bowlSvgWidth = $window.innerWidth * 0.15,
         bowlSvgHeight = ($window.innerWidth * 0.15) / 2,
+        center = [{ x: 250, y: 250, exteraX: 250, exteraY: 250 }, { x: ((mainSvgWidth * 0.7)/2), y: (mainSvgHeight * 0.30), exteraX: ((((mainSvgWidth * 0.7)/2) - 250)* (50/36)) + 250 , exteraY:  ((((mainSvgHeight * 0.30)) - 250)* (50/36)) + 250 }, { x: (mainSvgWidth * 0.85), y: (mainSvgHeight * 0.30), exteraX: ((((mainSvgWidth * 0.85)) - 250)* (50/36)) + 250, exteraY: ((((mainSvgHeight * 0.30)) - 250)* (50/36)) + 250 }, { x: 250, y: 500, exteraX: (mainSvgHeight * 0.70), exteraY: ((((mainSvgHeight * 0.70)) - 250)* (50/36)) + 250 }],
         svg = d3.select("#main_svg").append("svg")
             .attr("width", mainSvgWidth)
             .attr("height", mainSvgHeight)
@@ -30,8 +32,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .nodes(nodes)
             .size([500, 500])
             .gravity(.2)
-            .charge(-30)
-            .friction(0.00002)
+            .charge(-30000)
+            .friction(0.0001)
             .on("tick", _tick)
             .on("end", function (e) {
                 console.log('e', e)
@@ -48,14 +50,17 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         div = d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("opacity", 0),
-        firstFlag, previousCompletedUser;
+        defs = svg.append("defs").append("pattern").attr("id", 'image').attr("width", 2).attr("height", 2)
+            .append('image')
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", 15)
+            .attr("height", 15)
+            .attr("xlink:href", GOAL_COMPLETE_ICON_PATH);
+        console.log(mainSvgHeight, mainSvgWidth)
     // Controller Functions 
     googleAnalyticsCtrl.startTime = _startTime;
     googleAnalyticsCtrl.setColor = _setColor;
-    googleAnalyticsCtrl.bowlHeight = (mainSvgHeight * 0.15);
-    googleAnalyticsCtrl.maxMenuCount = MAX_MENU_COUNT;
-    googleAnalyticsCtrl.userInfoTopPostion = mainSvgHeight * 0.5;
-    googleAnalyticsCtrl.bowlTopBottomPostion = bowlSvgHeight - ((bowlSvgHeight * 0.35) / 2) + (mainSvgHeight * 0.15);
     // Default Values or Controller Variables
     googleAnalyticsCtrl.onsiteUser = 0;
     googleAnalyticsCtrl.totalUserWithinTime = 0;
@@ -72,19 +77,17 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     googleAnalyticsCtrl.selectedTime = VIEWING_BY_TIME[0];
     googleAnalyticsCtrl.sourceSelection = _sourceSelection;
     googleAnalyticsCtrl.getAnalyticsDataByTime = _getAnalyticsDataByTime;
-    googleAnalyticsCtrl.onsiteUser = 0;
     googleAnalyticsCtrl.goalOneDivWidth = mainSvgWidth - (mainSvgWidth * 0.7);
+    googleAnalyticsCtrl.bowlHeight = (mainSvgHeight * 0.15);
+    googleAnalyticsCtrl.maxMenuCount = MAX_MENU_COUNT;
+    googleAnalyticsCtrl.userInfoTopPostion = mainSvgHeight * 0.5;
     googleAnalyticsCtrl.userDataForRightMenu = {};
     googleAnalyticsCtrl.demoApiFlag = NODE_WEB_API_DEMO.DUMMY_API_DEFAULT_FLAG;
 
     //Init Functions or Variables
     var forceInterVal = $interval(force.start, 1);
     menuObjectInstanceName = VIEWING_BY_SOURCE[0].name;
-    //_getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
-    _setAllTimeAPIData({
-        totalsForAllResults: {},
-        row: []
-    })
+    _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
     // For Time Display
     function _startTime() {
         var today = new Date();
@@ -110,19 +113,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     function _sourceSelection(selectData) {
         d3.selectAll('circle')
             .remove();
-        // $interval.cancel(forceInterVal)
-        // force.stop()
-        // node = svg.selectAll("circle");
-        // nodes = [];
-        // forceInterVal = $interval(force.start, 1);
         color = 1;
         dataPassingService.menuObj[menuObjectInstanceName] = {};
         googleAnalyticsCtrl.getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
-
         menuObjectInstanceName = selectData.name;
         $interval.cancel(intervalInstance);
     }
-
+    console.log(((((mainSvgWidth * 0.85)/2) - 250)* (50/36)) + 250)
     // For Display Real Time API Data
     function _displayApiData(res) {
         var exitArray = [];
@@ -211,24 +208,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     // For MainEnter Tick Function
     function gravity(alpha) {
         return function (d) {
-            if (d.cluster === 2 && !d.menuName) {
+            var mergeNode = svg.selectAll("circle[name='" + d.name + "']");
+            if (d.cluster === 2 && !d.menuName && mergeNode) {
+                d.reachedX = (mergeNode[0][0].getAttribute("cx") - 250) / 0.72 + 250;
+                d.reachedY = (mergeNode[0][0].getAttribute("cy") - 250) / 0.72 + 250;
                 d.y += (d.reachedY - d.y) * alpha;
                 d.x += (d.reachedX - d.x) * alpha;
-                // var mergeNode = svg.selectAll("circle[name='" + d.name + "']");
-
-                // if ((d.x <= parseFloat(mergeNode[0][0].getAttribute("cx")) && d.y >= parseFloat(mergeNode[0][0].getAttribute("cy")) - 50) && !d.remove) {
-
-                //     // var user = (parseInt(mergeNode[0][0].getAttribute("user")) + 1);
-                //     // mergeNode.attr("r", function (d) {
-                //     //     subForceNodes[d.index].radius = Math.log(user) * 4 + 4;
-                //     //     return Math.log(user) * 4 + 4;
-                //     // });
-                //     // mergeNode.attr("user", user);
-                //     // subForceGlobal.start();
-                //     // nodes[d.index].remove = true;
-                //     d3.select('circle[userId="' + d.userId + '"]')
-                //         .remove();
-                // }
             } else {
                 d.y += (center[d.id].exteraY - d.y) * alpha;
                 d.x += (center[d.id].exteraX - d.x) * alpha;
@@ -254,28 +239,43 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     function _handelCollides(alpha) {
         var quadtree = d3.geom.quadtree(nodes);
         return function (d) {
-            var r = d.radius + 32 + Math.max(padding, 32),
+            var r = d.radius + maxRadius + Math.max(padding, maxRadius),
                 nx1 = d.x - r,
                 nx2 = d.x + r,
                 ny1 = d.y - r,
                 ny2 = d.y + r;
             quadtree.visit(function (quad, x1, y1, x2, y2) {
-                if (quad.point && (quad.point !== d)) {
+                if (quad.point && (quad.point !== d) && quad.point.menuName !== d.name && quad.point.name !== d.menuName) {
                     var x = d.x - quad.point.x,
                         y = d.y - quad.point.y,
                         l = Math.sqrt(x * x + y * y),
                         r = d.radius + quad.point.radius + (d.cluster === quad.point.cluster ? padding : clusterPadding);
                     if (l < r) {
-
                         l = (l - r) / l * alpha;
                         d.x -= x *= l;
                         d.y -= y *= l;
                         quad.point.x += x;
                         quad.point.y += y;
                     }
-                    if (d.cluster === 2 && d.name && d.x <= d.reachedX && d.reachedY >= d.y) {
+                    // console.log(d.x, d.reachedX, d.y, d.reachedY)
+                    if (d.cluster === 2 && d.name && d.x <= d.reachedX + 5 && d.reachedY >= d.y - 5 && !d.remove) {
+                        var mergeNode = svg.selectAll("circle[name='" + d.name + "']");
+                        var user = (parseInt(mergeNode[0][0].getAttribute("user")) + 1);
+                        var mergeNodeIndex = _.findIndex(nodes, function (obj) {
+                            return obj.menuName === d.name;
+                        });
+                        var removeIndex = _.findIndex(nodes, function (obj) {
+                            return parseInt(obj.userId) === parseInt(d.userId);
+                        });
+                        console.log(mergeNodeIndex, nodes[mergeNodeIndex])
+                        mergeNode.attr("r", function (d) {
+                            nodes[mergeNodeIndex].radius = Math.log(user) * 4 + 4;
+                            return Math.log(user) * 4 + 4;
+                        });
+                        mergeNode.attr("user", user);
                         d3.select('circle[userId="' + d.userId + '"]')
                             .remove();
+                        nodes[removeIndex].remove = true;
                     }
                 }
                 return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
@@ -355,10 +355,32 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         } else if (svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0].length && row[1] === GOAL_EVENT_NAME[0] && !svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0][0].getAttribute(GOAL_EVENT_NAME[0])) {
             googleAnalyticsCtrl.userInfoArray.push(usrInfo);
             let moveIndex = _.findIndex(nodes, ['userId', usrInfo.id]);
+            console.log(nodes[moveIndex].color)
+            svg.select('#image')
+                .style("fill", d3.rgb(fill(nodes[moveIndex].color)));
             d3.select('circle[userId="' + usrInfo.id + '"]')
                 .style("fill", "url(#image)")
+                .attr("r", 8)
                 .attr('userData', JSON.stringify(usrInfo))
                 .attr(GOAL_EVENT_NAME[0], 'done')
+                .attr('stroke-width', '2')
+                .style("stroke", function (d) { return d3.rgb(fill(d.color)); })
+                .on("mouseover", function (d) {
+                    if (node[0][d.index].getAttribute('userData')) {
+                        var data = JSON.parse(node[0][d.index].getAttribute('userData'));
+                        div.transition()
+                            .duration(200)
+                            .style("opacity", .9);
+                        div.html(googleAnalyticsService.setTooltipView(data.userInfo))
+                            .style("left", (d3.event.pageX) + "px")
+                            .style("top", (d3.event.pageY - 28) + "px");
+                    }
+                })
+                .on("mouseout", function (d) {
+                    div.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
             clusters[1] = {
                 x: center[2].x,
                 y: center[2].y,
@@ -367,6 +389,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             };
             nodes[moveIndex].cluster = 1;
             nodes[moveIndex].id = 2;
+            nodes[moveIndex].radius = 8;
             if (!googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()]) {
                 googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()] = {
                     date: googleAnalyticsService.getFormattedCurrentDate()
@@ -378,9 +401,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME[0]].unshift(row);
         }
     }
-
-
-
 
     // Exit User with Animation
     function _exitUser(dataValueForExit, dataKeyForExit) {
@@ -408,20 +428,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             nodes[removeIndex].reachedX = (mergeNode[0][0].getAttribute("cx") - 250) / 0.72 + 250;
             nodes[removeIndex].reachedY = (mergeNode[0][0].getAttribute("cy") - 250) / 0.72 + 250;
         }
-    }
-
-    // Add Tooltip Display to D3 circle
-    function _setTooltipView(userInfo) {
-        var html = '<div>'
-        _.each(userInfo, function (value, key) {
-            html = html + key.toUpperCase() + ' : ' + value + '</br>';
-        })
-        return html = html + '</div>';
-    }
-
-    // For RGB Color
-    function _setColor(colorKey) {
-        return d3.rgb(fill(colorKey));
     }
 
     // For All Time Data API Calling
@@ -482,7 +488,10 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             _createSubNodes(value, value[1], Math.log(value[1]) * 4 || 4);
         });
     }
-
+    // For RGB Color
+    function _setColor(colorKey) {
+        return d3.rgb(fill(colorKey));
+    }
     $timeout(_rightSideBarConfig, 100);
     // Set Right Side Menu Config
     function _rightSideBarConfig() {

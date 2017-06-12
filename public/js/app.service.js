@@ -10,6 +10,7 @@ function _googleAnalyticsService($http, $q) {
     googleAnalyticsService.serverError = _serverError;
     googleAnalyticsService.getFormattedCurrentDate = _getFormattedCurrentDate;
     googleAnalyticsService.getConvertedUserData = _getConvertedUserData;
+    googleAnalyticsService.setTooltipView = _setTooltipView;
     // Method for Do Server Request
     function _serverRequest(url, method, postData) {
         var defer = $q.defer();
@@ -49,6 +50,17 @@ function _googleAnalyticsService($http, $q) {
         if(angular.isString(userData))
             userData = JSON.parse(CryptoJS.enc.Base64.parse(userData).toString(CryptoJS.enc.Utf8));
         return userData;
+    }
+
+    
+
+    // Add Tooltip Display to D3 circle
+    function _setTooltipView(userInfo) {
+        var html = '<div>'
+        _.each(userInfo, function (value, key) {
+            html = html + key.toUpperCase() + ' : ' + value + '</br>';
+        })
+        return html = html + '</div>';
     }
 }
 
