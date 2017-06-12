@@ -68,7 +68,7 @@ angular.module('googleAnalyticsModule')
         'REAL_TIME_DATA_API': 'getRealTimeDataDemoAPI',
         'ALL_TIME_DATA_API': 'getGoogleAnalyticsAllData',
         'ALL_TIME_USER_DATA_API': 'getGoogleAnalyticsUserData',
-        'DUMMY_API_DEFAULT_FLAG' : true
+        'DUMMY_API_DEFAULT_FLAG' : false
     })
     .constant('SPEED_ARRAY', [{
         'textField' : 'Slow',

@@ -7,7 +7,7 @@ _googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$wi
 _liveUserSort.$inject = ['_'];
 function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT, GOAL_COMPLETE_ICON_PATH, $filter, GOAL_EVENT_NAME, NODE_WEB_API_DEMO) {
     var googleAnalyticsCtrl = this,
-        padding = 0, clusterPadding = 2, clusters = new Array(3),
+        padding = 1, clusterPadding = 0, clusters = new Array(3),
         intervalInstance,
         menuObjectInstanceName,
         fill = d3.scale.category20(),
@@ -194,14 +194,14 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("name", function (d) {
                 return d.menuName
             })
-            .call(drag);
+           // .call(drag);
         force.start();
     }
     // For Main Gravity Function
     function gravity(alpha) {
         return function (d) {
             var mergeNode = svg.selectAll("circle[name='" + d.name + "']");
-            if (d.cluster === 2 && !d.menuName && mergeNode) {
+            if (d.cluster === 2 && !d.menuName && mergeNode && mergeNode[0][0].length) {
                 d.reachedX = (mergeNode[0][0].getAttribute("cx") - 250) / 0.72 + 250;
                 d.reachedY = (mergeNode[0][0].getAttribute("cy") - 250) / 0.72 + 250;
                 d.y += (d.reachedY - d.y) * alpha;
