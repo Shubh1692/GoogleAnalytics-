@@ -62,6 +62,10 @@ function _googleAnalyticsService($http, $q) {
         })
         return html = html + '</div>';
     }
+
+    function _createStaticD3() {
+        
+    }
 }
 
 function _dataPassingService() {

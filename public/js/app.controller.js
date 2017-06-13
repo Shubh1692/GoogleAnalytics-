@@ -16,7 +16,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         maxRadius = 32,
         mainSvgHeight = $window.innerHeight * 0.78,
         mainSvgWidth = $window.innerWidth,
-        center = [{ x: 250, y: 250, exteraX: 250, exteraY: 250 }, { x: ((mainSvgWidth * 0.7)/2), y: (mainSvgHeight * 0.30), exteraX: ((((mainSvgWidth * 0.7)/2) - 250)* (50/36)) + 250 , exteraY:  ((((mainSvgHeight * 0.30)) - 250)* (50/36)) + 250 }, { x: (mainSvgWidth * 0.85), y: (mainSvgHeight * 0.30), exteraX: ((((mainSvgWidth * 0.85)) - 250)* (50/36)) + 250, exteraY: ((((mainSvgHeight * 0.30)) - 250)* (50/36)) + 250 }, { x: 250, y: 500, exteraX: (mainSvgHeight * 0.70), exteraY: ((((mainSvgHeight * 0.70)) - 250)* (50/36)) + 250 }],
+        center = [{ x: 250, y: 250, exteraX: 250, exteraY: 250 }, { x: ((mainSvgWidth * 0.7) / 2), y: (mainSvgHeight * 0.30), exteraX: ((((mainSvgWidth * 0.7) / 2) - 250) * (50 / 36)) + 250, exteraY: ((((mainSvgHeight * 0.30)) - 250) * (50 / 36)) + 250 }, { x: (mainSvgWidth * 0.85), y: (mainSvgHeight * 0.30), exteraX: ((((mainSvgWidth * 0.85)) - 250) * (50 / 36)) + 250, exteraY: ((((mainSvgHeight * 0.30)) - 250) * (50 / 36)) + 250 }, { x: 250, y: 500, exteraX: (mainSvgHeight * 0.70), exteraY: ((((mainSvgHeight * 0.70)) - 250) * (50 / 36)) + 250 }],
         svg = d3.select("#main_svg").append("svg")
             .attr("width", mainSvgWidth)
             .attr("height", mainSvgHeight)
@@ -43,14 +43,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         node = svg.selectAll("circle"),
         div = d3.select("body").append("div")
             .attr("class", "tooltip")
-            .style("opacity", 0),
-        defs = svg.append("defs").append("pattern").attr("id", 'image').attr("width", 2).attr("height", 2)
-            .append('image')
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", 15)
-            .attr("height", 15)
-            .attr("xlink:href", GOAL_COMPLETE_ICON_PATH);
+            .style("opacity", 0);
     // Controller Functions 
     googleAnalyticsCtrl.startTime = _startTime;
     googleAnalyticsCtrl.setColor = _setColor;
@@ -81,6 +74,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     var forceInterVal = $interval(force.start, 1);
     menuObjectInstanceName = VIEWING_BY_SOURCE[0].name;
     _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
+    _createStaticD3Component();
     // For Time Display
     function _startTime() {
         var today = new Date();
@@ -194,7 +188,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("name", function (d) {
                 return d.menuName
             })
-           // .call(drag);
+        // .call(drag);
         force.start();
     }
     // For Main Gravity Function
@@ -342,10 +336,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         } else if (svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0].length && row[1] === GOAL_EVENT_NAME[0] && !svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0][0].getAttribute(GOAL_EVENT_NAME[0])) {
             googleAnalyticsCtrl.userInfoArray.push(usrInfo);
             let moveIndex = _.findIndex(nodes, ['userId', usrInfo.id]);
-            svg.select('#image')
-                .style("fill", d3.rgb(fill(nodes[moveIndex].color)));
             d3.select('circle[userId="' + usrInfo.id + '"]')
-                .style("fill", "url(#image)")
+                .style("fill", "url(#star-image)")
                 .attr("r", 8)
                 .attr('userData', JSON.stringify(usrInfo))
                 .attr(GOAL_EVENT_NAME[0], 'done')
@@ -475,6 +467,38 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     // For RGB Color
     function _setColor(colorKey) {
         return d3.rgb(fill(colorKey));
+    }
+    // Create Static UI D3 Component
+    function _createStaticD3Component() {
+        svg.append("defs")
+            .append("pattern")
+            .attr("id", 'star-image')
+            .attr("width", 2)
+            .attr("height", 2)
+            .append('image')
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", 15)
+            .attr("height", 15)
+            .attr("xlink:href", GOAL_COMPLETE_ICON_PATH);
+        svg.append("rect")
+            .attr("width", 200)
+            .attr("height", mainSvgHeight)
+            .style("fill", d3.rgb(255, 255, 255))
+            .style("stroke", d3.rgb(255, 255, 255))
+        svg.append("rect")
+            .attr("width", mainSvgWidth)
+            .attr("height", mainSvgHeight * 0.5)
+            .attr("y", mainSvgHeight * 0.5)
+            .style("fill", d3.rgb(255, 255, 255))
+            .style("stroke", d3.rgb(255, 255, 255));
+        svg.append("line")
+            .style("stroke", "white")
+            .style("stroke-width", 2)
+            .attr("x1", mainSvgWidth * 0.7)
+            .attr("y1", 0)
+            .attr("x2", mainSvgWidth * 0.7)
+            .attr("y2", mainSvgHeight * 0.5)
     }
     $timeout(_rightSideBarConfig, 100);
     // Set Right Side Menu Config
