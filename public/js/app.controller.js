@@ -3,11 +3,11 @@ angular.module('googleAnalyticsModule')
     .filter('liveUserSort', _liveUserSort)
     .filter('dateMenuSort', _dateMenuSort);
 
-_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT', 'GOAL_COMPLETE_ICON_PATH', '$filter', 'GOAL_EVENT_NAME', 'NODE_WEB_API_DEMO'];
+_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT', 'GOAL_COMPLETE_ICON_PATH', '$filter', 'GOAL_EVENT_NAME', 'NODE_WEB_API_DEMO', 'DEFAULT_D3CIRCLE_CONSTRAINT'];
 _liveUserSort.$inject = ['_'];
-function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT, GOAL_COMPLETE_ICON_PATH, $filter, GOAL_EVENT_NAME, NODE_WEB_API_DEMO) {
+function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT, GOAL_COMPLETE_ICON_PATH, $filter, GOAL_EVENT_NAME, NODE_WEB_API_DEMO, DEFAULT_D3CIRCLE_CONSTRAINT) {
     var googleAnalyticsCtrl = this,
-        padding = 1, clusterPadding = 0, clusters = new Array(3),
+        padding = 1, clusterPadding = 0, clusters = new Array(3), firstCallByApiFlag,
         intervalInstance,
         menuObjectInstanceName,
         fill = d3.scale.category20(),
@@ -25,9 +25,9 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         force = d3.layout.force()
             .nodes(nodes)
             .size([500, 500])
-            .gravity(.2)
-            .charge(-30)
-            .friction(0.0002)
+            .gravity(DEFAULT_D3CIRCLE_CONSTRAINT.gravity)
+            .charge(DEFAULT_D3CIRCLE_CONSTRAINT.charge)
+            .friction(DEFAULT_D3CIRCLE_CONSTRAINT.friction)
             .on("tick", _tick)
             .on("end", function (e) {
                 console.log('e', e)
@@ -47,6 +47,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     // Controller Functions 
     googleAnalyticsCtrl.startTime = _startTime;
     googleAnalyticsCtrl.setColor = _setColor;
+    googleAnalyticsCtrl.chargeRangeChange = _chargeRangeChange;
+    googleAnalyticsCtrl.frictionRangeChange = _frictionRangeChange;
     // Default Values or Controller Variables
     googleAnalyticsCtrl.onsiteUser = 0;
     googleAnalyticsCtrl.totalUserWithinTime = 0;
@@ -69,7 +71,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     googleAnalyticsCtrl.userInfoTopPostion = mainSvgHeight * 0.65;
     googleAnalyticsCtrl.userDataForRightMenu = {};
     googleAnalyticsCtrl.demoApiFlag = NODE_WEB_API_DEMO.DUMMY_API_DEFAULT_FLAG;
-
+    googleAnalyticsCtrl.speed = DEFAULT_D3CIRCLE_CONSTRAINT.speed;
     //Init Functions or Variables
     var forceInterVal = $interval(force.start, 1);
     menuObjectInstanceName = VIEWING_BY_SOURCE[0].name;
@@ -147,6 +149,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             })
         }
         googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
+        firstCallByApiFlag = true;
     };
 
     function _createSubNodes(nodeValue, userValue, radiusValue) {
@@ -195,7 +198,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     function gravity(alpha) {
         return function (d) {
             var mergeNode = svg.selectAll("circle[name='" + d.name + "']");
-            if (d.cluster === 2 && !d.menuName && mergeNode && mergeNode[0][0].length) {
+            if (d.cluster === 2 && !d.menuName && mergeNode && mergeNode[0][0]) {
                 d.reachedX = (mergeNode[0][0].getAttribute("cx") - 250) / 0.72 + 250;
                 d.reachedY = (mergeNode[0][0].getAttribute("cy") - 250) / 0.72 + 250;
                 d.y += (d.reachedY - d.y) * alpha;
@@ -214,7 +217,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 .each(gravity(.5 * e.alpha))
                 .transition()
                 .ease('linear')
-                .duration(1) // JSON.parse(d3Ctrl.speed)
+                .duration(JSON.parse(googleAnalyticsCtrl.speed)) // JSON.parse(d3Ctrl.speed)
                 .attr('cx', function (d) { return d.x; })
                 .attr('cy', function (d) { return d.y; })
         }
@@ -241,8 +244,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                         quad.point.x += x;
                         quad.point.y += y;
                     }
-                    if (d.cluster === 2 && d.name && d.x <= d.reachedX + 5 && d.reachedY >= d.y - 5 && !d.remove) {
-                        var mergeNode = svg.selectAll("circle[name='" + d.name + "']");
+                    var mergeNode = svg.selectAll("circle[name='" + d.name + "']");
+                    if (mergeNode && mergeNode[0][0] && d.cluster === 2 && d.name && d.x >= JSON.parse(mergeNode[0][0].getAttribute('cx')) - 5  && d.y >= JSON.parse(mergeNode[0][0].getAttribute('cy')) -5 && !d.remove) {
                         var user = (parseInt(mergeNode[0][0].getAttribute("user")) + 1);
                         var mergeNodeIndex = _.findIndex(nodes, function (obj) {
                             return obj.menuName === d.name;
@@ -283,7 +286,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
     // Enter Main User with Animation
     function _enterUser(menuObj, row) {
-        var usrInfo = {};
+        var usrInfo = {}, positionObj = {};
         if (row[1] !== 'onload')
             usrInfo = googleAnalyticsService.getConvertedUserData(row[2]);
         else
@@ -292,11 +295,16 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             dataPassingService.menuObj[menuObjectInstanceName][row[0]]['data'].push({ name: row[0], color: dataPassingService.menuObj[menuObjectInstanceName][row[0]]['color'], userId: row[2] });
             dataPassingService.menuObj[menuObjectInstanceName][row[0]]['display'] = true;
             var menuIndex = _.findIndex($filter('liveUserSort')(googleAnalyticsCtrl.menuList), ['name', row[0]]);
+            if (!firstCallByApiFlag)
+                positionObj = {
+                    x: center[1].exteraX,
+                    y: center[1].exteraY
+                }
             nodes.push({
-                x: 170,
-                y: (menuIndex + 1) * 20 + 10,
-                cx: center[0].x,
-                cy: center[0].y,
+                x: positionObj.x || 170,
+                y: positionObj.y || (menuIndex + 1) * 20 + 10,
+                cx: center[1].x,
+                cy: center[1].y,
                 radius: 4,
                 color: dataPassingService.menuObj[menuObjectInstanceName][row[0]]['color'],
                 cluster: 0,
@@ -333,8 +341,11 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                     date: new Date()
                 };
             googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()].onload.unshift(row);
-        } else if (svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0].length && row[1] === GOAL_EVENT_NAME[0] && !svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0][0].getAttribute(GOAL_EVENT_NAME[0])) {
+        }
+        if (svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0].length && row[1] === GOAL_EVENT_NAME[0] && !svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0][0].getAttribute(GOAL_EVENT_NAME[0])) {
             googleAnalyticsCtrl.userInfoArray.push(usrInfo);
+            if (googleAnalyticsCtrl.showUserInfo)
+                googleAnalyticsService.showUserNotification(usrInfo);
             let moveIndex = _.findIndex(nodes, ['userId', usrInfo.id]);
             d3.select('circle[userId="' + usrInfo.id + '"]')
                 .style("fill", "url(#star-image)")
@@ -401,6 +412,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             };
             nodes[removeIndex].cluster = 2;
             nodes[removeIndex].id = 3;
+            console.log(mergeNode[0][0].getAttribute("cx"), mergeNode[0][0].getAttribute("cy"))
             nodes[removeIndex].reachedX = (mergeNode[0][0].getAttribute("cx") - 250) / 0.72 + 250;
             nodes[removeIndex].reachedY = (mergeNode[0][0].getAttribute("cy") - 250) / 0.72 + 250;
         }
@@ -408,12 +420,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
 
     // For All Time Data API Calling
     function _getAnalyticsDataByTime(selectedTime) {
-        if (!googleAnalyticsCtrl.demoApiFlag)
-            googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' + selectedTime.time.startDate + '&endDate=' + selectedTime.time.endDate + '&dimensionsId=' + googleAnalyticsCtrl.selectedSource.gaValue, 'GET')
-                .then(_setAllTimeAPIData);
-        else
-            googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' + selectedTime.time.startDate + '&endDate=' + selectedTime.time.endDate + '&dimensionsId=' + googleAnalyticsCtrl.selectedSource.gaValue, 'GET')
-                .then(_setAllTimeAPIData);
+        googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' + selectedTime.time.startDate + '&endDate=' + selectedTime.time.endDate + '&dimensionsId=' + googleAnalyticsCtrl.selectedSource.gaValue, 'GET')
+            .then(_setAllTimeAPIData);
     }
 
     // For Display All Time API Data
@@ -516,6 +524,14 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 googleAnalyticsCtrl.sideBarFlag = true;
             },
         });
+    }
+
+    function _chargeRangeChange(change) {
+        force.charge(change);
+    }
+
+    function _frictionRangeChange(change) {
+        force.friction(change);
     }
 }
 

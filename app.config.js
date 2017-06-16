@@ -12,7 +12,7 @@ module.exports = {
         "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/googleanalytics1692%40hip-hangout-165616.iam.gserviceaccount.com"
     },
     GOOGLE_APP_VIEW_ID: 'ga:148848685',
-    NODE_SERVER_PORT: 8080,
+    NODE_SERVER_PORT: 8081,
     REAL_TIME_API_SUCCESS_MESSAGE: 'Get Real Time Data',
     REAL_TIME_API_ERROR_MESSAGE: 'Error By Google Real Time API',
     ALL_TIME_API_SUCCESS_MESSAGE: 'Get All Data Data',
@@ -29,7 +29,7 @@ module.exports = {
     DUMMY_DATA_LIST: {
         DUMMY_BROWSER_LIST: ['Chrome', 'Firefox', 'Safari', 'Android Webview'],
         DUMMY_OS_LIST: ['Windows', 'Macintosh', 'iOS', 'Android'],
-        MAX_COUNT: 10,
+        MAX_COUNT: 20,
         GOAL_EVENT_NAME: 'login',
         DUMMY_USERS : {
             NAME: ['chocolate bunny', 'red penguin', 'blue otter', 'pink wombat', 'grey sloth', 'purple sloth', 'black koala', 'white panther', 'green shrimp', 'fast crab', 'slow tuna', 'sleepy salmon', 'cooked cod', 'silly python', 'yummy flamingo', 'running moose', 'flying hawk', 'sitting racoon',],

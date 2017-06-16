@@ -156,27 +156,27 @@ app.get('/getGoogleAnalyticsUserData', function (req, res) {
 })
 
 app.get('/getRealTimeDataDemoAPI', function (req, res) {
-    response = _createDynmicDemoData(req.query.dimensionsId, req.query.changeFlag);
+    var temp = _createDynmicDemoData(req.query.dimensionsId, req.query.changeFlag);
 
     res.send({
         successMessage: CONFIG.REAL_TIME_API_SUCCESS_MESSAGE,
-        data: response
+        data: temp
     });
 })
 // For Check Start Server function
 app.listen(CONFIG.NODE_SERVER_PORT, function () {
     console.log('Server Started In Rest Api on port ' + CONFIG.NODE_SERVER_PORT);
 });
-var userId = 0, response = {
+var userId = 0, dummyData = {
     rows: [],
     totalsForAllResults: {}
 }, onload = [];
 function _createDynmicDemoData(dimensionsId, changeFlag) {
     var countries, randomValue, userInfoData, encodeString,
-        MaxCount = 2 //parseInt(Math.random() * CONFIG.DUMMY_DATA_LIST.MAX_COUNT);
-    response.totalsForAllResults['rt:activeUsers'] = MaxCount;
+        MaxCount = parseInt(Math.random() * CONFIG.DUMMY_DATA_LIST.MAX_COUNT);
+    dummyData.totalsForAllResults['rt:activeUsers'] = MaxCount;
     if (changeFlag === 'true' || changeFlag === true) {
-        response.rows = [];
+        dummyData.rows = [];
     }
     if (dimensionsId === 'rt:country') {
         countries = _getCountryCode();
@@ -185,11 +185,11 @@ function _createDynmicDemoData(dimensionsId, changeFlag) {
             randomValue = Math.random();
             var name = countries[parseInt(randomValue * 20)].name || 'India';
             var countryCodeVar = countries[parseInt(randomValue * 20)].alpha2 || 'IN';
-            response.rows.push([name.split(' ')[0], 'onload', userId, countryCodeVar, 'Chrome', 'DESKTOP', 'NEW', 1]);
+            dummyData.rows.push([name.split(' ')[0], 'onload', userId, countryCodeVar, 'Chrome', 'DESKTOP', 'NEW', 1]);
             if (randomValue > 0.5) {
-                response.rows.splice(parseInt(randomValue * response.rows.length - 1), 1);
-                if (response.rows[parseInt(randomValue * (response.rows.length - 1))] && response.rows[parseInt(randomValue * (response.rows.length - 1))][1] === 'onload') {
-                    var goalData = JSON.parse(JSON.stringify(response.rows[parseInt(randomValue * (response.rows.length - 1))]));
+                dummyData.rows.splice(parseInt(randomValue * dummyData.rows.length - 1), 1);
+                if (dummyData.rows[parseInt(randomValue * (dummyData.rows.length - 1))] && dummyData.rows[parseInt(randomValue * (dummyData.rows.length - 1))][1] === 'onload') {
+                    var goalData = JSON.parse(JSON.stringify(dummyData.rows[parseInt(randomValue * (dummyData.rows.length - 1))]));
                     userInfoData = {
                         "userInfo": {
                             "NAME": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME.length * randomValue)],
@@ -201,7 +201,7 @@ function _createDynmicDemoData(dimensionsId, changeFlag) {
                     encodeString = CryptoJS.enc.Base64.stringify(encodeString);
                     goalData[1] = CONFIG.DUMMY_DATA_LIST.GOAL_EVENT_NAME;
                     goalData[2] = encodeString;
-                    response.rows.push(goalData);
+                    dummyData.rows.push(goalData);
                 }
             }
 
@@ -210,11 +210,11 @@ function _createDynmicDemoData(dimensionsId, changeFlag) {
         for (var i = 0; i < MaxCount; i++) {
             userId++;
             randomValue = Math.random();
-            response.rows.push([CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST.length)], 'onload', userId, 'IN', CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST.length)], 'DESKTOP', 'NEW', 1]);
+            dummyData.rows.push([CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST.length)], 'onload', userId, 'IN', CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_BROWSER_LIST.length)], 'DESKTOP', 'NEW', 1]);
             if (randomValue > 0.5) {
-                response.rows.splice(parseInt(randomValue * response.rows.length - 1), 1)
-                if (response.rows[parseInt(randomValue * (response.rows.length - 1))] && response.rows[parseInt(randomValue * (response.rows.length - 1))][1] === 'onload') {
-                    var goalData = JSON.parse(JSON.stringify(response.rows[parseInt(randomValue * (response.rows.length - 1))]));
+                dummyData.rows.splice(parseInt(randomValue * dummyData.rows.length - 1), 1)
+                if (dummyData.rows[parseInt(randomValue * (dummyData.rows.length - 1))] && dummyData.rows[parseInt(randomValue * (dummyData.rows.length - 1))][1] === 'onload') {
+                    var goalData = JSON.parse(JSON.stringify(dummyData.rows[parseInt(randomValue * (dummyData.rows.length - 1))]));
                     userInfoData = {
                         "userInfo": {
                             "NAME": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME.length * randomValue)],
@@ -226,7 +226,7 @@ function _createDynmicDemoData(dimensionsId, changeFlag) {
                     encodeString = CryptoJS.enc.Base64.stringify(encodeString);
                     goalData[1] = CONFIG.DUMMY_DATA_LIST.GOAL_EVENT_NAME;
                     goalData[2] = encodeString;
-                    response.rows.push(goalData);
+                    dummyData.rows.push(goalData);
                 }
             }
         }
@@ -234,11 +234,11 @@ function _createDynmicDemoData(dimensionsId, changeFlag) {
         for (var i = 0; i < MaxCount; i++) {
             userId++;
             randomValue = Math.random();
-            response.rows.push([CONFIG.DUMMY_DATA_LIST.DUMMY_OS_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_OS_LIST.length)], 'onload', userId, 'IN', 'Chrome', 'DESKTOP', 'NEW', 1]);
+            dummyData.rows.push([CONFIG.DUMMY_DATA_LIST.DUMMY_OS_LIST[parseInt(randomValue * CONFIG.DUMMY_DATA_LIST.DUMMY_OS_LIST.length)], 'onload', userId, 'IN', 'Chrome', 'DESKTOP', 'NEW', 1]);
             if (randomValue > 0.5) {
-                response.rows.splice(parseInt(randomValue * response.rows.length - 1), 1);
-                if (response.rows[parseInt(randomValue * (response.rows.length - 1))] && response.rows[parseInt(randomValue * (response.rows.length - 1))][1] === 'onload') {
-                    var goalData = JSON.parse(JSON.stringify(response.rows[parseInt(randomValue * (response.rows.length - 1))]));
+                dummyData.rows.splice(parseInt(randomValue * dummyData.rows.length - 1), 1);
+                if (dummyData.rows[parseInt(randomValue * (dummyData.rows.length - 1))] && dummyData.rows[parseInt(randomValue * (dummyData.rows.length - 1))][1] === 'onload') {
+                    var goalData = JSON.parse(JSON.stringify(dummyData.rows[parseInt(randomValue * (dummyData.rows.length - 1))]));
                     userInfoData = {
                         "userInfo": {
                             "NAME": CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME[parseInt(CONFIG.DUMMY_DATA_LIST.DUMMY_USERS.NAME.length * randomValue)],
@@ -250,12 +250,12 @@ function _createDynmicDemoData(dimensionsId, changeFlag) {
                     encodeString = CryptoJS.enc.Base64.stringify(encodeString);
                     goalData[1] = CONFIG.DUMMY_DATA_LIST.GOAL_EVENT_NAME;
                     goalData[2] = encodeString;
-                    response.rows.push(goalData);
+                    dummyData.rows.push(goalData);
                 }
             }
         }
     }
-    return response;
+    return dummyData;
 }
 
 function _getCountryCode() {

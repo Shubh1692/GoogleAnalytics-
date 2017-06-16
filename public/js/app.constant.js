@@ -10,17 +10,17 @@ angular.module('googleAnalyticsModule')
         {
             name: 'Country',
             value: 'rt:country',
-            gaValue : 'ga:country',
+            gaValue: 'ga:country',
         },
         {
             name: 'Browser',
             value: 'rt:browser',
-            gaValue : 'ga:browser',
+            gaValue: 'ga:browser',
         },
         {
             name: 'OS',
             value: 'rt:operatingSystem',
-            gaValue : 'ga:operatingSystem',
+            gaValue: 'ga:operatingSystem',
         }
     ])
     .constant('VIEWING_BY_TIME', [
@@ -56,27 +56,40 @@ angular.module('googleAnalyticsModule')
     .constant('MAX_MENU_COUNT', 10)
     .constant('GOAL_EVENT_NAME', ['login'])
     .constant('GOAL_COMPLETE_ICON_PATH', '/images/Star.svg')
-    .constant('BROWSER_LOGOS_PATH',  {
-        'BASE_PATH' : '/lib/browser-logos/src/',
-        'IMAGE_CONSTRAINT' : '_16x16.png'
+    .constant('BROWSER_LOGOS_PATH', {
+        'BASE_PATH': '/lib/browser-logos/src/',
+        'IMAGE_CONSTRAINT': '_16x16.png'
     })
-     .constant('VISITOR_ICONS_PATH',  {
-        'BASE_PATH' : '/images/visitor_analytics_icons/',
-        'IMAGE_CONSTRAINT' : '.svg'
+    .constant('VISITOR_ICONS_PATH', {
+        'BASE_PATH': '/images/visitor_analytics_icons/',
+        'IMAGE_CONSTRAINT': '.svg'
     })
     .constant('NODE_WEB_API_DEMO', {
         'REAL_TIME_DATA_API': 'getRealTimeDataDemoAPI',
-        'ALL_TIME_DATA_API': 'getGoogleAnalyticsAllData',
-        'ALL_TIME_USER_DATA_API': 'getGoogleAnalyticsUserData',
-        'DUMMY_API_DEFAULT_FLAG' : false
+        'DUMMY_API_DEFAULT_FLAG': true
     })
     .constant('SPEED_ARRAY', [{
-        'textField' : 'Slow',
-        'value' : 0.00000000000000000001
-    },{
-        'textField' : 'Medium',
-        'value' : 0.00001
-    },{
-        'textField' : 'Fast',
-        'value' : 2
-    }]);
+        'textField': 'Fast',
+        'value': 0
+    }, {
+        'textField': 'Medium',
+        'value': 1000
+    }, {
+        'textField': 'Slow',
+        'value': 5000
+    }])
+    .constant('DEFAULT_D3CIRCLE_CONSTRAINT', {
+        'gravity': 0.2,
+        'charge': -30,
+        'friction': 0.0002,
+        'speed': 0
+    })
+    .constant('NOTIFICATION_CONSTANT', {
+        delay: 2000,
+        startTop: 20,
+        startRight: 10,
+        verticalSpacing: 20,
+        horizontalSpacing: 20,
+        positionX: 'right',
+        positionY: 'bottom'
+    })

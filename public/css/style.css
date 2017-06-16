@@ -340,8 +340,13 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
+.radio-box {
+    display: inline-grid;
+}
 
-
+.right-menu-back-ground {
+    background-color: #F8F8F8!important;
+}
 .d3-control-svg {
     stroke: black;
     background-color: #f0f0f0;

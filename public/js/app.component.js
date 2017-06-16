@@ -11,7 +11,10 @@ angular.module('googleAnalyticsModule')
         controller: 'rightMenuController',
         controllerAs: 'rightMenuCtrl',
         bindings: {
-            userData: '='
+            userData: '=',
+            speed: '=',
+            chargeRangeChange: '=',
+            frictionRangeChange: '=',
         }
     })
     .component('d3control', {

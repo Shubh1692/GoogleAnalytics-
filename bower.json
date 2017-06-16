@@ -22,6 +22,7 @@
     "lodash": "4.17.4",
     "cryptojslib": "^3.1.2",
     "flag-icon-css": "^2.8.0",
-    "browser-logos": "^42.1.1"
+    "browser-logos": "^42.1.1",
+    "angular-ui-notification": "^0.3.6"
   }
 }
