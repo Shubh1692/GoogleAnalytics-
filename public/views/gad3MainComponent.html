@@ -5,6 +5,7 @@
     speed="googleAnalyticsCtrl.speed" 
     charge-range-change="googleAnalyticsCtrl.chargeRangeChange"
     friction-range-change="googleAnalyticsCtrl.frictionRangeChange"
+    show-user-notification ="googleAnalyticsCtrl.showUserNotification"
     ></right-menu>
 </div>
 <div class="row title margin-right-0">
@@ -176,10 +177,10 @@
             </div>
         </div>
     </div>
-    <div class="user-info color-gray" ng-style="{'top' : googleAnalyticsCtrl.userInfoTopPostion + 'px','width' : googleAnalyticsCtrl.goalOneDivWidth + 'px'}">
+    <!--<div class="user-info color-gray" ng-style="{'top' : googleAnalyticsCtrl.userInfoTopPostion + 'px','width' : googleAnalyticsCtrl.goalOneDivWidth + 'px'}">
         <div class="float-left"><span ng-bind="googleAnalyticsCtrl.userInfoArray.length"></span> GOAL CONVERSION ACHIEVED</div>
         <a href="JavaScript:Void(0);" class="float-right padding-right-10 cross-icon" ng-click="googleAnalyticsCtrl.showUserInfo = !googleAnalyticsCtrl.showUserInfo;">&#x2716;</a>
-    </div>
+    </div>-->
     <!--<div ng-if="googleAnalyticsCtrl.showUserInfo" class="user-info color-gray" ng-style="{'top' : googleAnalyticsCtrl.userInfoTopPostion + 30 + 'px','width' : googleAnalyticsCtrl.goalOneDivWidth + 'px', 'height': '100px', 'overflow-x': 'hidden'}">
         <div id="{{userInfo.id}}" class="user-notification" ng-repeat="userInfo in googleAnalyticsCtrl.userInfoArray | orderBy:'+':true  track by $index">
             <div ng-repeat="(key, userData) in userInfo.userInfo">

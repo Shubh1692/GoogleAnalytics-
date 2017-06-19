@@ -15,6 +15,7 @@ angular.module('googleAnalyticsModule')
             speed: '=',
             chargeRangeChange: '=',
             frictionRangeChange: '=',
+            showUserNotification : '='
         }
     })
     .component('d3control', {

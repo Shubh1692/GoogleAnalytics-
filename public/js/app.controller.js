@@ -56,7 +56,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     googleAnalyticsCtrl.exitRate = 0 + '%';
     googleAnalyticsCtrl.avgSessionDuration = 0 + 'min';
     googleAnalyticsCtrl.userInfoArray = [];
-    googleAnalyticsCtrl.showUserInfo = true;
+    googleAnalyticsCtrl.showUserNotification = true;
     googleAnalyticsCtrl.displayTime = {};
     googleAnalyticsCtrl.menuList = [];
     googleAnalyticsCtrl.sourceArray = VIEWING_BY_SOURCE;
@@ -344,7 +344,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         }
         if (svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0].length && row[1] === GOAL_EVENT_NAME[0] && !svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0][0].getAttribute(GOAL_EVENT_NAME[0])) {
             googleAnalyticsCtrl.userInfoArray.push(usrInfo);
-            if (googleAnalyticsCtrl.showUserInfo)
+            if (googleAnalyticsCtrl.showUserNotification)
                 googleAnalyticsService.showUserNotification(usrInfo);
             let moveIndex = _.findIndex(nodes, ['userId', usrInfo.id]);
             d3.select('circle[userId="' + usrInfo.id + '"]')

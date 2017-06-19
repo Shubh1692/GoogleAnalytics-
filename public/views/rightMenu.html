@@ -25,11 +25,16 @@
                 <div ng-if="value.onload" ng-repeat="(userKey, user) in value.onload">
                     <div class="right-menu-detail">
                         <li class="none-list-type right-menu-li" ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
-                            <div class="right-menu-text-div"><span class="padding-10" ng-bind="$index + 1"></span><span class="padding-10 flag-icon flag-icon-{{user[3] | lowercase}}"></span>
+                            <div class="right-menu-text-div relative"><span class="padding-10" ng-bind="$index + 1"></span><span class="padding-10 flag-icon flag-icon-{{user[3] | lowercase}}"></span>
                                 <span class="padding-10" ng-bind="user[6]"></span>
+                                <span style="right: 25px;position: absolute;">
+                                    <span ng-bind="user[10]"></span>:<span ng-bind="user[11]"></span>                                <span ng-bind="'AM'"></span>
+                                </span>
                             </div>
                             <div class="right-menu-text-div">
+                                <span class="padding-10" ng-bind="user[8]"></span>
                                 <img class="margin-right-10 padding-5 float-right" ng-src="{{rightMenuCtrl.VISITOR_ICONS_PATH.BASE_PATH}}{{user[5].split(' ')[0]  | lowercase}}{{rightMenuCtrl.VISITOR_ICONS_PATH.IMAGE_CONSTRAINT}}"></img>
+                                <img style="height: 14px;" class="margin-right-10 padding-5 float-right" ng-src="{{rightMenuCtrl.VISITOR_ICONS_PATH.BASE_PATH}}{{user[9].split(' ')[0]  | lowercase}}{{rightMenuCtrl.VISITOR_ICONS_PATH.IMAGE_CONSTRAINT}}"></img>
                                 <img class="margin-right-10 padding-5 float-right" ng-src="{{rightMenuCtrl.browserLogoUrl.BASE_PATH}}{{user[4].split(' ')[0]  | lowercase}}/{{user[4].split(' ')[0]  | lowercase}}{{rightMenuCtrl.browserLogoUrl.IMAGE_CONSTRAINT}}"></img>
                             </div>
                         </li>
@@ -45,12 +50,17 @@
                 </div>
                 <div ng-if="value[rightMenuCtrl.GOAL_EVENT_NAME]" ng-repeat="(userKey, user) in value[rightMenuCtrl.GOAL_EVENT_NAME]">
                     <div class="right-menu-detail">
-                        <li class="none-list-type right-menu-li" ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
+                        <li class="none-list-type right-menu-li relative" ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
                             <div class="right-menu-text-div"><span class="padding-10" ng-bind="$index  + 1"></span><span class="padding-10 flag-icon flag-icon-{{user[3] | lowercase}}"></span>
                                 <span class="padding-10" ng-bind="user[6]"></span>
+                                <span style="right: 25px;position: absolute;">
+                                    <span ng-bind="user[10]"></span>:<span ng-bind="user[11]"></span>                                <span ng-bind="'AM'"></span>
+                                </span>
                             </div>
                             <div class="right-menu-text-div">
+                                <span class="padding-10" ng-bind="user[8]"></span>
                                 <img class="margin-right-10 padding-5 float-right" ng-src="{{rightMenuCtrl.VISITOR_ICONS_PATH.BASE_PATH}}{{user[5].split(' ')[0]  | lowercase}}{{rightMenuCtrl.VISITOR_ICONS_PATH.IMAGE_CONSTRAINT}}"></img>
+                                <img style="height: 14px;" class="margin-right-10 padding-5 float-right" ng-src="{{rightMenuCtrl.VISITOR_ICONS_PATH.BASE_PATH}}{{user[9].split(' ')[0]  | lowercase}}{{rightMenuCtrl.VISITOR_ICONS_PATH.IMAGE_CONSTRAINT}}"></img>
                                 <img class="margin-right-10 padding-5 float-right" ng-src="{{rightMenuCtrl.browserLogoUrl.BASE_PATH}}{{user[4].split(' ')[0]  | lowercase}}/{{user[4].split(' ')[0]  | lowercase}}{{rightMenuCtrl.browserLogoUrl.IMAGE_CONSTRAINT}}"></img>
                             </div>
                         </li>
@@ -80,7 +90,9 @@
                 <b>Friction Range:</b><br>
                 <input type="range" ng-model="rightMenuCtrl.DEFAULT_D3CIRCLE_CONSTRAINT.friction" min="0.0001" max="0.3" step="0.01" ng-change="rightMenuCtrl.frictionRangeChange(rightMenuCtrl.DEFAULT_D3CIRCLE_CONSTRAINT.friction)"><br>
             </div>
-
+            <div class="padding-10">
+                <input type="checkbox" ng-model="rightMenuCtrl.showUserNotification">&ensp;<b>Show Notification</b><br>
+            </div>
         </div>
     </div>
 </div>

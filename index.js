@@ -36,44 +36,30 @@ jwtClient.authorize(function (err, tokens) {
 });
 // Get Real Time Data API
 app.get('/getGoogleAnalyticsRealTimeData', function (req, res) {
-    var dimensions = _.reject(CONFIG.GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS, function (o) { return o === req.query.dimensionsId })
-    var apiQuery = google.analytics('v3').data.realtime.get({
+    var responseVar = {};
+    var dimensions = _.reject(CONFIG.GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS_PART_ONE, function (o) { return o === req.query.dimensionsId })
+    google.analytics('v3').data.realtime.get({
         'auth': jwtClient,
         'ids': CONFIG.GOOGLE_APP_VIEW_ID,
         'metrics': 'rt:activeUsers',
-        'dimensions': req.query.dimensionsId + ',rt:eventCategory, rt:eventAction,' + CONFIG.GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS
+        'dimensions': req.query.dimensionsId + ',rt:eventCategory, rt:eventAction,' + CONFIG.GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS_PART_ONE
     }, function (err, response) {
-        if (err) {
-            res.send({
-                errorMessage: CONFIG.REAL_TIME_API_ERROR_MESSAGE,
-                data: err
-            });
-            return;
-        }
-        response = {
-            rows: response.rows,
-            totalsForAllResults: {
-                'rt:activeUsers': 0
-            }
-        }
-        _.each(response.rows, function (value, key) {
-            if (value && (value[1] === '(not set)' || value[2] === '(not set)'))
-                response.rows.splice(key, 1);
-            else if (value && (value[1] !== '(not set)' && value[2] !== '(not set)')) {
-                var countryCode = _.find(countryCodes, function (countryValue) {
-                    if (countryValue.name === value[3]) {
-                        return countryValue;
-                    }
-                });
-                response.rows[key][3] = countryCode.alpha2;
-            }
-            if (value && (value[1] !== 'onload'))
-                response.totalsForAllResults['rt:activeUsers']++;
-        });
+        responseVar.first = response.rows || [];
+        _realTimeSuccessCalling(err, responseVar, res, true)
+    }, function (err) {
         res.send({
-            successMessage: CONFIG.REAL_TIME_API_SUCCESS_MESSAGE,
-            data: response
+            errorMessage: CONFIG.REAL_TIME_API_ERROR_MESSAGE,
+            data: err
         });
+    });
+    google.analytics('v3').data.realtime.get({
+        'auth': jwtClient,
+        'ids': CONFIG.GOOGLE_APP_VIEW_ID,
+        'metrics': 'rt:activeUsers',
+        'dimensions': req.query.dimensionsId + ',rt:eventCategory, rt:eventAction,' + CONFIG.GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS_PART_TWO
+    }, function (err, response) {
+        responseVar.second = response.rows || [];
+        _realTimeSuccessCalling(err, responseVar, res)
     }, function (err) {
         res.send({
             errorMessage: CONFIG.REAL_TIME_API_ERROR_MESSAGE,
@@ -83,12 +69,12 @@ app.get('/getGoogleAnalyticsRealTimeData', function (req, res) {
 });
 // Get All Data API
 app.get('/getGoogleAnalyticsAllData', function (req, res) {
-    var apiQuery = google.analytics('v3').data.ga.get({
+    google.analytics('v3').data.ga.get({
         'auth': jwtClient,
         'ids': CONFIG.GOOGLE_APP_VIEW_ID,
         'start-date': req.query.startDate,
         'end-date': req.query.endDate,
-        'metrics': 'ga:users, ga:bounceRate, ga:avgSessionDuration, ga:newUsers, ga:percentNewSessions, ga:pageviewsPerSession, ga:goalCompletionsAll, ga:goalConversionRateAll, ga:goalValueAll, ga:sessions', // , ga:avgSessionDuration
+        'metrics': CONFIG.GOOGLE_DEFAULT_ALL_TIME_DATA_METRICS,
         'dimensions': req.query.dimensionsId,
         'sort': '-ga:users'
     }, function (err, response) {
@@ -116,15 +102,15 @@ app.get('/getGoogleAnalyticsAllData', function (req, res) {
 });
 
 app.get('/getGoogleAnalyticsUserData', function (req, res) {
-    var apiQuery = google.analytics('v3').data.ga.get({
+    var responseVar = {};
+    google.analytics('v3').data.ga.get({
         'auth': jwtClient,
         'ids': CONFIG.GOOGLE_APP_VIEW_ID,
         'start-date': CONFIG.GOOGLE_MENU_DATA_START_DATE,
         'end-date': new Date().toISOString().slice(0, 10),
         'metrics': 'ga:users',
-        'dimensions': 'ga:date, ga:eventCategory, ga:eventAction, ga:countryIsoCode, ga:browser, ga:deviceCategory, ga:userType',
-        'sort': '-ga:date',
-        // 'filters' : 'ga:userType==New Visitor,ga:userType==Returning Visitor'
+        'dimensions': CONFIG.GOOGLE_DEFAULT_USER_DATA_DIMENSIONS_PRAT_ONE,
+        'sort': '-ga:date'
     }, function (err, response) {
         if (err) {
             res.send({
@@ -133,20 +119,32 @@ app.get('/getGoogleAnalyticsUserData', function (req, res) {
             });
             return;
         }
-        var groupByDate = _.groupBy(response.rows, function (o) { return o[0] });
-        var groupByEventCategory = {}
-        _.each(groupByDate, function (value, key) {
-            groupByEventCategory[key.substring(6, 8) + '-' + key.substring(4, 6) + '-' + key.substring(0, 4)] = _.groupBy(value, function (o) { return o[1] });
-            groupByEventCategory[key.substring(6, 8) + '-' + key.substring(4, 6) + '-' + key.substring(0, 4)].date = new Date(key.substring(0, 4) + '/' + key.substring(4, 6) + '/' + key.substring(6, 8));
-        })
+        responseVar.first = response.rows;
+        _getUserDataSuccessCalling(err, responseVar, res, response)
+    }, function (err) {
         res.send({
-            successMessage: CONFIG.ALL_TIME_API_SUCCESS_MESSAGE,
-            data: {
-                data: groupByEventCategory,
-                total: response.rows.length,
-                res: response
-            }
+            errorMessage: CONFIG.ALL_TIME_GET_USER_API_ERROR_MESSAGE,
+            data: err
         });
+    });
+    google.analytics('v3').data.ga.get({
+        'auth': jwtClient,
+        'ids': CONFIG.GOOGLE_APP_VIEW_ID,
+        'start-date': CONFIG.GOOGLE_MENU_DATA_START_DATE,
+        'end-date': new Date().toISOString().slice(0, 10),
+        'metrics': 'ga:users',
+        'dimensions': CONFIG.GOOGLE_DEFAULT_USER_DATA_DIMENSIONS_PRAT_TWO,
+        'sort': '-ga:date'
+    }, function (err, response) {
+        if (err) {
+            res.send({
+                errorMessage: CONFIG.ALL_TIME_GET_USER_API_ERROR_MESSAGE,
+                data: err
+            });
+            return;
+        }
+        responseVar.second = response.rows;
+        _getUserDataSuccessCalling(err, responseVar, res, response)
     }, function (err) {
         res.send({
             errorMessage: CONFIG.ALL_TIME_GET_USER_API_ERROR_MESSAGE,
@@ -171,6 +169,7 @@ var userId = 0, dummyData = {
     rows: [],
     totalsForAllResults: {}
 }, onload = [];
+
 function _createDynmicDemoData(dimensionsId, changeFlag) {
     var countries, randomValue, userInfoData, encodeString,
         MaxCount = parseInt(Math.random() * CONFIG.DUMMY_DATA_LIST.MAX_COUNT);
@@ -264,4 +263,84 @@ function _getCountryCode() {
         countries.push(country);
     });
     return countries;
+}
+
+function _realTimeSuccessCalling(err, responseVar, res, count) {
+    if (responseVar.first && responseVar.second) {
+        var response = {
+            rows: [],
+            totalsForAllResults: {
+                'rt:activeUsers': 0
+            }
+        }
+        _.each(responseVar.first, function (responseValueFirst, responseKeyFirst) {
+            if (responseValueFirst && (responseValueFirst[1] !== '(not set)' && responseValueFirst[2] !== '(not set)')) {
+                _.each(responseVar.second, function (responseValueSecond, responseKeySecond) {
+                    if (responseValueSecond && (responseValueSecond[1] !== '(not set)' && responseValueSecond[2] !== '(not set)')) {
+                        if (responseValueSecond[1] === responseValueFirst[1] && responseValueSecond[2] === responseValueFirst[2]) {
+                            responseVar.first[responseKeyFirst].push(responseValueSecond[3]);
+                            responseVar.first[responseKeyFirst].push(responseValueSecond[4]);
+                        }
+                    }
+                })
+            }
+            if (responseValueFirst && (responseValueFirst[1] !== 'onload'))
+                response.totalsForAllResults['rt:activeUsers']++;
+        })
+        _.each(responseVar, function (responseValue, responseKey) {
+            _.each(responseVar[responseKey], function (value, key) {
+                if (value && (value[1] === '(not set)' || value[2] === '(not set)'))
+                    responseVar[responseKey].splice(key, 1);
+                else if (value && (value[1] !== '(not set)' && value[2] !== '(not set)')) {
+                    var countryCode = _.find(countryCodes, function (countryValue) {
+                        if (countryValue.name === value[3]) {
+                            return countryValue;
+                        }
+                    });
+                    responseVar[responseKey][key][3] = countryCode.alpha2;
+                }
+            });
+        });
+        response.rows = responseVar.first;
+        res.send({
+            successMessage: CONFIG.REAL_TIME_API_SUCCESS_MESSAGE,
+            data: response
+        });
+    }
+}
+
+function _getUserDataSuccessCalling(err, responseVar, res, repo) {
+    var response = {
+        rows: []
+    }
+    if (responseVar.first && responseVar.second) {
+        _.each(responseVar.first, function (responseValueFirst, responseKeyFirst) {
+            if (responseValueFirst && (responseValueFirst[1] !== '(not set)' && responseValueFirst[2] !== '(not set)')) {
+                _.each(responseVar.second, function (responseValueSecond, responseKeySecond) {
+                    if (responseValueSecond && (responseValueSecond[1] !== '(not set)' && responseValueSecond[2] !== '(not set)')) {
+                        if (responseValueSecond[1] === responseValueFirst[1] && responseValueSecond[2] === responseValueFirst[2] && responseVar.first[responseKeyFirst].length < 12) {
+                            responseVar.first[responseKeyFirst].push(responseValueSecond[3]);
+                            responseVar.first[responseKeyFirst].push(responseValueSecond[4]);
+                            responseVar.first[responseKeyFirst].push(responseValueSecond[5]);
+                            responseVar.first[responseKeyFirst].push(responseValueSecond[6]);
+                        }
+                    }
+                })
+            }
+        });
+        response.rows = responseVar.first;
+        var groupByDate = _.groupBy(response.rows, function (o) { return o[0] });
+        var groupByEventCategory = {}
+        _.each(groupByDate, function (value, key) {
+            groupByEventCategory[key.substring(6, 8) + '-' + key.substring(4, 6) + '-' + key.substring(0, 4)] = _.groupBy(value, function (o) { return o[1] });
+            groupByEventCategory[key.substring(6, 8) + '-' + key.substring(4, 6) + '-' + key.substring(0, 4)].date = new Date(key.substring(0, 4) + '/' + key.substring(4, 6) + '/' + key.substring(6, 8));
+        })
+        res.send({
+            successMessage: CONFIG.ALL_TIME_API_SUCCESS_MESSAGE,
+            data: {
+                data: groupByEventCategory,
+                total: response.rows.length
+            }
+        });
+    }
 }
