@@ -29,7 +29,7 @@ module.exports = {
     GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS_PART_TWO : ['rt:referralPath', 'rt:operatingSystem'],
     GOOGLE_DEFAULT_USER_DATA_DIMENSIONS_PRAT_ONE : 'ga:date,ga:eventCategory,ga:eventAction,ga:countryIsoCode,ga:browser,ga:deviceCategory,ga:userType',
     GOOGLE_DEFAULT_USER_DATA_DIMENSIONS_PRAT_TWO : 'ga:date,ga:eventCategory,ga:eventAction,ga:referralPath,ga:operatingSystem, ga:hour, ga:minute',
-    GOOGLE_DEFAULT_ALL_TIME_DATA_METRICS : ['ga:users', 'ga:bounceRate', 'ga:avgSessionDuration', 'ga:newUsers', 'ga:percentNewSessions', 'ga:pageviewsPerSession', 'ga:goalCompletionsAll', 'ga:goalConversionRateAll', 'ga:goalValueAll', 'ga:sessions'],    
+    GOOGLE_DEFAULT_ALL_TIME_DATA_METRICS : 'ga:users, ga:bounceRate, ga:avgSessionDuration, ga:newUsers, ga:percentNewSessions, ga:pageviewsPerSession, ga:goalCompletionsAll, ga:goalConversionRateAll, ga:goalValueAll, ga:sessions',    
     DUMMY_DATA_LIST: {
         DUMMY_BROWSER_LIST: ['Chrome', 'Firefox', 'Safari', 'Android Webview'],
         DUMMY_OS_LIST: ['Windows', 'Macintosh', 'iOS', 'Android'],

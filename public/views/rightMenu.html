@@ -27,8 +27,8 @@
                         <li class="none-list-type right-menu-li" ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
                             <div class="right-menu-text-div relative"><span class="padding-10" ng-bind="$index + 1"></span><span class="padding-10 flag-icon flag-icon-{{user[3] | lowercase}}"></span>
                                 <span class="padding-10" ng-bind="user[6]"></span>
-                                <span style="right: 25px;position: absolute;">
-                                    <span ng-bind="user[10]"></span>:<span ng-bind="user[11]"></span>                                <span ng-bind="'AM'"></span>
+                                <span style="right: 25px;position: absolute;" ng-if="user[10]">
+                                    <span ng-bind="user[10]"></span>:<span ng-bind="user[11]"></span>
                                 </span>
                             </div>
                             <div class="right-menu-text-div">
@@ -53,8 +53,8 @@
                         <li class="none-list-type right-menu-li relative" ng-style="$index % 2 && {'background-color': '#EDEEF0'} || {'background-color': '#F8F8F8'}">
                             <div class="right-menu-text-div"><span class="padding-10" ng-bind="$index  + 1"></span><span class="padding-10 flag-icon flag-icon-{{user[3] | lowercase}}"></span>
                                 <span class="padding-10" ng-bind="user[6]"></span>
-                                <span style="right: 25px;position: absolute;">
-                                    <span ng-bind="user[10]"></span>:<span ng-bind="user[11]"></span>                                <span ng-bind="'AM'"></span>
+                                <span style="right: 25px;position: absolute;" ng-if="user[10]">
+                                    <span ng-bind="user[10]"></span>:<span ng-bind="user[11]"></span>
                                 </span>
                             </div>
                             <div class="right-menu-text-div">

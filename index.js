@@ -273,13 +273,21 @@ function _realTimeSuccessCalling(err, responseVar, res, count) {
                 'rt:activeUsers': 0
             }
         }
+
         _.each(responseVar.first, function (responseValueFirst, responseKeyFirst) {
             if (responseValueFirst && (responseValueFirst[1] !== '(not set)' && responseValueFirst[2] !== '(not set)')) {
                 _.each(responseVar.second, function (responseValueSecond, responseKeySecond) {
                     if (responseValueSecond && (responseValueSecond[1] !== '(not set)' && responseValueSecond[2] !== '(not set)')) {
                         if (responseValueSecond[1] === responseValueFirst[1] && responseValueSecond[2] === responseValueFirst[2]) {
+                            var countryCode = _.find(countryCodes, function (countryValue) {
+                                if (countryValue.name === responseVar.first[responseKeyFirst][3]) {
+                                    return countryValue;
+                                }
+                            });
+                            responseVar.first[responseKeyFirst][3] = countryCode.alpha2;
                             responseVar.first[responseKeyFirst].push(responseValueSecond[3]);
                             responseVar.first[responseKeyFirst].push(responseValueSecond[4]);
+                            response.rows.push(responseVar.first[responseKeyFirst])
                         }
                     }
                 })
@@ -287,21 +295,6 @@ function _realTimeSuccessCalling(err, responseVar, res, count) {
             if (responseValueFirst && (responseValueFirst[1] !== 'onload'))
                 response.totalsForAllResults['rt:activeUsers']++;
         })
-        _.each(responseVar, function (responseValue, responseKey) {
-            _.each(responseVar[responseKey], function (value, key) {
-                if (value && (value[1] === '(not set)' || value[2] === '(not set)'))
-                    responseVar[responseKey].splice(key, 1);
-                else if (value && (value[1] !== '(not set)' && value[2] !== '(not set)')) {
-                    var countryCode = _.find(countryCodes, function (countryValue) {
-                        if (countryValue.name === value[3]) {
-                            return countryValue;
-                        }
-                    });
-                    responseVar[responseKey][key][3] = countryCode.alpha2;
-                }
-            });
-        });
-        response.rows = responseVar.first;
         res.send({
             successMessage: CONFIG.REAL_TIME_API_SUCCESS_MESSAGE,
             data: response
