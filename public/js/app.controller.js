@@ -49,6 +49,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     googleAnalyticsCtrl.setColor = _setColor;
     googleAnalyticsCtrl.chargeRangeChange = _chargeRangeChange;
     googleAnalyticsCtrl.frictionRangeChange = _frictionRangeChange;
+    googleAnalyticsCtrl.demoApiFlagChange = _demoApiFlagChange;
     // Default Values or Controller Variables
     googleAnalyticsCtrl.onsiteUser = 0;
     googleAnalyticsCtrl.totalUserWithinTime = 0;
@@ -90,12 +91,22 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     // For Get API Data
     function _callRealtimeDataAPI(changeFlag) {
         changeFlag = angular.isUndefined(changeFlag) ? true : false;
+        console.log('cfs', changeFlag)
         if (!googleAnalyticsCtrl.demoApiFlag)
             googleAnalyticsService.serverRequest(NODE_WEB_API.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
                 .then(_displayApiData);
         else
             googleAnalyticsService.serverRequest(NODE_WEB_API_DEMO.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value + '&changeFlag=' + changeFlag, 'GET')
                 .then(_displayApiData);
+    }
+
+    function _demoApiFlagChange() {
+        if (googleAnalyticsCtrl.demoApiFlag) {
+            if (angular.isFunction($interval.cancel))
+                $interval.cancel(intervalInstance);
+            _callRealtimeDataAPI();
+            intervalInstance = $interval(_callRealtimeDataAPI, REAL_TIME_API_TIME_INTERVAL);
+        }
     }
 
     // For Source Selection Change 
@@ -110,38 +121,25 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
     // For Display Real Time API Data
     function _displayApiData(res) {
-        var exitArray = [];
+        var exitUserFlag = false;
         googleAnalyticsCtrl.onsiteUser = res.totalsForAllResults['rt:activeUsers'];
         if (res.rows && res.rows.length !== 0) {
             if (!dataPassingService.menuObj[menuObjectInstanceName]) {
                 dataPassingService.menuObj[menuObjectInstanceName] = {};
             }
-            _.each(res.rows, function (dataValue, dataKey) {
-                if (!dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]) {
-                    dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]] = {}
-                    dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].name = dataValue[0];
-                    dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].data = [];
-                    dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].color = color; color++;
-                    dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]['x'] = 100;
-                    dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]['y'] = 50;
-                }
-                var newCricleIndex = nodes.findIndex(function (obj) {
-                    return (obj.menuName === dataValue[0]);
-                });
-                if (newCricleIndex === -1) {
-                    _createSubNodes(dataValue, 0, 4)
-                }
-                _enterUser(dataPassingService.menuObj[menuObjectInstanceName], dataValue);
-            });
             _.each(node[0], function (existDataValue, existDataKey) {
                 if (existDataValue.getAttribute('remove') === 'no' && !existDataValue.getAttribute('sub-menu-flag')) {
                     var exitExits = _.findIndex(res.rows, function (dataValue) {
                         return (parseInt(existDataValue.getAttribute('userId')) === parseInt(dataValue[2]));
                     })
-                    if (exitExits === -1)
-                        _exitUser(existDataValue, existDataKey);
+                    if (exitExits === -1) {
+                        exitUserFlag = true;
+                        _exitUser(existDataValue, existDataKey, angular.copy(res));
+                    }
                 }
-            })
+            });
+            if (!exitUserFlag)
+                _createMainNodes(res);
         } else {
             _.each(node[0], function (existDataValue, existDataKey) {
                 if (existDataValue.getAttribute('remove') === 'no')
@@ -151,7 +149,25 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
         firstCallByApiFlag = true;
     };
-
+    function _createMainNodes(res) {
+        _.each(res.rows, function (dataValue, dataKey) {
+            if (!dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]) {
+                dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]] = {}
+                dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].name = dataValue[0];
+                dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].data = [];
+                dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].color = color; color++;
+                dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]['x'] = 100;
+                dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]['y'] = 50;
+            }
+            var newCricleIndex = nodes.findIndex(function (obj) {
+                return (obj.menuName === dataValue[0]);
+            });
+            if (newCricleIndex === -1) {
+                _createSubNodes(dataValue, 0, 4)
+            }
+            _enterUser(dataPassingService.menuObj[menuObjectInstanceName], dataValue);
+        });
+    }
     function _createSubNodes(nodeValue, userValue, radiusValue) {
         nodes.push({
             x: center[3].x,
@@ -197,22 +213,23 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     // For Main Gravity Function
     function gravity(alpha) {
         return function (d) {
-            var mergeNode = svg.selectAll("circle[name='" + d.name + "']");
-            if (d.cluster === 2 && !d.menuName && mergeNode && mergeNode[0][0]) {
-                d.reachedX = (mergeNode[0][0].getAttribute("cx") - 250) / 0.72 + 250;
-                d.reachedY = (mergeNode[0][0].getAttribute("cy") - 250) / 0.72 + 250;
-                d.y += (d.reachedY - d.y) * alpha;
-                d.x += (d.reachedX - d.x) * alpha;
-            } else {
-                d.y += (center[d.id].exteraY - d.y) * alpha;
-                d.x += (center[d.id].exteraX - d.x) * alpha;
-            }
+            // var mergeNode = svg.selectAll("circle[name='" + d.name + "']");
+            // if (d.cluster === 2 && !d.menuName && mergeNode && mergeNode[0][0]) {
+            //     d.reachedX = (mergeNode[0][0].getAttribute("cx") - 250) / 0.72 + 250;
+            //     d.reachedY = (mergeNode[0][0].getAttribute("cy") - 250) / 0.72 + 250;
+            //     d.y += (d.reachedY - d.y) * alpha;
+            //     d.x += (d.reachedX - d.x) * alpha;
+            // } else {
+            d.y += (center[d.id].exteraY - d.y) * alpha;
+            d.x += (center[d.id].exteraX - d.x) * alpha;
+            //}
         };
     }
     // For Main Tick Function
     function _tick(e) {
         if (nodes.length) {
-            node.each(_handelCluster(0.1 * e.alpha * e.alpha))
+            node
+                // .each(_handelCluster(0.1 * e.alpha * e.alpha))
                 .each(_handelCollides(.5))
                 .each(gravity(.5 * e.alpha))
                 .transition()
@@ -232,7 +249,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 ny1 = d.y - r,
                 ny2 = d.y + r;
             quadtree.visit(function (quad, x1, y1, x2, y2) {
-                if (quad.point && (quad.point !== d) && quad.point.menuName !== d.name && quad.point.name !== d.menuName) {
+                if (quad.point && (quad.point !== d)) { //  && quad.point.menuName !== d.name && quad.point.name !== d.menuName
                     var x = d.x - quad.point.x,
                         y = d.y - quad.point.y,
                         l = Math.sqrt(x * x + y * y),
@@ -244,24 +261,24 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                         quad.point.x += x;
                         quad.point.y += y;
                     }
-                    var mergeNode = svg.selectAll("circle[name='" + d.name + "']");
-                    if (mergeNode && mergeNode[0][0] && d.cluster === 2 && d.name && d.x >= JSON.parse(mergeNode[0][0].getAttribute('cx')) - 5  && d.y >= JSON.parse(mergeNode[0][0].getAttribute('cy')) -5 && !d.remove) {
-                        var user = (parseInt(mergeNode[0][0].getAttribute("user")) + 1);
-                        var mergeNodeIndex = _.findIndex(nodes, function (obj) {
-                            return obj.menuName === d.name;
-                        });
-                        var removeIndex = _.findIndex(nodes, function (obj) {
-                            return parseInt(obj.userId) === parseInt(d.userId);
-                        });
-                        mergeNode.attr("r", function (d) {
-                            nodes[mergeNodeIndex].radius = Math.log(user) * 4 + 4;
-                            return Math.log(user) * 4 + 4;
-                        });
-                        mergeNode.attr("user", user);
-                        d3.select('circle[userId="' + d.userId + '"]')
-                            .remove();
-                        nodes[removeIndex].remove = true;
-                    }
+                    // var mergeNode = svg.selectAll("circle[name='" + d.name + "']");
+                    // if (mergeNode && mergeNode[0][0] && d.cluster === 2 && d.name && d.x >= JSON.parse(mergeNode[0][0].getAttribute('cx')) - 5 && d.y >= JSON.parse(mergeNode[0][0].getAttribute('cy')) - 5 && !d.remove) {
+                    //     var user = (parseInt(mergeNode[0][0].getAttribute("user")) + 1);
+                    //     var mergeNodeIndex = _.findIndex(nodes, function (obj) {
+                    //         return obj.menuName === d.name;
+                    //     });
+                    //     var removeIndex = _.findIndex(nodes, function (obj) {
+                    //         return parseInt(obj.userId) === parseInt(d.userId);
+                    //     });
+                    //     mergeNode.attr("r", function (d) {
+                    //         nodes[mergeNodeIndex].radius = Math.log(user) * 4 + 4;
+                    //         return Math.log(user) * 4 + 4;
+                    //     });
+                    //     mergeNode.attr("user", user);
+                    //     d3.select('circle[userId="' + d.userId + '"]')
+                    //         .remove();
+                    //     nodes[removeIndex].remove = true;
+                    // }
                 }
                 return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
             });
@@ -388,10 +405,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             if (!googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME[0]])
                 googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME[0]] = [];
             googleAnalyticsCtrl.userDataForRightMenu[googleAnalyticsService.getFormattedCurrentDate()][GOAL_EVENT_NAME[0]].unshift(row);
+            force.start();
         }
     }
     // Exit User with Animation
-    function _exitUser(dataValueForExit, dataKeyForExit) {
+    function _exitUser(dataValueForExit, dataKeyForExit, entryUserData) {
+        console.log('Exit')
         var removeIndex = _.findIndex(nodes, function (obj) {
             return parseInt(obj.userId) === parseInt(dataValueForExit.getAttribute('userId'));
         });
@@ -401,20 +420,54 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 return parseInt(dataValueForExit.getAttribute('userId')) === parseInt(menuData.userId);
             });
             dataPassingService.menuObj[menuObjectInstanceName][dataValueForExit.getAttribute('show-menu')]['data'].splice(dataIndex, 1);
-
+            // d3.select('circle[userId="' + dataValueForExit.getAttribute('userId') + '"]')
+            //     .attr("remove", "yes")
+            // clusters[2] = {
+            //     x: center[3].x,
+            //     y: center[3].y,
+            //     radius: 4,
+            //     cluster: 2
+            // };
+            // nodes[removeIndex].cluster = 2;
+            // nodes[removeIndex].id = 3;
+            force.stop();
+            if (angular.isFunction($interval.cancel))
+                $interval.cancel(forceInterVal);
             d3.select('circle[userId="' + dataValueForExit.getAttribute('userId') + '"]')
+                .style("pointer-events", "none")
                 .attr("remove", "yes")
-            clusters[2] = {
-                x: center[3].x,
-                y: center[3].y,
-                radius: 4,
-                cluster: 2
-            };
-            nodes[removeIndex].cluster = 2;
-            nodes[removeIndex].id = 3;
-            console.log(mergeNode[0][0].getAttribute("cx"), mergeNode[0][0].getAttribute("cy"))
-            nodes[removeIndex].reachedX = (mergeNode[0][0].getAttribute("cx") - 250) / 0.72 + 250;
-            nodes[removeIndex].reachedY = (mergeNode[0][0].getAttribute("cy") - 250) / 0.72 + 250;
+                .transition()
+                .each("end", function (e) {
+                    console.log(e)
+                    var removeIndexData = _.findIndex(nodes, function (obj) {
+                        return parseInt(obj.userId) === parseInt(dataValueForExit.getAttribute('userId'));
+                    });
+                    var mergeNode = svg.selectAll("circle[name='" + nodes[removeIndexData].name + "']");
+                    var user = (parseInt(mergeNode[0][0].getAttribute("user")) + 1);
+                    var mergeNodeIndex = _.findIndex(nodes, function (obj) {
+                        return obj.menuName === nodes[removeIndexData].name;
+                    });
+                    mergeNode.attr("r", function (d) {
+                        nodes[mergeNodeIndex].radius = Math.log(user) * 4 + 4;
+                        return Math.log(user) * 4 + 4;
+                    });
+                    mergeNode.attr("user", user);
+                    d3.select('circle[userId="' + dataValueForExit.getAttribute('userId') + '"]')
+                        .remove();
+                    nodes[removeIndexData].remove = true;
+                    force.start();
+                    if (entryUserData) {
+                        _createMainNodes(entryUserData);
+                    }
+                    forceInterVal = $interval(force.start, 1);
+                })
+                .attr("transform", "translate(" + -(nodes[removeIndex].x - parseFloat(mergeNode[0][0].getAttribute("cx"))) + "," + -(nodes[removeIndex].y - parseFloat(mergeNode[0][0].getAttribute("cy"))) + ")") //scale(0)
+                .duration(1600)
+                .remove();
+            //force.start();
+            // console.log(mergeNode[0][0].getAttribute("cx"), mergeNode[0][0].getAttribute("cy"))
+            // nodes[removeIndex].reachedX = (mergeNode[0][0].getAttribute("cx") - 250) / 0.72 + 250;
+            // nodes[removeIndex].reachedY = (mergeNode[0][0].getAttribute("cy") - 250) / 0.72 + 250;
         }
     }
 

@@ -33,7 +33,7 @@ module.exports = {
     DUMMY_DATA_LIST: {
         DUMMY_BROWSER_LIST: ['Chrome', 'Firefox', 'Safari', 'Android Webview'],
         DUMMY_OS_LIST: ['Windows', 'Macintosh', 'iOS', 'Android'],
-        MAX_COUNT: 20,
+        MAX_COUNT: 10,
         GOAL_EVENT_NAME: 'login',
         DUMMY_USERS : {
             NAME: ['chocolate bunny', 'red penguin', 'blue otter', 'pink wombat', 'grey sloth', 'purple sloth', 'black koala', 'white panther', 'green shrimp', 'fast crab', 'slow tuna', 'sleepy salmon', 'cooked cod', 'silly python', 'yummy flamingo', 'running moose', 'flying hawk', 'sitting racoon',],
