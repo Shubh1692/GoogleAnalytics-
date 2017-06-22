@@ -91,7 +91,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     // For Get API Data
     function _callRealtimeDataAPI(changeFlag) {
         changeFlag = angular.isUndefined(changeFlag) ? true : false;
-        console.log('cfs', changeFlag)
         if (!googleAnalyticsCtrl.demoApiFlag)
             googleAnalyticsService.serverRequest(NODE_WEB_API.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
                 .then(_displayApiData);
@@ -410,7 +409,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
     // Exit User with Animation
     function _exitUser(dataValueForExit, dataKeyForExit, entryUserData) {
-        console.log('Exit')
         var removeIndex = _.findIndex(nodes, function (obj) {
             return parseInt(obj.userId) === parseInt(dataValueForExit.getAttribute('userId'));
         });
@@ -438,7 +436,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 .attr("remove", "yes")
                 .transition()
                 .each("end", function (e) {
-                    console.log(e)
                     var removeIndexData = _.findIndex(nodes, function (obj) {
                         return parseInt(obj.userId) === parseInt(dataValueForExit.getAttribute('userId'));
                     });
