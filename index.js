@@ -172,7 +172,7 @@ var userId = 0, dummyData = {
 
 function _createDynmicDemoData(dimensionsId, changeFlag) {
     var countries, randomValue, userInfoData, encodeString,
-        MaxCount = parseInt(Math.random() * CONFIG.DUMMY_DATA_LIST.MAX_COUNT);
+        MaxCount = CONFIG.DUMMY_DATA_LIST.MAX_COUNT //parseInt(Math.random() * CONFIG.DUMMY_DATA_LIST.MAX_COUNT);
     dummyData.totalsForAllResults['rt:activeUsers'] = MaxCount;
     if (changeFlag === 'true' || changeFlag === true) {
         dummyData.rows = [];
