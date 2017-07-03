@@ -19,7 +19,7 @@ module.exports = {
     ALL_TIME_API_ERROR_MESSAGE: 'Error By Google All Data API',
     ALL_TIME_GET_USER_API_ERROR_MESSAGE: 'Error By Google All Data API For Get User',
     REQUEST_HEADER: {
-        'Access-Control-Allow-Origin': 'https://obscure-springs-26671.herokuapp.com',
+        'Access-Control-Allow-Origin': 'https://salty-hollows-92779.herokuapp.com',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, PATCH, DELETE',
         'Access-Control-Allow-Headers': 'X-Requested-With,content-type',
         'Access-Control-Allow-Credentials': true

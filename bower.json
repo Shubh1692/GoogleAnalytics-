@@ -23,6 +23,7 @@
     "cryptojslib": "^3.1.2",
     "flag-icon-css": "^2.8.0",
     "browser-logos": "^42.1.1",
-    "angular-ui-notification": "^0.3.6"
+    "angular-ui-notification": "^0.3.6",
+    "angular-socket-io": "^0.7.0"
   }
 }

@@ -8,13 +8,16 @@ var express = require('express'), // require express code
     CONFIG = require('./app.config'),
     _ = require('lodash'),
     CryptoJS = require("crypto-js"),
-    countryCodes = require('country-data').countries;
+    cors = require('cors'),
+    countryCodes = require('country-data').countries,
+    http = require('http').Server(app),
+    io = require('socket.io')(http);
 app.use(bodyParser.urlencoded({
     extended: false
 }));
 // parse application/json
 app.use(bodyParser.json());
-app.use(bodyParser.json());
+app.use(cors())
 app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', CONFIG.REQUEST_HEADER['Access-Control-Allow-Origin']);
     res.setHeader('Access-Control-Allow-Methods', CONFIG.REQUEST_HEADER['Access-Control-Allow-Methods']);
@@ -24,6 +27,7 @@ app.use(function (req, res, next) {
 });
 // here public is name of a folder of static file
 app.use(express.static('public'));
+app.set('port', (process.env.PORT || CONFIG.NODE_SERVER_PORT));
 // Google Analytics Authentication
 let jwtClient = new google.auth.JWT(CONFIG.GOOGLE_CLINET_CONFIG.client_email, null, CONFIG.GOOGLE_CLINET_CONFIG.private_key,
     ['https://www.googleapis.com/auth/analytics.readonly'], null);
@@ -162,9 +166,9 @@ app.get('/getRealTimeDataDemoAPI', function (req, res) {
     });
 })
 // For Check Start Server function
-app.listen(CONFIG.NODE_SERVER_PORT, function () {
-    console.log('Server Started In Rest Api on port ' + CONFIG.NODE_SERVER_PORT);
-});
+// app.listen(CONFIG.NODE_SERVER_PORT, function () {
+//     console.log('Server Started In Rest Api on port ' + CONFIG.NODE_SERVER_PORT);
+// });
 var userId = 0, dummyData = {
     rows: [],
     totalsForAllResults: {}
@@ -337,3 +341,25 @@ function _getUserDataSuccessCalling(err, responseVar, res, repo) {
         });
     }
 }
+http.listen(app.get('port'), function () {
+    console.log('listening on *:' + app.get('port'));
+});
+var soketObject = {};
+io.sockets.on('connection', function (socket) {
+    socket.on('connect-state', function (siteLoadData) {
+        soketObject[socket.id] = siteLoadData;
+        io.emit('new-user', {
+            id : socket.id,
+            data : siteLoadData
+        })
+    });
+    socket.on('disconnect', function (data) {
+        delete soketObject[socket.id];
+        console.log(soketObject)
+        io.emit('disconnect-state', data);
+    });
+});
+
+
+
+
