@@ -2,7 +2,7 @@ angular.module('googleAnalyticsModule')
     .factory('socketAalytics', _socketAnalytics);
 _socketAnalytics.$inject = ['socketFactory'];
 function _socketAnalytics(socketFactory) {
-    var myIoSocket = io.connect('http://192.168.88.245:8081');
+    var myIoSocket = io.connect('http://192.168.88.245:8080');
 
     mySocket = socketFactory({
         ioSocket: myIoSocket

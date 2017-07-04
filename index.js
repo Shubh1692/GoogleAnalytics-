@@ -169,10 +169,6 @@ app.get('/getRealTimeDataDemoAPI', function (req, res) {
         data: temp
     });
 })
-// For Check Start Server function
-// app.listen(CONFIG.NODE_SERVER_PORT, function () {
-//     console.log('Server Started In Rest Api on port ' + CONFIG.NODE_SERVER_PORT);
-// });
 var userId = 0, dummyData = {
     rows: [],
     totalsForAllResults: {}
@@ -281,7 +277,6 @@ function _realTimeSuccessCalling(err, responseVar, res, count) {
                 'rt:activeUsers': 0
             }
         }
-
         _.each(responseVar.first, function (responseValueFirst, responseKeyFirst) {
             if (responseValueFirst && (responseValueFirst[1] !== '(not set)' && responseValueFirst[2] !== '(not set)')) {
                 _.each(responseVar.second, function (responseValueSecond, responseKeySecond) {
@@ -350,17 +345,17 @@ http.listen(app.get('port'), function () {
 });
 var soketObject = {};
 io.sockets.on('connection', function (socket) {
-    socket.on('connect-state', function (siteLoadData) {
-        soketObject[socket.id] = siteLoadData;
-        io.emit('new-user', ['India', 'onload', socket.id, 'IN', 'Chrome', 'DESKTOP', 'NEW', 1])
+    socket.on('connect-state', function (connectStateData) {
+        console.log('connect-state', connectStateData)
+        io.emit('new-user', [connectStateData.country_name, connectStateData.eventName,connectStateData.userData, connectStateData.country, connectStateData.browser, 'DESKTOP', 'NEW', 1])
     });
 
     socket.on('goal-done', function (goalData) {
-        io.emit('goal-complete', ['India', goalData.eventName, goalData.userData, 'IN', 'Chrome', 'DESKTOP', 'NEW', 1])
+        console.log('goal-done', goalData)
+        io.emit('goal-complete', [goalData.country_name, goalData.eventName,goalData.userData, goalData.country, goalData.browser, 'DESKTOP', 'NEW', 1])
     });
     socket.on('disconnect', function (data) {
         delete soketObject[socket.id];
-        console.log(soketObject)
         io.emit('disconnect-user', {
             userId: socket.id
         });
