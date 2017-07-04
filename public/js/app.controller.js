@@ -3,9 +3,9 @@ angular.module('googleAnalyticsModule')
     .filter('liveUserSort', _liveUserSort)
     .filter('dateMenuSort', _dateMenuSort);
 
-_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT', 'GOAL_COMPLETE_ICON_PATH', '$filter', 'GOAL_EVENT_NAME', 'NODE_WEB_API_DEMO', 'DEFAULT_D3CIRCLE_CONSTRAINT'];
+_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT', 'GOAL_COMPLETE_ICON_PATH', '$filter', 'GOAL_EVENT_NAME', 'NODE_WEB_API_DEMO', 'DEFAULT_D3CIRCLE_CONSTRAINT', 'socketAalytics'];
 _liveUserSort.$inject = ['_'];
-function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT, GOAL_COMPLETE_ICON_PATH, $filter, GOAL_EVENT_NAME, NODE_WEB_API_DEMO, DEFAULT_D3CIRCLE_CONSTRAINT) {
+function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT, GOAL_COMPLETE_ICON_PATH, $filter, GOAL_EVENT_NAME, NODE_WEB_API_DEMO, DEFAULT_D3CIRCLE_CONSTRAINT, socketAalytics) {
     var googleAnalyticsCtrl = this,
         padding = 1, clusterPadding = 0, clusters = new Array(3), firstCallByApiFlag,
         intervalInstance,
@@ -30,7 +30,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .friction(DEFAULT_D3CIRCLE_CONSTRAINT.friction)
             .on("tick", _tick)
             .on("end", function (e) {
-                console.log('e', e)
+                // console.log('e', e)
             })
             .start(),
         drag = force.drag()
@@ -49,7 +49,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     googleAnalyticsCtrl.setColor = _setColor;
     googleAnalyticsCtrl.chargeRangeChange = _chargeRangeChange;
     googleAnalyticsCtrl.frictionRangeChange = _frictionRangeChange;
-    googleAnalyticsCtrl.demoApiFlagChange = _demoApiFlagChange;
     // Default Values or Controller Variables
     googleAnalyticsCtrl.onsiteUser = 0;
     googleAnalyticsCtrl.totalUserWithinTime = 0;
@@ -88,26 +87,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         googleAnalyticsCtrl.displayTime.time = time;
         $timeout(_startTime, 1000);
     }
-    // For Get API Data
-    function _callRealtimeDataAPI(changeFlag) {
-        changeFlag = angular.isUndefined(changeFlag) ? true : false;
-        if (!googleAnalyticsCtrl.demoApiFlag)
-            googleAnalyticsService.serverRequest(NODE_WEB_API.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value, 'GET')
-                .then(_displayApiData);
-        else
-            googleAnalyticsService.serverRequest(NODE_WEB_API_DEMO.REAL_TIME_DATA_API + '?dimensionsId=' + googleAnalyticsCtrl.selectedSource.value + '&changeFlag=' + changeFlag, 'GET')
-                .then(_displayApiData);
-    }
-
-    function _demoApiFlagChange() {
-        if (googleAnalyticsCtrl.demoApiFlag) {
-            if (angular.isFunction($interval.cancel))
-                $interval.cancel(intervalInstance);
-            _callRealtimeDataAPI();
-            intervalInstance = $interval(_callRealtimeDataAPI, REAL_TIME_API_TIME_INTERVAL);
-        }
-    }
-
     // For Source Selection Change 
     function _sourceSelection(selectData) {
         d3.selectAll('circle')
@@ -118,55 +97,25 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         menuObjectInstanceName = selectData.name;
         $interval.cancel(intervalInstance);
     }
-    // For Display Real Time API Data
-    function _displayApiData(res) {
-        var exitUserFlag = false;
-        googleAnalyticsCtrl.onsiteUser = res.totalsForAllResults['rt:activeUsers'];
-        if (res.rows && res.rows.length !== 0) {
-            if (!dataPassingService.menuObj[menuObjectInstanceName]) {
-                dataPassingService.menuObj[menuObjectInstanceName] = {};
-            }
-            _.each(node[0], function (existDataValue, existDataKey) {
-                if (existDataValue.getAttribute('remove') === 'no' && !existDataValue.getAttribute('sub-menu-flag')) {
-                    var exitExits = _.findIndex(res.rows, function (dataValue) {
-                        return (parseInt(existDataValue.getAttribute('userId')) === parseInt(dataValue[2]));
-                    })
-                    if (exitExits === -1) {
-                        exitUserFlag = true;
-                        _exitUser(existDataValue, existDataKey, angular.copy(res));
-                    }
-                }
-            });
-            if (!exitUserFlag)
-                _createMainNodes(res);
-        } else {
-            _.each(node[0], function (existDataValue, existDataKey) {
-                if (existDataValue.getAttribute('remove') === 'no')
-                    _exitUser(existDataValue, existDataKey);
-            })
+
+    function _createMainNodes(dataValue) {
+        if (!dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]) {
+            dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]] = {}
+            dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].name = dataValue[0];
+            dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].data = [];
+            dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].color = color; color++;
+            dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]['x'] = 100;
+            dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]['y'] = 50;
         }
-        googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
-        firstCallByApiFlag = true;
-    };
-    function _createMainNodes(res) {
-        _.each(res.rows, function (dataValue, dataKey) {
-            if (!dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]) {
-                dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]] = {}
-                dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].name = dataValue[0];
-                dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].data = [];
-                dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].color = color; color++;
-                dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]['x'] = 100;
-                dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]['y'] = 50;
-            }
-            var newCricleIndex = nodes.findIndex(function (obj) {
-                return (obj.menuName === dataValue[0]);
-            });
-            if (newCricleIndex === -1) {
-                _createSubNodes(dataValue, 0, 4)
-            }
-            _enterUser(dataPassingService.menuObj[menuObjectInstanceName], dataValue);
+        var newCricleIndex = nodes.findIndex(function (obj) {
+            return (obj.menuName === dataValue[0]);
         });
+        if (newCricleIndex === -1) {
+            _createSubNodes(dataValue, 0, 4)
+        }
+        _enterUser(dataPassingService.menuObj[menuObjectInstanceName], dataValue);
     }
+
     function _createSubNodes(nodeValue, userValue, radiusValue) {
         nodes.push({
             x: center[3].x,
@@ -188,7 +137,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         node.enter().append("circle")
             .attr("cx", function (d) { return d.x; })
             .attr("cy", function (d) { return d.y; })
-            .attr("r", 4)
+            .attr("r", radiusValue)
             .attr("id", nodes.length - 1)
             .style("fill", function (d) {
                 return d3.rgb(fill(d.color));
@@ -206,34 +155,26 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("name", function (d) {
                 return d.menuName
             })
-        // .call(drag);
+           .call(drag);
         force.start();
     }
+
     // For Main Gravity Function
     function gravity(alpha) {
         return function (d) {
-            // var mergeNode = svg.selectAll("circle[name='" + d.name + "']");
-            // if (d.cluster === 2 && !d.menuName && mergeNode && mergeNode[0][0]) {
-            //     d.reachedX = (mergeNode[0][0].getAttribute("cx") - 250) / 0.72 + 250;
-            //     d.reachedY = (mergeNode[0][0].getAttribute("cy") - 250) / 0.72 + 250;
-            //     d.y += (d.reachedY - d.y) * alpha;
-            //     d.x += (d.reachedX - d.x) * alpha;
-            // } else {
             d.y += (center[d.id].exteraY - d.y) * alpha;
             d.x += (center[d.id].exteraX - d.x) * alpha;
-            //}
         };
     }
     // For Main Tick Function
     function _tick(e) {
         if (nodes.length) {
             node
-                // .each(_handelCluster(0.1 * e.alpha * e.alpha))
                 .each(_handelCollides(.5))
                 .each(gravity(.5 * e.alpha))
                 .transition()
                 .ease('linear')
-                .duration(JSON.parse(googleAnalyticsCtrl.speed)) // JSON.parse(d3Ctrl.speed)
+                .duration(JSON.parse(googleAnalyticsCtrl.speed))
                 .attr('cx', function (d) { return d.x; })
                 .attr('cy', function (d) { return d.y; })
         }
@@ -260,46 +201,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                         quad.point.x += x;
                         quad.point.y += y;
                     }
-                    // var mergeNode = svg.selectAll("circle[name='" + d.name + "']");
-                    // if (mergeNode && mergeNode[0][0] && d.cluster === 2 && d.name && d.x >= JSON.parse(mergeNode[0][0].getAttribute('cx')) - 5 && d.y >= JSON.parse(mergeNode[0][0].getAttribute('cy')) - 5 && !d.remove) {
-                    //     var user = (parseInt(mergeNode[0][0].getAttribute("user")) + 1);
-                    //     var mergeNodeIndex = _.findIndex(nodes, function (obj) {
-                    //         return obj.menuName === d.name;
-                    //     });
-                    //     var removeIndex = _.findIndex(nodes, function (obj) {
-                    //         return parseInt(obj.userId) === parseInt(d.userId);
-                    //     });
-                    //     mergeNode.attr("r", function (d) {
-                    //         nodes[mergeNodeIndex].radius = Math.log(user) * 4 + 4;
-                    //         return Math.log(user) * 4 + 4;
-                    //     });
-                    //     mergeNode.attr("user", user);
-                    //     d3.select('circle[userId="' + d.userId + '"]')
-                    //         .remove();
-                    //     nodes[removeIndex].remove = true;
-                    // }
                 }
                 return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
             });
         };
     }
-    function _handelCluster(alpha) {
-        return function (d) {
-            var cluster = clusters[d.cluster];
-            if (cluster === d) return;
-            var x = d.x - cluster.x,
-                y = d.y - cluster.y,
-                l = Math.sqrt(x * x + y * y),
-                r = d.radius + cluster.radius;
-            if (l != r) {
-                l = (l - r) / l * alpha;
-                d.x -= x *= l;
-                d.y -= y *= l;
-                cluster.x += x;
-                cluster.y += y;
-            }
-        };
-    }
+    
     // Enter Main User with Animation
     function _enterUser(menuObj, row) {
         var usrInfo = {}, positionObj = {};
@@ -311,11 +218,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             dataPassingService.menuObj[menuObjectInstanceName][row[0]]['data'].push({ name: row[0], color: dataPassingService.menuObj[menuObjectInstanceName][row[0]]['color'], userId: row[2] });
             dataPassingService.menuObj[menuObjectInstanceName][row[0]]['display'] = true;
             var menuIndex = _.findIndex($filter('liveUserSort')(googleAnalyticsCtrl.menuList), ['name', row[0]]);
-            if (!firstCallByApiFlag)
-                positionObj = {
-                    x: center[1].exteraX,
-                    y: center[1].exteraY
-                }
             nodes.push({
                 x: positionObj.x || 170,
                 y: positionObj.y || (menuIndex + 1) * 20 + 10,
@@ -408,63 +310,39 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         }
     }
     // Exit User with Animation
-    function _exitUser(dataValueForExit, dataKeyForExit, entryUserData) {
+    function _exitUser(exitUserId) {
         var removeIndex = _.findIndex(nodes, function (obj) {
-            return parseInt(obj.userId) === parseInt(dataValueForExit.getAttribute('userId'));
+            return obj.userId === exitUserId;
         });
-        var mergeNode = svg.selectAll("circle[name='" + dataValueForExit.getAttribute('show-menu') + "']");
-        if (mergeNode[0][0]) {
-            var dataIndex = _.findIndex(dataPassingService.menuObj[menuObjectInstanceName][dataValueForExit.getAttribute('show-menu')]['data'], function (menuData) {
-                return parseInt(dataValueForExit.getAttribute('userId')) === parseInt(menuData.userId);
-            });
-            dataPassingService.menuObj[menuObjectInstanceName][dataValueForExit.getAttribute('show-menu')]['data'].splice(dataIndex, 1);
-            // d3.select('circle[userId="' + dataValueForExit.getAttribute('userId') + '"]')
-            //     .attr("remove", "yes")
-            // clusters[2] = {
-            //     x: center[3].x,
-            //     y: center[3].y,
-            //     radius: 4,
-            //     cluster: 2
-            // };
-            // nodes[removeIndex].cluster = 2;
-            // nodes[removeIndex].id = 3;
+        if (removeIndex > -1) {
+            var removeNodeObj = angular.copy(nodes[removeIndex]);
+            mergeNode = svg.selectAll("circle[name='" + removeNodeObj.name + "']");
+            dataPassingService.menuObj[menuObjectInstanceName][removeNodeObj.name]['data'].splice(dataIndex, 1);
             force.stop();
-            if (angular.isFunction($interval.cancel))
-                $interval.cancel(forceInterVal);
-            d3.select('circle[userId="' + dataValueForExit.getAttribute('userId') + '"]')
-                .style("pointer-events", "none")
-                .attr("remove", "yes")
+            nodes.splice(removeIndex, 1);
+            node = node.data(nodes);
+            node.exit()
                 .transition()
                 .each("end", function (e) {
-                    var removeIndexData = _.findIndex(nodes, function (obj) {
-                        return parseInt(obj.userId) === parseInt(dataValueForExit.getAttribute('userId'));
-                    });
-                    var mergeNode = svg.selectAll("circle[name='" + nodes[removeIndexData].name + "']");
+                    var mergeNode = svg.selectAll("circle[name='" + e.name + "']");
                     var user = (parseInt(mergeNode[0][0].getAttribute("user")) + 1);
                     var mergeNodeIndex = _.findIndex(nodes, function (obj) {
-                        return obj.menuName === nodes[removeIndexData].name;
+                        return obj.menuName === e.name;
                     });
                     mergeNode.attr("r", function (d) {
                         nodes[mergeNodeIndex].radius = Math.log(user) * 4 + 4;
                         return Math.log(user) * 4 + 4;
                     });
                     mergeNode.attr("user", user);
-                    d3.select('circle[userId="' + dataValueForExit.getAttribute('userId') + '"]')
-                        .remove();
-                    nodes[removeIndexData].remove = true;
-                    force.start();
-                    if (entryUserData) {
-                        _createMainNodes(entryUserData);
-                    }
-                    forceInterVal = $interval(force.start, 1);
+                    removeNodeObj.remove = true;
                 })
-                .attr("transform", "translate(" + -(nodes[removeIndex].x - parseFloat(mergeNode[0][0].getAttribute("cx"))) + "," + -(nodes[removeIndex].y - parseFloat(mergeNode[0][0].getAttribute("cy"))) + ")") //scale(0)
+                .attr("transform", "translate(" + -(removeNodeObj.x - parseFloat(mergeNode[0][0].getAttribute("cx"))) + "," + -(removeNodeObj.y - parseFloat(mergeNode[0][0].getAttribute("cy"))) + ")") //scale(0)
                 .duration(1600)
                 .remove();
-            //force.start();
-            // console.log(mergeNode[0][0].getAttribute("cx"), mergeNode[0][0].getAttribute("cy"))
-            // nodes[removeIndex].reachedX = (mergeNode[0][0].getAttribute("cx") - 250) / 0.72 + 250;
-            // nodes[removeIndex].reachedY = (mergeNode[0][0].getAttribute("cy") - 250) / 0.72 + 250;
+
+            var dataIndex = _.findIndex(dataPassingService.menuObj[menuObjectInstanceName][removeNodeObj.name]['data'], function (menuData) {
+                return exitUserId === menuData.userId;
+            });
         }
     }
 
@@ -499,8 +377,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         })
         _enterSubUser(resultWeb.rows, googleAnalyticsCtrl.totalUserWithinTime);
         googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
-        _callRealtimeDataAPI();
-        intervalInstance = $interval(_callRealtimeDataAPI, REAL_TIME_API_TIME_INTERVAL);
     }
     // For Enter Sub user
     function _enterSubUser(nodeData) {
@@ -583,6 +459,16 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     function _frictionRangeChange(change) {
         force.friction(change);
     }
+
+    socketAalytics.on('new-user', function (newUser) {
+        _createMainNodes(newUser)
+    });
+    socketAalytics.on('disconnect-user', function (exitUser) {
+        _exitUser(exitUser.userId)
+    });
+    socketAalytics.on('goal-complete', function (goalComplete) {
+        _createMainNodes(goalComplete)
+    });
 }
 
 function _liveUserSort(_) {

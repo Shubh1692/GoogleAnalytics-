@@ -62,7 +62,11 @@ app.get('/getGoogleAnalyticsRealTimeData', function (req, res) {
         'metrics': 'rt:activeUsers',
         'dimensions': req.query.dimensionsId + ',rt:eventCategory, rt:eventAction,' + CONFIG.GOOGLE_DEFAULT_REAL_TIME_DIMENSIONS_PART_TWO
     }, function (err, response) {
-        responseVar.second = response.rows || [];
+        if (response) {
+            responseVar.second = response.rows || [];
+        } else {
+            responseVar.second = [];
+        }
         _realTimeSuccessCalling(err, responseVar, res)
     }, function (err) {
         res.send({
@@ -348,15 +352,18 @@ var soketObject = {};
 io.sockets.on('connection', function (socket) {
     socket.on('connect-state', function (siteLoadData) {
         soketObject[socket.id] = siteLoadData;
-        io.emit('new-user', {
-            id : socket.id,
-            data : siteLoadData
-        })
+        io.emit('new-user', ['India', 'onload', socket.id, 'IN', 'Chrome', 'DESKTOP', 'NEW', 1])
+    });
+
+    socket.on('goal-done', function (goalData) {
+        io.emit('goal-complete', ['India', goalData.eventName, goalData.userData, 'IN', 'Chrome', 'DESKTOP', 'NEW', 1])
     });
     socket.on('disconnect', function (data) {
         delete soketObject[socket.id];
         console.log(soketObject)
-        io.emit('disconnect-state', data);
+        io.emit('disconnect-user', {
+            userId: socket.id
+        });
     });
 });
 
