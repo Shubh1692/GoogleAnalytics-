@@ -411,6 +411,9 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         })
         _enterSubUser(resultWeb.rows, googleAnalyticsCtrl.totalUserWithinTime);
         googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
+        angular.forEach(resultWeb.onlineUserData, function(onlineUser){
+            _createOrUpdateOnlineUser(onlineUser);
+        });
     }
     // For Create Menu Nodes of DD selection
     function _enterSubUser(nodeData) {
@@ -506,10 +509,9 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
     }
 
-    // Socket Events
-    // User Come Event
-    socketAalytics.on('new-user', function (newUser) {
-        if(googleAnalyticsCtrl.selectedSource.gaValue === 'ga:country') {
+    // Create online user 
+    function _createOrUpdateOnlineUser(newUser) {
+        if (googleAnalyticsCtrl.selectedSource.gaValue === 'ga:country') {
             newUser.unshift(newUser[6]);
         } else if (googleAnalyticsCtrl.selectedSource.gaValue === 'ga:browser') {
             newUser.unshift(newUser[3]);
@@ -517,6 +519,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             newUser.unshift(newUser[8]);
         }
         _createMainNodes(newUser);
+    }
+
+    // Socket Events
+    // User Come Event
+    socketAalytics.on('new-user', function (newUser) {
+        _createOrUpdateOnlineUser(newUser)
     });
     // User Disconnect Event
     socketAalytics.on('disconnect-user', function (exitUser) {
@@ -524,7 +532,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     });
     // User Goal Completation Event
     socketAalytics.on('goal-complete', function (goalComplete) {
-        _createMainNodes(goalComplete)
+        _createOrUpdateOnlineUser(goalComplete)
     });
     dataPassingService.socketReadyEvent = _socketReadyEvent;
     $timeout(_rightSideBarConfig, 100);

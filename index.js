@@ -10,7 +10,8 @@ var express = require('express'), // require express cod
     countryCodes = require('country-data').countries,
     http = require('http').Server(app),
     io = require('socket.io')(http),
-    dashboardSocketInstance = {};
+    dashboardSocketInstance = {},
+    Q = require("q");
 app.use(bodyParser.urlencoded({
     extended: false
 }));
@@ -96,10 +97,25 @@ app.post('/getGoogleAnalyticsAllData', function (req, res) {
             rows: response.rows,
             totalsForAllResults: response.totalsForAllResults
         }
-        res.send({
-            successMessage: CONFIG.ALL_TIME_API_SUCCESS_MESSAGE,
-            data: response
-        });
+        AnalyticsController.findAnalyticsData({ current_event_name: { $ne: 'disconnect' } })
+            .then(function (onlineUserData) {
+                var currentOnlineUsers = [];
+                onlineUserData.forEach(function (onlineUser) {
+                    if (io.sockets.sockets[onlineUser.socket_id] && io.sockets.sockets[onlineUser.socket_id].connected) {
+                        if (onlineUser.current_event_name === 'onload')
+                            onlineUser.user_info = onlineUser.socket_id;
+                        else {
+                            currentOnlineUsers.push(['onload', onlineUser.socket_id, onlineUser.country_code, onlineUser.browser, onlineUser.device, 'NEW', onlineUser.country_name, 'No Set', onlineUser.os, new Date().getHours(), new Date().getMinutes()])
+                        }
+                        currentOnlineUsers.push([onlineUser.current_event_name, onlineUser.user_info, onlineUser.country_code, onlineUser.browser, onlineUser.device, 'NEW', onlineUser.country_name, 'No Set', onlineUser.os, new Date().getHours(), new Date().getMinutes()])
+                    }
+                })
+                response.onlineUserData = currentOnlineUsers;
+                res.send({
+                    successMessage: CONFIG.ALL_TIME_API_SUCCESS_MESSAGE,
+                    data: response
+                });
+            });
     }, function (err) {
         res.send({
             errorMessage: CONFIG.ALL_TIME_API_ERROR_MESSAGE,
@@ -367,7 +383,7 @@ io.sockets.on('connection', function (socket) {
             user_info: goalData.userData,
             current_event_name: goalData.eventName,
         });
-        io.emit('goal-complete', [goalData.eventName, goalData.userData, goalData.country, goalData.browser, goalData.device, 'NEW', connectStateData.country_name, 'No Set', goalData.os, new Date().getHours(), new Date().getMinutes()])
+        io.emit('goal-complete', [goalData.eventName, goalData.userData, goalData.country, goalData.browser, goalData.device, 'NEW', goalData.country_name, 'No Set', goalData.os, new Date().getHours(), new Date().getMinutes()])
     });
 
     socket.on('disconnect', function (data) {
