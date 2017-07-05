@@ -190,7 +190,7 @@ function _createAndSendClientInfo(connectionState, eventName, userData) {
             clientInfo.eventName = eventName;
             clientInfo.userData = userData;
             clientInfo.device = _detectDevice();
-            console.log(clientInfo)
+            clientInfo.host = window.location.hostname;
             socket.emit(connectionState, clientInfo);
         }
     };

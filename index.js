@@ -1,9 +1,7 @@
-/* 
-1. 'Requested 8 dimensions; only 7 are allowed.' 
-*/
-var express = require('express'), // require express code
+require('./server/common'); // require common file code
+var express = require('express'), // require express cod
     bodyParser = require('body-parser'), // require body-parser code
-    google = require('googleapis'),// require googleapis code
+    google = require('googleapis'), // require googleapis code
     app = express(),
     CONFIG = require('./app.config'),
     _ = require('lodash'),
@@ -28,9 +26,9 @@ app.use(function (req, res, next) {
 // here public is name of a folder of static file
 app.use(express.static('public'));
 app.set('port', (process.env.PORT || CONFIG.NODE_SERVER_PORT));
+AnalyticsController = require('./server/Controller/AnalyticsController'); // require Controller code
 // Google Analytics Authentication
-let jwtClient = new google.auth.JWT(CONFIG.GOOGLE_CLINET_CONFIG.client_email, null, CONFIG.GOOGLE_CLINET_CONFIG.private_key,
-    ['https://www.googleapis.com/auth/analytics.readonly'], null);
+let jwtClient = new google.auth.JWT(CONFIG.GOOGLE_CLINET_CONFIG.client_email, null, CONFIG.GOOGLE_CLINET_CONFIG.private_key, ['https://www.googleapis.com/auth/analytics.readonly'], null);
 jwtClient.authorize(function (err, tokens) {
     if (err) {
         console.log('error ', err);
@@ -169,10 +167,12 @@ app.get('/getRealTimeDataDemoAPI', function (req, res) {
         data: temp
     });
 })
-var userId = 0, dummyData = {
-    rows: [],
-    totalsForAllResults: {}
-}, onload = [];
+var userId = 0,
+    dummyData = {
+        rows: [],
+        totalsForAllResults: {}
+    },
+    onload = [];
 
 function _createDynmicDemoData(dimensionsId, changeFlag) {
     var countries, randomValue, userInfoData, encodeString,
@@ -343,25 +343,37 @@ function _getUserDataSuccessCalling(err, responseVar, res, repo) {
 http.listen(app.get('port'), function () {
     console.log('listening on *:' + app.get('port'));
 });
-var soketObject = {};
 io.sockets.on('connection', function (socket) {
     socket.on('connect-state', function (connectStateData) {
         console.log('connect-state', connectStateData)
+        AnalyticsController.saveAnalyticsInfo({
+            host: connectStateData.host,
+            socket_id: socket.id,
+            country_name: connectStateData.country_name,
+            country_code: connectStateData.country,
+            performed_event: [connectStateData.eventName],
+            browser: connectStateData.browser,
+            device: connectStateData.device,
+            os: connectStateData.os,
+            current_event_name: connectStateData.eventName,
+        });
         io.emit('new-user', [connectStateData.country_name, connectStateData.eventName, connectStateData.userData, connectStateData.country, connectStateData.browser, connectStateData.device, 'NEW', 1, 'No Set', connectStateData.os, new Date().getHours(), new Date().getMinutes()])
     });
 
     socket.on('goal-done', function (goalData) {
         console.log('goal-done', goalData)
+        AnalyticsController.updateConnectionAnalyticsInfo(socket.id, {
+            user_info: goalData.userData,
+            current_event_name: goalData.eventName,
+        });
         io.emit('goal-complete', [goalData.country_name, goalData.eventName, goalData.userData, goalData.country, goalData.browser, goalData.device, 'NEW', 1, 'No Set', goalData.os, new Date().getHours(), new Date().getMinutes()])
     });
     socket.on('disconnect', function (data) {
-        delete soketObject[socket.id];
+        AnalyticsController.updateConnectionAnalyticsInfo(socket.id, {
+            current_event_name: 'disconnect',
+        })
         io.emit('disconnect-user', {
             userId: socket.id
         });
     });
 });
-
-
-
-
