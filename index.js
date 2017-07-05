@@ -9,7 +9,8 @@ var express = require('express'), // require express cod
     cors = require('cors'),
     countryCodes = require('country-data').countries,
     http = require('http').Server(app),
-    io = require('socket.io')(http);
+    io = require('socket.io')(http),
+    dashboardSocketInstance = {};
 app.use(bodyParser.urlencoded({
     extended: false
 }));
@@ -74,14 +75,14 @@ app.get('/getGoogleAnalyticsRealTimeData', function (req, res) {
     });
 });
 // Get All Data API
-app.get('/getGoogleAnalyticsAllData', function (req, res) {
+app.post('/getGoogleAnalyticsAllData', function (req, res) {
     google.analytics('v3').data.ga.get({
         'auth': jwtClient,
         'ids': CONFIG.GOOGLE_APP_VIEW_ID,
-        'start-date': req.query.startDate,
-        'end-date': req.query.endDate,
+        'start-date': req.body.startDate,
+        'end-date': req.body.endDate,
         'metrics': CONFIG.GOOGLE_DEFAULT_ALL_TIME_DATA_METRICS,
-        'dimensions': req.query.dimensionsId,
+        'dimensions': req.body.dimensionsId,
         'sort': '-ga:users'
     }, function (err, response) {
         if (err) {
@@ -357,7 +358,7 @@ io.sockets.on('connection', function (socket) {
             os: connectStateData.os,
             current_event_name: connectStateData.eventName,
         });
-        io.emit('new-user', [connectStateData.country_name, connectStateData.eventName, connectStateData.userData, connectStateData.country, connectStateData.browser, connectStateData.device, 'NEW', 1, 'No Set', connectStateData.os, new Date().getHours(), new Date().getMinutes()])
+        io.emit('new-user', [connectStateData.eventName, connectStateData.userData, connectStateData.country, connectStateData.browser, connectStateData.device, 'NEW', connectStateData.country_name, 'No Set', connectStateData.os, new Date().getHours(), new Date().getMinutes()])
     });
 
     socket.on('goal-done', function (goalData) {
@@ -366,8 +367,9 @@ io.sockets.on('connection', function (socket) {
             user_info: goalData.userData,
             current_event_name: goalData.eventName,
         });
-        io.emit('goal-complete', [goalData.country_name, goalData.eventName, goalData.userData, goalData.country, goalData.browser, goalData.device, 'NEW', 1, 'No Set', goalData.os, new Date().getHours(), new Date().getMinutes()])
+        io.emit('goal-complete', [goalData.eventName, goalData.userData, goalData.country, goalData.browser, goalData.device, 'NEW', connectStateData.country_name, 'No Set', goalData.os, new Date().getHours(), new Date().getMinutes()])
     });
+
     socket.on('disconnect', function (data) {
         AnalyticsController.updateConnectionAnalyticsInfo(socket.id, {
             current_event_name: 'disconnect',

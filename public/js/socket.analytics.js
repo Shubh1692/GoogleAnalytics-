@@ -1,14 +1,16 @@
 angular.module('googleAnalyticsModule')
     .factory('socketAalytics', _socketAnalytics);
-_socketAnalytics.$inject = ['socketFactory', 'SOCKET_CONFIG'];
-function _socketAnalytics(socketFactory, SOCKET_CONFIG) {
+_socketAnalytics.$inject = ['socketFactory', 'SOCKET_CONFIG', 'dataPassingService'];
+function _socketAnalytics(socketFactory, SOCKET_CONFIG, dataPassingService) {
     var myIoSocket = io.connect(SOCKET_CONFIG.serverPath);
 
     mySocket = socketFactory({
         ioSocket: myIoSocket
     });
-    mySocket.on('connect', function () {
-       console.log('Socket Connected');
+    mySocket.on('connect', function (data) {
+       console.log('Socket Connected', mySocket, myIoSocket);
+       dataPassingService.socketId = myIoSocket.id;
+       dataPassingService.socketReadyEvent();
     });
     return mySocket;
 }

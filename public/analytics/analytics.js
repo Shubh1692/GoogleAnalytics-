@@ -1,5 +1,5 @@
 // Connect Socket For Get Real Time Data
-var socket = io.connect('http://192.168.88.245:8080');
+var socket = io.connect('http://104.154.138.192:8080');
 // Configure Variables
 var osConfig = [{
     name: 'Windows Phone',

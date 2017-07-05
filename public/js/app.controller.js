@@ -22,32 +22,32 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         mainSvgWidth = $window.innerWidth,
         center = [{ x: 250, y: 250, exteraX: 250, exteraY: 250 }, { x: ((mainSvgWidth * 0.7) / 2), y: (mainSvgHeight * 0.30), exteraX: ((((mainSvgWidth * 0.7) / 2) - 250) * (50 / 36)) + 250, exteraY: ((((mainSvgHeight * 0.30)) - 250) * (50 / 36)) + 250 }, { x: (mainSvgWidth * 0.85), y: (mainSvgHeight * 0.30), exteraX: ((((mainSvgWidth * 0.85)) - 250) * (50 / 36)) + 250, exteraY: ((((mainSvgHeight * 0.30)) - 250) * (50 / 36)) + 250 }, { x: 250, y: 500, exteraX: (mainSvgHeight * 0.70), exteraY: ((((mainSvgHeight * 0.70)) - 250) * (50 / 36)) + 250 }],
         svg = d3.select("#main_svg").append("svg")
-        .attr("width", mainSvgWidth)
-        .attr("height", mainSvgHeight)
-        .attr("class", 'svg-main-window')
-        .attr("border", 1),
+            .attr("width", mainSvgWidth)
+            .attr("height", mainSvgHeight)
+            .attr("class", 'svg-main-window')
+            .attr("border", 1),
         force = d3.layout.force()
-        .nodes(nodes)
-        .size([500, 500])
-        .gravity(DEFAULT_D3CIRCLE_CONSTRAINT.gravity)
-        .charge(DEFAULT_D3CIRCLE_CONSTRAINT.charge)
-        .friction(DEFAULT_D3CIRCLE_CONSTRAINT.friction)
-        .on("tick", _tick)
-        .on("end", function(e) {
-            // console.log('e', e)
-        })
-        .start(),
+            .nodes(nodes)
+            .size([500, 500])
+            .gravity(DEFAULT_D3CIRCLE_CONSTRAINT.gravity)
+            .charge(DEFAULT_D3CIRCLE_CONSTRAINT.charge)
+            .friction(DEFAULT_D3CIRCLE_CONSTRAINT.friction)
+            .on("tick", _tick)
+            .on("end", function (e) {
+                console.log('e', e)
+            })
+            .start(),
         drag = force.drag()
-        .on("dragstart", function() {
-            console.log('dragstart')
-        })
-        .on("dragend", function() {
-            console.log('end')
-        }),
+            .on("dragstart", function () {
+                console.log('dragstart')
+            })
+            .on("dragend", function () {
+                console.log('end')
+            }),
         node = svg.selectAll("circle"),
         div = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
+            .attr("class", "tooltip")
+            .style("opacity", 0);
     // Controller Functions 
     googleAnalyticsCtrl.startTime = _startTime;
     googleAnalyticsCtrl.setColor = _setColor;
@@ -79,7 +79,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     //Init Functions or Variables
     var forceInterVal = $interval(force.start, 1);
     menuObjectInstanceName = VIEWING_BY_SOURCE[0].name;
-    _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
     _createStaticD3Component();
     // For Time Display
     function _startTime() {
@@ -93,15 +92,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
     // For Source Selection Change 
     function _sourceSelection(selectData) {
-        d3.selectAll('circle')
-            .remove();
         color = 1;
         dataPassingService.menuObj[menuObjectInstanceName] = {};
-        googleAnalyticsCtrl.getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
         menuObjectInstanceName = selectData.name;
-        $interval.cancel(intervalInstance);
+        _exitAllUser();
     }
 
+    // Create Main Node for User
     function _createMainNodes(dataValue) {
         if (!dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]) {
             dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]] = {}
@@ -112,7 +109,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]['x'] = 100;
             dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]['y'] = 50;
         }
-        var newCricleIndex = nodes.findIndex(function(obj) {
+        var newCricleIndex = nodes.findIndex(function (obj) {
             return (obj.menuName === dataValue[0]);
         });
         if (newCricleIndex === -1) {
@@ -121,7 +118,9 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         _enterUser(dataPassingService.menuObj[menuObjectInstanceName], dataValue);
     }
 
+    // Create Menu Nodes
     function _createSubNodes(nodeValue, userValue, radiusValue) {
+        _.findIndex()
         nodes.push({
             x: center[3].x,
             y: center[3].y,
@@ -140,24 +139,24 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         };
         node = node.data(nodes);
         node.enter().append("circle")
-            .attr("cx", function(d) { return d.x; })
-            .attr("cy", function(d) { return d.y; })
+            .attr("cx", function (d) { return d.x; })
+            .attr("cy", function (d) { return d.y; })
             .attr("r", radiusValue)
             .attr("id", nodes.length - 1)
-            .style("fill", function(d) {
+            .style("fill", function (d) {
                 return d3.rgb(fill(d.color));
             })
             .attr("class", "node sub_circle")
-            .style("stroke", function(d) { return d3.rgb(fill(d.color)).darker(2); })
-            .attr("user", function(d) {
+            .style("stroke", function (d) { return d3.rgb(fill(d.color)).darker(2); })
+            .attr("user", function (d) {
                 return d.user;
             })
-            .attr("show-menu", function(d, i) {
+            .attr("show-menu", function (d, i) {
                 return d.name
             })
             .attr("sub-menu-flag", true)
             .attr("remove", "no")
-            .attr("name", function(d) {
+            .attr("name", function (d) {
                 return d.menuName
             })
             .call(drag);
@@ -166,7 +165,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
 
     // For Main Gravity Function
     function gravity(alpha) {
-        return function(d) {
+        return function (d) {
             d.y += (center[d.id].exteraY - d.y) * alpha;
             d.x += (center[d.id].exteraX - d.x) * alpha;
         };
@@ -180,20 +179,20 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 .transition()
                 .ease('linear')
                 .duration(JSON.parse(googleAnalyticsCtrl.speed))
-                .attr('cx', function(d) { return d.x; })
-                .attr('cy', function(d) { return d.y; })
+                .attr('cx', function (d) { return d.x; })
+                .attr('cy', function (d) { return d.y; })
         }
     }
     // Resolves collisions between d and all other circles.
     function _handelCollides(alpha) {
         var quadtree = d3.geom.quadtree(nodes);
-        return function(d) {
+        return function (d) {
             var r = d.radius + maxRadius + Math.max(padding, maxRadius),
                 nx1 = d.x - r,
                 nx2 = d.x + r,
                 ny1 = d.y - r,
                 ny2 = d.y + r;
-            quadtree.visit(function(quad, x1, y1, x2, y2) {
+            quadtree.visit(function (quad, x1, y1, x2, y2) {
                 if (quad.point && (quad.point !== d)) { //  && quad.point.menuName !== d.name && quad.point.name !== d.menuName
                     var x = d.x - quad.point.x,
                         y = d.y - quad.point.y,
@@ -244,16 +243,16 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             };
             node = node.data(nodes);
             node.enter().append("circle")
-                .attr("cx", function(d) { return d.x; })
-                .attr("cy", function(d) { return d.y; })
+                .attr("cx", function (d) { return d.x; })
+                .attr("cy", function (d) { return d.y; })
                 .attr("r", 4)
                 .attr("id", nodes.length - 1)
-                .style("fill", function(d) {
+                .style("fill", function (d) {
                     return d3.rgb(fill(d.color));
                 })
-                .style("stroke", function(d) { return d3.rgb(fill(d.color)) }) //.darker(2);
+                .style("stroke", function (d) { return d3.rgb(fill(d.color)) }) //.darker(2);
                 .attr("userId", row[2])
-                .attr("show-menu", function(d, i) {
+                .attr("show-menu", function (d, i) {
                     return d.name
                 })
                 .attr("remove", "no")
@@ -277,8 +276,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 .attr('userData', JSON.stringify(usrInfo))
                 .attr(GOAL_EVENT_NAME[0], 'done')
                 .attr('stroke-width', '2')
-                .style("stroke", function(d) { return d3.rgb(fill(d.color)); })
-                .on("mouseover", function(d) {
+                .style("stroke", function (d) { return d3.rgb(fill(d.color)); })
+                .on("mouseover", function (d) {
                     if (node[0][d.index].getAttribute('userData')) {
                         var data = JSON.parse(node[0][d.index].getAttribute('userData'));
                         div.transition()
@@ -289,7 +288,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                             .style("top", (d3.event.pageY - 28) + "px");
                     }
                 })
-                .on("mouseout", function(d) {
+                .on("mouseout", function (d) {
                     div.transition()
                         .duration(500)
                         .style("opacity", 0);
@@ -317,44 +316,75 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
     // Exit User with Animation
     function _exitUser(exitUserId) {
-        var removeIndex = _.findIndex(nodes, function(obj) {
+        var removeIndex = _.findIndex(nodes, function (obj) {
             return obj.userId === exitUserId;
         });
         if (removeIndex > -1) {
             var removeNodeObj = angular.copy(nodes[removeIndex]);
             mergeNode = svg.selectAll("circle[name='" + removeNodeObj.name + "']");
+            var dataIndex = _.findIndex(dataPassingService.menuObj[menuObjectInstanceName][removeNodeObj.name]['data'], function (menuData) {
+                return exitUserId === menuData.userId;
+            });
             dataPassingService.menuObj[menuObjectInstanceName][removeNodeObj.name]['data'].splice(dataIndex, 1);
             force.stop();
             nodes.splice(removeIndex, 1);
             node = node.data(nodes);
             node.exit()
                 .transition()
-                .each("end", function(e) {
-                    var mergeNode = svg.selectAll("circle[name='" + e.name + "']");
+                .each("end", function (e) {
                     var user = (parseInt(mergeNode[0][0].getAttribute("user")) + 1);
-                    var mergeNodeIndex = _.findIndex(nodes, function(obj) {
-                        return obj.menuName === e.name;
-                    });
-                    mergeNode.attr("r", function(d) {
-                        nodes[mergeNodeIndex].radius = Math.log(user) * 4 + 4;
-                        return Math.log(user) * 4 + 4;
-                    });
-                    mergeNode.attr("user", user);
-                    removeNodeObj.remove = true;
+                    _updateMenuNodeRadious(e.name, user)
+                    // var mergeNode = svg.selectAll("circle[name='" + e.name + "']");
+
+                    // var mergeNodeIndex = _.findIndex(nodes, function (obj) {
+                    //     return obj.menuName === e.name;
+                    // });
+                    // mergeNode.attr("r", function (d) {
+                    //     nodes[mergeNodeIndex].radius = Math.log(user) * 4 + 4;
+                    //     return Math.log(user) * 4 + 4;
+                    // });
+                    // mergeNode.attr("user", user);
+                    // removeNodeObj.remove = true;
                 })
                 .attr("transform", "translate(" + -(removeNodeObj.x - parseFloat(mergeNode[0][0].getAttribute("cx"))) + "," + -(removeNodeObj.y - parseFloat(mergeNode[0][0].getAttribute("cy"))) + ")") //scale(0)
                 .duration(1600)
                 .remove();
+        }
+    }
 
-            var dataIndex = _.findIndex(dataPassingService.menuObj[menuObjectInstanceName][removeNodeObj.name]['data'], function(menuData) {
-                return exitUserId === menuData.userId;
-            });
+    // Update Radious of Menu Nodes on DD or Exit user change
+    function _updateMenuNodeRadious(name, user) {
+        var mergeNode = svg.selectAll("circle[name='" + name + "']");
+        var mergeNodeIndex = _.findIndex(nodes, function (obj) {
+            return obj.menuName === name;
+        });
+        mergeNode.attr("r", function (d) {
+            nodes[mergeNodeIndex].radius = Math.log(user) * 4 + 4;
+            return Math.log(user) * 4 + 4;
+        });
+        mergeNode.attr("user", user);
+    }
+    // Exit All users on Menu Selection
+    function _exitAllUser() {
+        if (nodes.length !== 0) {
+            force.stop();
+            nodes.splice(0, 1);
+            node = node.data(nodes);
+            node.exit().remove();
+            _exitAllUser();
+        } else {
+            googleAnalyticsCtrl.getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
         }
     }
 
     // For All Time Data API Calling
     function _getAnalyticsDataByTime(selectedTime) {
-        googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API + '?startDate=' + selectedTime.time.startDate + '&endDate=' + selectedTime.time.endDate + '&dimensionsId=' + googleAnalyticsCtrl.selectedSource.gaValue, 'GET')
+        googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API, 'POST', {
+            startDate: selectedTime.time.startDate,
+            endDate: selectedTime.time.endDate,
+            dimensionsId: googleAnalyticsCtrl.selectedSource.gaValue,
+            socketId: dataPassingService.socketId
+        })
             .then(_setAllTimeAPIData);
     }
 
@@ -373,22 +403,20 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         googleAnalyticsCtrl.goalCompletionsAll = parseInt(resultWeb.totalsForAllResults['ga:goalCompletionsAll']);
         googleAnalyticsCtrl.goalValueAll = parseInt(resultWeb.totalsForAllResults['ga:goalValueAll']).toFixed(2);
         googleAnalyticsCtrl.goalConversionRateAll = parseFloat(resultWeb.totalsForAllResults['ga:goalConversionRateAll']).toFixed(2) + '%';
-        svg.selectAll(".sub_circle")
-            .remove();
         if (!dataPassingService.menuObj[menuObjectInstanceName]) {
             dataPassingService.menuObj[menuObjectInstanceName] = {};
         }
-        angular.forEach(dataPassingService.menuObj[menuObjectInstanceName], function(value, key) {
+        angular.forEach(dataPassingService.menuObj[menuObjectInstanceName], function (value, key) {
             dataPassingService.menuObj[menuObjectInstanceName][key]['display'] = false;
         })
         _enterSubUser(resultWeb.rows, googleAnalyticsCtrl.totalUserWithinTime);
         googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
     }
-    // For Enter Sub user
+    // For Create Menu Nodes of DD selection
     function _enterSubUser(nodeData) {
         if (!nodeData)
             nodeData = [];
-        angular.forEach(nodeData, function(value, key) {
+        angular.forEach(nodeData, function (value, key) {
             if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]])
                 dataPassingService.menuObj[menuObjectInstanceName][value[0]] = {};
             dataPassingService.menuObj[menuObjectInstanceName][value[0]].name = value[0];
@@ -402,7 +430,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 dataPassingService.menuObj[menuObjectInstanceName][value[0]]['y'] = 50;
             }
             dataPassingService.menuObj[menuObjectInstanceName][value[0]]['display'] = true;
-            _createSubNodes(value, value[1], Math.log(value[1]) * 4 || 4);
+            var newCricleIndex = nodes.findIndex(function (obj) {
+                return (obj.menuName === value[0]);
+            });
+            if (newCricleIndex === -1)
+                _createSubNodes(value, value[1], Math.log(value[1]) * 4 || 4);
+            else
+                _updateMenuNodeRadious(value[0], value[1])
         });
     }
     // For RGB Color
@@ -442,7 +476,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("x2", mainSvgWidth * 0.7)
             .attr("y2", mainSvgHeight * 0.5)
     }
-    $timeout(_rightSideBarConfig, 100);
+
     // Set Right Side Menu Config
     function _rightSideBarConfig() {
         googleAnalyticsCtrl.sideBarInstance = angular.element('#slider').slideReveal({
@@ -451,35 +485,53 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             speed: 700,
             zIndex: 1,
             width: 300,
-            hide: function(slider, trigger) {
+            hide: function (slider, trigger) {
                 googleAnalyticsCtrl.sideBarFlag = false;
             },
-            show: function(slider, trigger) {
+            show: function (slider, trigger) {
                 googleAnalyticsCtrl.sideBarFlag = true;
             },
         });
     }
-
+    // Force charge change Function
     function _chargeRangeChange(change) {
         force.charge(change);
     }
-
+    // Force friction change Function
     function _frictionRangeChange(change) {
         force.friction(change);
     }
+    // Socket Ready Event For Controller
+    function _socketReadyEvent() {
+        _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
+    }
 
-    socketAalytics.on('new-user', function(newUser) {
-        _createMainNodes(newUser)
+    // Socket Events
+    // User Come Event
+    socketAalytics.on('new-user', function (newUser) {
+        if(googleAnalyticsCtrl.selectedSource.gaValue === 'ga:country') {
+            newUser.unshift(newUser[6]);
+        } else if (googleAnalyticsCtrl.selectedSource.gaValue === 'ga:browser') {
+            newUser.unshift(newUser[3]);
+        } else if (googleAnalyticsCtrl.selectedSource.gaValue === 'ga:operatingSystem') {
+            newUser.unshift(newUser[8]);
+        }
+        _createMainNodes(newUser);
     });
-    socketAalytics.on('disconnect-user', function(exitUser) {
+    // User Disconnect Event
+    socketAalytics.on('disconnect-user', function (exitUser) {
         _exitUser(exitUser.userId)
     });
-    socketAalytics.on('goal-complete', function(goalComplete) {
+    // User Goal Completation Event
+    socketAalytics.on('goal-complete', function (goalComplete) {
         _createMainNodes(goalComplete)
     });
+    dataPassingService.socketReadyEvent = _socketReadyEvent;
+    $timeout(_rightSideBarConfig, 100);
 }
 
 function _liveUserSort(_) {
+    // Filter for Sort Menu List on Change Menu Data
     function liveUserSortFilter(input) {
         return _.sortBy(input, ['data']).reverse();
     }
@@ -487,6 +539,7 @@ function _liveUserSort(_) {
 }
 
 function _dateMenuSort(_) {
+    // Filter for Sort User List on Date Change
     function _dateMenuSortFilter(input) {
         return _.sortBy(input, ['data']).reverse();
     }
