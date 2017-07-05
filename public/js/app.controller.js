@@ -5,9 +5,13 @@ angular.module('googleAnalyticsModule')
 
 _googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT', 'GOAL_COMPLETE_ICON_PATH', '$filter', 'GOAL_EVENT_NAME', 'NODE_WEB_API_DEMO', 'DEFAULT_D3CIRCLE_CONSTRAINT', 'socketAalytics'];
 _liveUserSort.$inject = ['_'];
+
 function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT, GOAL_COMPLETE_ICON_PATH, $filter, GOAL_EVENT_NAME, NODE_WEB_API_DEMO, DEFAULT_D3CIRCLE_CONSTRAINT, socketAalytics) {
     var googleAnalyticsCtrl = this,
-        padding = 1, clusterPadding = 0, clusters = new Array(3), firstCallByApiFlag,
+        padding = 1,
+        clusterPadding = 0,
+        clusters = new Array(3),
+        firstCallByApiFlag,
         intervalInstance,
         menuObjectInstanceName,
         fill = d3.scale.category20(),
@@ -18,32 +22,32 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         mainSvgWidth = $window.innerWidth,
         center = [{ x: 250, y: 250, exteraX: 250, exteraY: 250 }, { x: ((mainSvgWidth * 0.7) / 2), y: (mainSvgHeight * 0.30), exteraX: ((((mainSvgWidth * 0.7) / 2) - 250) * (50 / 36)) + 250, exteraY: ((((mainSvgHeight * 0.30)) - 250) * (50 / 36)) + 250 }, { x: (mainSvgWidth * 0.85), y: (mainSvgHeight * 0.30), exteraX: ((((mainSvgWidth * 0.85)) - 250) * (50 / 36)) + 250, exteraY: ((((mainSvgHeight * 0.30)) - 250) * (50 / 36)) + 250 }, { x: 250, y: 500, exteraX: (mainSvgHeight * 0.70), exteraY: ((((mainSvgHeight * 0.70)) - 250) * (50 / 36)) + 250 }],
         svg = d3.select("#main_svg").append("svg")
-            .attr("width", mainSvgWidth)
-            .attr("height", mainSvgHeight)
-            .attr("class", 'svg-main-window')
-            .attr("border", 1),
+        .attr("width", mainSvgWidth)
+        .attr("height", mainSvgHeight)
+        .attr("class", 'svg-main-window')
+        .attr("border", 1),
         force = d3.layout.force()
-            .nodes(nodes)
-            .size([500, 500])
-            .gravity(DEFAULT_D3CIRCLE_CONSTRAINT.gravity)
-            .charge(DEFAULT_D3CIRCLE_CONSTRAINT.charge)
-            .friction(DEFAULT_D3CIRCLE_CONSTRAINT.friction)
-            .on("tick", _tick)
-            .on("end", function (e) {
-                // console.log('e', e)
-            })
-            .start(),
+        .nodes(nodes)
+        .size([500, 500])
+        .gravity(DEFAULT_D3CIRCLE_CONSTRAINT.gravity)
+        .charge(DEFAULT_D3CIRCLE_CONSTRAINT.charge)
+        .friction(DEFAULT_D3CIRCLE_CONSTRAINT.friction)
+        .on("tick", _tick)
+        .on("end", function(e) {
+            // console.log('e', e)
+        })
+        .start(),
         drag = force.drag()
-            .on("dragstart", function () {
-                console.log('dragstart')
-            })
-            .on("dragend", function () {
-                console.log('end')
-            }),
+        .on("dragstart", function() {
+            console.log('dragstart')
+        })
+        .on("dragend", function() {
+            console.log('end')
+        }),
         node = svg.selectAll("circle"),
         div = d3.select("body").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
+        .attr("class", "tooltip")
+        .style("opacity", 0);
     // Controller Functions 
     googleAnalyticsCtrl.startTime = _startTime;
     googleAnalyticsCtrl.setColor = _setColor;
@@ -103,11 +107,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]] = {}
             dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].name = dataValue[0];
             dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].data = [];
-            dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].color = color; color++;
+            dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]].color = color;
+            color++;
             dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]['x'] = 100;
             dataPassingService.menuObj[menuObjectInstanceName][dataValue[0]]['y'] = 50;
         }
-        var newCricleIndex = nodes.findIndex(function (obj) {
+        var newCricleIndex = nodes.findIndex(function(obj) {
             return (obj.menuName === dataValue[0]);
         });
         if (newCricleIndex === -1) {
@@ -135,33 +140,33 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         };
         node = node.data(nodes);
         node.enter().append("circle")
-            .attr("cx", function (d) { return d.x; })
-            .attr("cy", function (d) { return d.y; })
+            .attr("cx", function(d) { return d.x; })
+            .attr("cy", function(d) { return d.y; })
             .attr("r", radiusValue)
             .attr("id", nodes.length - 1)
-            .style("fill", function (d) {
+            .style("fill", function(d) {
                 return d3.rgb(fill(d.color));
             })
             .attr("class", "node sub_circle")
-            .style("stroke", function (d) { return d3.rgb(fill(d.color)).darker(2); })
-            .attr("user", function (d) {
+            .style("stroke", function(d) { return d3.rgb(fill(d.color)).darker(2); })
+            .attr("user", function(d) {
                 return d.user;
             })
-            .attr("show-menu", function (d, i) {
+            .attr("show-menu", function(d, i) {
                 return d.name
             })
             .attr("sub-menu-flag", true)
             .attr("remove", "no")
-            .attr("name", function (d) {
+            .attr("name", function(d) {
                 return d.menuName
             })
-           .call(drag);
+            .call(drag);
         force.start();
     }
 
     // For Main Gravity Function
     function gravity(alpha) {
-        return function (d) {
+        return function(d) {
             d.y += (center[d.id].exteraY - d.y) * alpha;
             d.x += (center[d.id].exteraX - d.x) * alpha;
         };
@@ -175,20 +180,20 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 .transition()
                 .ease('linear')
                 .duration(JSON.parse(googleAnalyticsCtrl.speed))
-                .attr('cx', function (d) { return d.x; })
-                .attr('cy', function (d) { return d.y; })
+                .attr('cx', function(d) { return d.x; })
+                .attr('cy', function(d) { return d.y; })
         }
     }
     // Resolves collisions between d and all other circles.
     function _handelCollides(alpha) {
         var quadtree = d3.geom.quadtree(nodes);
-        return function (d) {
+        return function(d) {
             var r = d.radius + maxRadius + Math.max(padding, maxRadius),
                 nx1 = d.x - r,
                 nx2 = d.x + r,
                 ny1 = d.y - r,
                 ny2 = d.y + r;
-            quadtree.visit(function (quad, x1, y1, x2, y2) {
+            quadtree.visit(function(quad, x1, y1, x2, y2) {
                 if (quad.point && (quad.point !== d)) { //  && quad.point.menuName !== d.name && quad.point.name !== d.menuName
                     var x = d.x - quad.point.x,
                         y = d.y - quad.point.y,
@@ -206,10 +211,11 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             });
         };
     }
-    
+
     // Enter Main User with Animation
     function _enterUser(menuObj, row) {
-        var usrInfo = {}, positionObj = {};
+        var usrInfo = {},
+            positionObj = {};
         if (row[1] !== 'onload')
             usrInfo = googleAnalyticsService.getConvertedUserData(row[2]);
         else
@@ -238,16 +244,16 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             };
             node = node.data(nodes);
             node.enter().append("circle")
-                .attr("cx", function (d) { return d.x; })
-                .attr("cy", function (d) { return d.y; })
+                .attr("cx", function(d) { return d.x; })
+                .attr("cy", function(d) { return d.y; })
                 .attr("r", 4)
                 .attr("id", nodes.length - 1)
-                .style("fill", function (d) {
+                .style("fill", function(d) {
                     return d3.rgb(fill(d.color));
                 })
-                .style("stroke", function (d) { return d3.rgb(fill(d.color)).darker(2); })
+                .style("stroke", function(d) { return d3.rgb(fill(d.color)) }) //.darker(2);
                 .attr("userId", row[2])
-                .attr("show-menu", function (d, i) {
+                .attr("show-menu", function(d, i) {
                     return d.name
                 })
                 .attr("remove", "no")
@@ -271,8 +277,8 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 .attr('userData', JSON.stringify(usrInfo))
                 .attr(GOAL_EVENT_NAME[0], 'done')
                 .attr('stroke-width', '2')
-                .style("stroke", function (d) { return d3.rgb(fill(d.color)); })
-                .on("mouseover", function (d) {
+                .style("stroke", function(d) { return d3.rgb(fill(d.color)); })
+                .on("mouseover", function(d) {
                     if (node[0][d.index].getAttribute('userData')) {
                         var data = JSON.parse(node[0][d.index].getAttribute('userData'));
                         div.transition()
@@ -283,7 +289,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                             .style("top", (d3.event.pageY - 28) + "px");
                     }
                 })
-                .on("mouseout", function (d) {
+                .on("mouseout", function(d) {
                     div.transition()
                         .duration(500)
                         .style("opacity", 0);
@@ -311,7 +317,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
     // Exit User with Animation
     function _exitUser(exitUserId) {
-        var removeIndex = _.findIndex(nodes, function (obj) {
+        var removeIndex = _.findIndex(nodes, function(obj) {
             return obj.userId === exitUserId;
         });
         if (removeIndex > -1) {
@@ -323,13 +329,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             node = node.data(nodes);
             node.exit()
                 .transition()
-                .each("end", function (e) {
+                .each("end", function(e) {
                     var mergeNode = svg.selectAll("circle[name='" + e.name + "']");
                     var user = (parseInt(mergeNode[0][0].getAttribute("user")) + 1);
-                    var mergeNodeIndex = _.findIndex(nodes, function (obj) {
+                    var mergeNodeIndex = _.findIndex(nodes, function(obj) {
                         return obj.menuName === e.name;
                     });
-                    mergeNode.attr("r", function (d) {
+                    mergeNode.attr("r", function(d) {
                         nodes[mergeNodeIndex].radius = Math.log(user) * 4 + 4;
                         return Math.log(user) * 4 + 4;
                     });
@@ -340,7 +346,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 .duration(1600)
                 .remove();
 
-            var dataIndex = _.findIndex(dataPassingService.menuObj[menuObjectInstanceName][removeNodeObj.name]['data'], function (menuData) {
+            var dataIndex = _.findIndex(dataPassingService.menuObj[menuObjectInstanceName][removeNodeObj.name]['data'], function(menuData) {
                 return exitUserId === menuData.userId;
             });
         }
@@ -372,7 +378,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         if (!dataPassingService.menuObj[menuObjectInstanceName]) {
             dataPassingService.menuObj[menuObjectInstanceName] = {};
         }
-        angular.forEach(dataPassingService.menuObj[menuObjectInstanceName], function (value, key) {
+        angular.forEach(dataPassingService.menuObj[menuObjectInstanceName], function(value, key) {
             dataPassingService.menuObj[menuObjectInstanceName][key]['display'] = false;
         })
         _enterSubUser(resultWeb.rows, googleAnalyticsCtrl.totalUserWithinTime);
@@ -382,14 +388,15 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     function _enterSubUser(nodeData) {
         if (!nodeData)
             nodeData = [];
-        angular.forEach(nodeData, function (value, key) {
+        angular.forEach(nodeData, function(value, key) {
             if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]])
                 dataPassingService.menuObj[menuObjectInstanceName][value[0]] = {};
             dataPassingService.menuObj[menuObjectInstanceName][value[0]].name = value[0];
             if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'])
                 dataPassingService.menuObj[menuObjectInstanceName][value[0]]['data'] = [];
             if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'])
-                dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'] = color; color++;
+                dataPassingService.menuObj[menuObjectInstanceName][value[0]]['color'] = color;
+            color++;
             if (!dataPassingService.menuObj[menuObjectInstanceName][value[0]]['x']) {
                 dataPassingService.menuObj[menuObjectInstanceName][value[0]]['x'] = 100;
                 dataPassingService.menuObj[menuObjectInstanceName][value[0]]['y'] = 50;
@@ -414,6 +421,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             .attr("y", 0)
             .attr("width", 15)
             .attr("height", 15)
+            .attr("class", "graph-svg-component")
             .attr("xlink:href", GOAL_COMPLETE_ICON_PATH);
         svg.append("rect")
             .attr("width", 200)
@@ -443,10 +451,10 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             speed: 700,
             zIndex: 1,
             width: 300,
-            hide: function (slider, trigger) {
+            hide: function(slider, trigger) {
                 googleAnalyticsCtrl.sideBarFlag = false;
             },
-            show: function (slider, trigger) {
+            show: function(slider, trigger) {
                 googleAnalyticsCtrl.sideBarFlag = true;
             },
         });
@@ -460,13 +468,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         force.friction(change);
     }
 
-    socketAalytics.on('new-user', function (newUser) {
+    socketAalytics.on('new-user', function(newUser) {
         _createMainNodes(newUser)
     });
-    socketAalytics.on('disconnect-user', function (exitUser) {
+    socketAalytics.on('disconnect-user', function(exitUser) {
         _exitUser(exitUser.userId)
     });
-    socketAalytics.on('goal-complete', function (goalComplete) {
+    socketAalytics.on('goal-complete', function(goalComplete) {
         _createMainNodes(goalComplete)
     });
 }

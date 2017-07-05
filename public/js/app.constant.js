@@ -93,3 +93,6 @@ angular.module('googleAnalyticsModule')
         positionX: 'right',
         positionY: 'bottom'
     })
+    .constant('SOCKET_CONFIG', {
+        serverPath : 'http://192.168.88.245:8080'
+    })

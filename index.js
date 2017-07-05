@@ -347,12 +347,12 @@ var soketObject = {};
 io.sockets.on('connection', function (socket) {
     socket.on('connect-state', function (connectStateData) {
         console.log('connect-state', connectStateData)
-        io.emit('new-user', [connectStateData.country_name, connectStateData.eventName,connectStateData.userData, connectStateData.country, connectStateData.browser, 'DESKTOP', 'NEW', 1])
+        io.emit('new-user', [connectStateData.country_name, connectStateData.eventName, connectStateData.userData, connectStateData.country, connectStateData.browser, connectStateData.device, 'NEW', 1, 'No Set', connectStateData.os, new Date().getHours(), new Date().getMinutes()])
     });
 
     socket.on('goal-done', function (goalData) {
         console.log('goal-done', goalData)
-        io.emit('goal-complete', [goalData.country_name, goalData.eventName,goalData.userData, goalData.country, goalData.browser, 'DESKTOP', 'NEW', 1])
+        io.emit('goal-complete', [goalData.country_name, goalData.eventName, goalData.userData, goalData.country, goalData.browser, goalData.device, 'NEW', 1, 'No Set', goalData.os, new Date().getHours(), new Date().getMinutes()])
     });
     socket.on('disconnect', function (data) {
         delete soketObject[socket.id];
