@@ -84,7 +84,8 @@ app.post('/getGoogleAnalyticsAllData', function (req, res) {
         'end-date': req.body.endDate,
         'metrics': CONFIG.GOOGLE_DEFAULT_ALL_TIME_DATA_METRICS,
         'dimensions': req.body.dimensionsId,
-        'sort': '-ga:users'
+        'sort': '-ga:users',
+        'filters': 'ga:hostname==salty-hollows-92779.herokuapp.com'
     }, function (err, response) {
         if (err) {
             res.send({
