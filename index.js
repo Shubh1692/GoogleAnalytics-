@@ -134,7 +134,8 @@ app.get('/getGoogleAnalyticsUserData', function (req, res) {
         'end-date': new Date().toISOString().slice(0, 10),
         'metrics': 'ga:users',
         'dimensions': CONFIG.GOOGLE_DEFAULT_USER_DATA_DIMENSIONS_PRAT_ONE,
-        'sort': '-ga:date'
+        'sort': '-ga:date',
+        'filters': 'ga:hostname==salty-hollows-92779.herokuapp.com'
     }, function (err, response) {
         if (err) {
             res.send({
