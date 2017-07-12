@@ -48,9 +48,13 @@ function _googleAnalyticsService($http, $q, Notification, NOTIFICATION_CONSTANT)
     }
 
     function _getConvertedUserData(userData) {
-        if (angular.isString(userData))
-            userData = JSON.parse(CryptoJS.enc.Base64.parse(userData).toString(CryptoJS.enc.Utf8));
-        return userData;
+        try {
+            if (angular.isString(userData))
+                userData = JSON.parse(CryptoJS.enc.Base64.parse(userData).toString(CryptoJS.enc.Utf8));
+            return userData;
+        } catch (e) {
+            return true;
+        }
     }
     // Add Tooltip Display to D3 circle
     function _setTooltipView(userInfo) {

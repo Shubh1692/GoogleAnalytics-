@@ -17,10 +17,13 @@ function _rightMenuController($timeout, googleAnalyticsService, $window, NODE_WE
     rightMenuCtrl.speed = rightMenuCtrl.DEFAULT_D3CIRCLE_CONSTRAINT.speed;
     // Controller Function
     $timeout(function () {
+        console.log(rightMenuCtrl.selectHost)
         rightMenuCtrl.setBackGroundColorFlag = true;
-        googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_USER_DATA_API, 'GET')
+        googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_USER_DATA_API, 'POST', {
+            host : (rightMenuCtrl.selectHost && rightMenuCtrl.selectHost.host) ? rightMenuCtrl.selectHost.host : 'example.com'
+        })
             .then(_getHistoricalUserData);
-    }, 100);
+    }, 2000);
 
     function _getHistoricalUserData(result) {
         if(angular.isObject(rightMenuCtrl.userData) && Object.keys(rightMenuCtrl.userData).length) {

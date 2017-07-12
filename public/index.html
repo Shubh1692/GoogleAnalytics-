@@ -23,21 +23,22 @@
     <!-- Socket Io Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="lib/angular-socket-io/socket.js"></script>
+    <!-- UI Routing -->
+    <script type="text/javascript" src="lib/angular-ui-router/release/angular-ui-router.min.js"></script>
     <!-- Local Js Files -->
     <script src="js/app.js"></script>
     <script src="js/app.constant.js"></script>
     <script src="js/app.controller.js"></script>
+    <script src="js/adminSiteConfigure.controller.js"></script>
     <script src="js/rightmenu.controller.js"></script>
     <script src="js/d3.controller.js"></script>
     <script src="js/app.component.js"></script>
     <script src="js/app.service.js"></script>
     <script src="js/socket.analytics.js"></script>
 </head>
-
 <!-- Html Code -->
-
 <body ng-app="googleAnalyticsModule">
-    <gad3-main-component></gad3-main-component>
+     <div ui-view></div>
     <!-- D3 Library Js -->
     <script src="http://d3js.org/d3.v3.min.js"></script>
 </body>

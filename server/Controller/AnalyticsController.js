@@ -21,9 +21,11 @@ function _findAnalyticsData(filterObject) {
     });
     return defer.promise;
 }
+
+
 // Export Methodz
 module.exports = {
     saveAnalyticsInfo: _saveAnalyticsInfo,
     updateConnectionAnalyticsInfo: _updateConnectionAnalyticsInfo,
-    findAnalyticsData : _findAnalyticsData
+    findAnalyticsData: _findAnalyticsData
 };

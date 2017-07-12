@@ -84,31 +84,44 @@ var header = [
     window.opera
 ];
 /* Configuration Object for Event Tracking */
-var configuration = {
-    formDataIds: ['email', 'name'],
-    submit: 'login'
-},
+var configuration,
     eventFlag = true;
 
 /* Socket Connected Event */
 socket.on('connect', function () {
     /* Create Real Time Connection */
-    _createAndSendClientInfo('connect-state', 'onload', socket.id)
-    _connectToGA();
+    _getInputConfiguration();
 });
 
-
 document.onclick = function (event) {
-    var userInfo = {};
     if (event === undefined) event = window.event;
     var target = 'target' in event ? event.target : event.srcElement;
-    if (event.target.getAttribute("id") === configuration.submit && eventFlag) {
-        console.log('goal Complete')
-        eventFlag = false;
-        for (var i = 0; i < configuration.formDataIds.length; i++) {
-            userInfo[configuration.formDataIds[i]] = document.getElementById(configuration.formDataIds[i]).value;
+
+    if (_inIframe()) {
+        _sendConfiguration(event.target);
+    } else if (configuration) {
+        var userInfo = {};
+        var submitIds = configuration.map(function (obj) {
+            return obj.submitId.elementId;
+        });
+        var submitXpaths = configuration.map(function (obj) {
+            return obj.submitId.elementXPath;
+        });
+        var eventTargetXpath = _findXpathOfElement(event.target);
+        if ((submitIds.indexOf(event.target.getAttribute("id")) > -1 || submitXpaths.indexOf(eventTargetXpath) > -1) && eventFlag) {
+            if (submitIds.indexOf(event.target.getAttribute("id")) > -1)
+                formIndex = submitIds.indexOf(event.target.getAttribute("id"));
+            else if (submitXpaths.indexOf(eventTargetXpath) > -1)
+                formIndex = submitXpaths.indexOf(eventTargetXpath);
+            eventFlag = false;
+            configuration[formIndex].inputIds.forEach(function (inputIdValue) {
+                if (inputIdValue.elementId)
+                    userInfo[inputIdValue.elementId] = document.getElementById(inputIdValue.elementId).value;
+                else if (inputIdValue.elementXPath)
+                    userInfo[inputIdValue.elementXPath] = _getElementByXPath(inputIdValue.elementXPath).value;
+            });
+            dataToSend(userInfo, 'login');
         }
-        dataToSend(userInfo, configuration.submit)
     }
 };
 
@@ -204,4 +217,73 @@ function _detectDevice() {
         return 'Mobile';
     else
         return 'Desktop';
+}
+
+function _sendConfiguration(element) {
+    console.log(element.id)
+    socket.emit('send-configuration', {
+        elementId: element.id,
+        elementXPath: _findXpathOfElement(element),
+    });
+}
+
+function _findXpathOfElement(element) {
+    var paths = [];
+    for (; element && element.nodeType == Node.ELEMENT_NODE;
+        element = element.parentNode) {
+        var index = 0;
+        var hasFollowingSiblings = false;
+        for (var sibling = element.previousSibling; sibling;
+            sibling = sibling.previousSibling) {
+            if (sibling.nodeType == Node.DOCUMENT_TYPE_NODE)
+                continue;
+            if (sibling.nodeName == element.nodeName)
+                ++index;
+        }
+        for (var sibling = element.nextSibling;
+            sibling && !hasFollowingSiblings;
+            sibling = sibling.nextSibling) {
+            if (sibling.nodeName == element.nodeName)
+                hasFollowingSiblings = true;
+        }
+        var tagName = (element.prefix ? element.prefix + ":" : "")
+            + element.localName;
+        var pathIndex = (index || hasFollowingSiblings ? "["
+            + (index + 1) + "]" : "");
+        paths.splice(0, 0, tagName + pathIndex);
+    }
+    return paths.length ? "/" + paths.join("/") : null;
+}
+
+function _getElementByXPath(xpath) {
+    return document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+}
+
+
+function _getInputConfiguration() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            if (JSON.parse(xhttp.responseText).successMessage) {
+                configuration = JSON.parse(xhttp.responseText).data[0].site_configuration;
+                _createAndSendClientInfo('connect-state', 'onload', socket.id);
+                _connectToGA();
+            } else {
+                console.log(JSON.parse(xhttp.responseText))
+            }
+        }
+    };
+    xhttp.open("POST", "http://104.154.138.192:8080/getInputConfiguration", true);
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhttp.send(JSON.stringify({
+        host: window.location.hostname
+    }));
+}
+
+function _inIframe() {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
 }

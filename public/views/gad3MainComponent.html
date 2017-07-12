@@ -1,20 +1,19 @@
 <div id='slider' class="right-menu-z-index" ng-init="googleAnalyticsCtrl.startTime()">
     <div class="handle" ng-click="googleAnalyticsCtrl.sideBarInstance.slideReveal('toggle');" ng-class="googleAnalyticsCtrl.sideBarFlag ? 'rotate':''">&#8249;</div>
-    <right-menu 
-    user-data="googleAnalyticsCtrl.userDataForRightMenu" 
-    speed="googleAnalyticsCtrl.speed" 
-    charge-range-change="googleAnalyticsCtrl.chargeRangeChange"
-    friction-range-change="googleAnalyticsCtrl.frictionRangeChange"
-    show-user-notification ="googleAnalyticsCtrl.showUserNotification"
-    ></right-menu>
+    <right-menu user-data="googleAnalyticsCtrl.userDataForRightMenu" speed="googleAnalyticsCtrl.speed" charge-range-change="googleAnalyticsCtrl.chargeRangeChange"
+        friction-range-change="googleAnalyticsCtrl.frictionRangeChange" show-user-notification="googleAnalyticsCtrl.showUserNotification" select-host="googleAnalyticsCtrl.selectHost" render-right-menu="'asfs'"></right-menu>
 </div>
 <div class="row title margin-right-0">
     <div class="col-md-6">
         <h2> Project Bubble Cluster</h2>
-        <label class="switch">
+        <a ui-sref="adminSiteConfiguration">Admin Site Configuration</a>
+        <select class="drop-dwon-label" ng-model="googleAnalyticsCtrl.selectHost" ng-options="hosts as hosts.host for hosts in googleAnalyticsCtrl.hostList"
+            ng-change="googleAnalyticsCtrl.sourceSelection(googleAnalyticsCtrl.selectedSource)">
+                            </select>
+        <!-- <label class="switch">
                 <input type="checkbox" ng-model="googleAnalyticsCtrl.demoApiFlag" ng-change="googleAnalyticsCtrl.demoApiFlagChange()">
                 <div class="slider round"></div>
-            </label>
+            </label> -->
     </div>
     <div class="col-md-6 padding-right-20">
         <div class="valign-parent" style="height: 100px">
@@ -52,7 +51,7 @@
     </div>
     <div class="domain-style">
         <div class="float-left width-auto padding-right-10 color-gray">
-            <span class="font-size-large"><b ng-bind="'www.uxcess.com'"></b></span>
+            <span class="font-size-large"><b ng-bind="googleAnalyticsCtrl.selectHost.host"></b></span>
         </div>
         <div class="float-left width-auto color-gray">
             <span class="font-size-large"><b ng-bind="googleAnalyticsCtrl.onsiteUser"></b></span>
@@ -177,15 +176,11 @@
             </div>
         </div>
     </div>
-    <!--<div class="user-info color-gray" ng-style="{'top' : googleAnalyticsCtrl.userInfoTopPostion + 'px','width' : googleAnalyticsCtrl.goalOneDivWidth + 'px'}">
-        <div class="float-left"><span ng-bind="googleAnalyticsCtrl.userInfoArray.length"></span> GOAL CONVERSION ACHIEVED</div>
-        <a href="JavaScript:Void(0);" class="float-right padding-right-10 cross-icon" ng-click="googleAnalyticsCtrl.showUserInfo = !googleAnalyticsCtrl.showUserInfo;">&#x2716;</a>
-    </div>-->
-    <!--<div ng-if="googleAnalyticsCtrl.showUserInfo" class="user-info color-gray" ng-style="{'top' : googleAnalyticsCtrl.userInfoTopPostion + 30 + 'px','width' : googleAnalyticsCtrl.goalOneDivWidth + 'px', 'height': '100px', 'overflow-x': 'hidden'}">
-        <div id="{{userInfo.id}}" class="user-notification" ng-repeat="userInfo in googleAnalyticsCtrl.userInfoArray | orderBy:'+':true  track by $index">
-            <div ng-repeat="(key, userData) in userInfo.userInfo">
-                <label ng-bind="key | uppercase"> </label> <span ng-bind="userData" style="margin-left: 70px;"> </span>
-            </div>
-        </div>
-    </div>-->
 </div>
+<!-- <ul class="">
+    <li ng-repeat="project in googleAnalyticsCtrl.projects">
+        <a ng-click="googleAnalyticsCtrl.setProject(project.id)" href="">{{project.url}}</a>
+    </li>
+</ul>
+<iframe id="iframe" sandbox="allow-scripts allow-same-origin" ng-src="{{googleAnalyticsCtrl.currentProjectUrl}}" width="800px" height="600px">
+</iframe> -->

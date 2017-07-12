@@ -1,0 +1,35 @@
+<div class="container padding-10">
+    <div class="row" style="height:500px">
+        <div class="col-md-10" style="height:100%">
+            <div>
+                <input style="width: 50%" type="text" ng-model="adminSiteConfigureCtrl.clientAdminSiteUrl" ng-required="true" placeholder="Enter Your Web Site Url">
+                <button ng-click="adminSiteConfigureCtrl.setClientUrl(adminSiteConfigureCtrl.clientAdminSiteUrl)">Go</button>
+                <a ui-sref="dahsboard">Dashboard</a>
+            </div>
+            <div class="padding-top-10" style="height:100%">
+                <iframe id="iframe" sandbox="allow-scripts allow-same-origin" ng-src="{{adminSiteConfigureCtrl.clientTrustAdminSiteUrl}}"
+                    style="width: 100%; height: 100%;">
+                </iframe>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <label class="switch">
+                <input type="checkbox" ng-model="adminSiteConfigureCtrl.startTracking" ng-disabled="!adminSiteConfigureCtrl.clientTrustAdminSiteUrl">
+                <div class="slider round"></div>
+            </label>
+        </div>
+    </div>
+</div>
+
+<div class="admin-confirmation-modal" ng-style="adminSiteConfigureCtrl.showModal ? {'display' : 'block'} : {'display' : 'none'}">
+    <div class="admin-confirmation-modal-content">
+        <!-- <span class="admin-confirmation-modal-close" ng-click="adminSiteConfigureCtrl.showModal = false;">&times;</span> -->
+        <p>Have you picked this Item</p>
+        <label>Element Id : <span ng-bind="adminSiteConfigureCtrl.currentConfiguration.elementId"></span></label><br>
+        <label>Element Xpath : <span ng-bind="adminSiteConfigureCtrl.currentConfiguration.elementXPath"></span></label><br>
+        <button ng-click="adminSiteConfigureCtrl.repickInputConfiguration()">Re-Pick</button>
+        <button ng-if="adminSiteConfigureCtrl.formInputFlag" ng-click="adminSiteConfigureCtrl.submitFormInputConfiguration()">Pick More Input Id</button>
+        <button ng-if="adminSiteConfigureCtrl.formInputFlag" ng-click="adminSiteConfigureCtrl.submitFormInputConfiguration();adminSiteConfigureCtrl.formInputFlag = false">Pick Submit Button Id</button>
+        <button ng-if="!adminSiteConfigureCtrl.formInputFlag" ng-click="adminSiteConfigureCtrl.submitFormSubmitConfiguration();adminSiteConfigureCtrl.formInputFlag = true">Set Submit Button Id</button>
+    </div>
+</div>

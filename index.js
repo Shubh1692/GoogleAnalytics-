@@ -13,7 +13,7 @@ var express = require('express'), // require express cod
     dashboardSocketInstance = {},
     Q = require("q");
 app.use(bodyParser.urlencoded({
-    extended: false
+    extended: true
 }));
 // parse application/json
 app.use(bodyParser.json());
@@ -29,6 +29,7 @@ app.use(function (req, res, next) {
 app.use(express.static('public'));
 app.set('port', (process.env.PORT || CONFIG.NODE_SERVER_PORT));
 AnalyticsController = require('./server/Controller/AnalyticsController'); // require Controller code
+AdminSiteConfigurationController = require('./server/Controller/AdminSiteConfigurationController'); // require Controller code
 // Google Analytics Authentication
 let jwtClient = new google.auth.JWT(CONFIG.GOOGLE_CLINET_CONFIG.client_email, null, CONFIG.GOOGLE_CLINET_CONFIG.private_key, ['https://www.googleapis.com/auth/analytics.readonly'], null);
 jwtClient.authorize(function (err, tokens) {
@@ -85,7 +86,7 @@ app.post('/getGoogleAnalyticsAllData', function (req, res) {
         'metrics': CONFIG.GOOGLE_DEFAULT_ALL_TIME_DATA_METRICS,
         'dimensions': req.body.dimensionsId,
         'sort': '-ga:users',
-        'filters': 'ga:hostname==salty-hollows-92779.herokuapp.com'
+        'filters': 'ga:hostname==' + req.body.host
     }, function (err, response) {
         if (err) {
             res.send({
@@ -106,9 +107,9 @@ app.post('/getGoogleAnalyticsAllData', function (req, res) {
                         if (onlineUser.current_event_name === 'onload')
                             onlineUser.user_info = onlineUser.socket_id;
                         else {
-                            currentOnlineUsers.push(['onload', onlineUser.socket_id, onlineUser.country_code, onlineUser.browser, onlineUser.device, 'NEW', onlineUser.country_name, 'No Set', onlineUser.os, new Date().getHours(), new Date().getMinutes()])
+                            currentOnlineUsers.push(['onload', onlineUser.socket_id, onlineUser.country_code, onlineUser.browser, onlineUser.device, 'NEW', onlineUser.country_name, 'No Set', onlineUser.os, new Date().getHours(), new Date().getMinutes(), onlineUser.host])
                         }
-                        currentOnlineUsers.push([onlineUser.current_event_name, onlineUser.user_info, onlineUser.country_code, onlineUser.browser, onlineUser.device, 'NEW', onlineUser.country_name, 'No Set', onlineUser.os, new Date().getHours(), new Date().getMinutes()])
+                        currentOnlineUsers.push([onlineUser.current_event_name, onlineUser.user_info, onlineUser.country_code, onlineUser.browser, onlineUser.device, 'NEW', onlineUser.country_name, 'No Set', onlineUser.os, new Date().getHours(), new Date().getMinutes(), onlineUser.host])
                     }
                 })
                 response.onlineUserData = currentOnlineUsers;
@@ -125,7 +126,7 @@ app.post('/getGoogleAnalyticsAllData', function (req, res) {
     });
 });
 
-app.get('/getGoogleAnalyticsUserData', function (req, res) {
+app.post('/getGoogleAnalyticsUserData', function (req, res) {
     var responseVar = {};
     google.analytics('v3').data.ga.get({
         'auth': jwtClient,
@@ -135,7 +136,7 @@ app.get('/getGoogleAnalyticsUserData', function (req, res) {
         'metrics': 'ga:users',
         'dimensions': CONFIG.GOOGLE_DEFAULT_USER_DATA_DIMENSIONS_PRAT_ONE,
         'sort': '-ga:date',
-        'filters': 'ga:hostname==salty-hollows-92779.herokuapp.com'
+        'filters': 'ga:hostname==' + req.body.host
     }, function (err, response) {
         if (err) {
             res.send({
@@ -176,7 +177,7 @@ app.get('/getGoogleAnalyticsUserData', function (req, res) {
             data: err
         });
     });
-})
+});
 
 app.get('/getRealTimeDataDemoAPI', function (req, res) {
     var temp = _createDynmicDemoData(req.query.dimensionsId, req.query.changeFlag);
@@ -185,7 +186,10 @@ app.get('/getRealTimeDataDemoAPI', function (req, res) {
         successMessage: CONFIG.REAL_TIME_API_SUCCESS_MESSAGE,
         data: temp
     });
-})
+});
+
+app.post('/adminFormInputConfiguration', AdminSiteConfigurationController.submitInputConfiguration);
+app.post('/getInputConfiguration', AdminSiteConfigurationController.getInputConfiguration);
 var userId = 0,
     dummyData = {
         rows: [],
@@ -359,12 +363,14 @@ function _getUserDataSuccessCalling(err, responseVar, res, repo) {
         });
     }
 }
+
 http.listen(app.get('port'), function () {
     console.log('listening on *:' + app.get('port'));
 });
+
 io.sockets.on('connection', function (socket) {
     socket.on('connect-state', function (connectStateData) {
-        console.log('connect-state', connectStateData)
+       // console.log('connect-state', connectStateData)
         AnalyticsController.saveAnalyticsInfo({
             host: connectStateData.host,
             socket_id: socket.id,
@@ -376,7 +382,7 @@ io.sockets.on('connection', function (socket) {
             os: connectStateData.os,
             current_event_name: connectStateData.eventName,
         });
-        io.emit('new-user', [connectStateData.eventName, connectStateData.userData, connectStateData.country, connectStateData.browser, connectStateData.device, 'NEW', connectStateData.country_name, 'No Set', connectStateData.os, new Date().getHours(), new Date().getMinutes()])
+        io.emit('new-user', [connectStateData.eventName, connectStateData.userData, connectStateData.country, connectStateData.browser, connectStateData.device, 'NEW', connectStateData.country_name, 'No Set', connectStateData.os, new Date().getHours(), new Date().getMinutes(), connectStateData.host])
     });
 
     socket.on('goal-done', function (goalData) {
@@ -385,7 +391,12 @@ io.sockets.on('connection', function (socket) {
             user_info: goalData.userData,
             current_event_name: goalData.eventName,
         });
-        io.emit('goal-complete', [goalData.eventName, goalData.userData, goalData.country, goalData.browser, goalData.device, 'NEW', goalData.country_name, 'No Set', goalData.os, new Date().getHours(), new Date().getMinutes()])
+        io.emit('goal-complete', [goalData.eventName, goalData.userData, goalData.country, goalData.browser, goalData.device, 'NEW', goalData.country_name, 'No Set', goalData.os, new Date().getHours(), new Date().getMinutes(), connectStateData.host])
+    });
+
+    socket.on('send-configuration', function(configurationData) {
+        console.log(configurationData)
+        io.emit('get-configuration', configurationData);
     });
 
     socket.on('disconnect', function (data) {

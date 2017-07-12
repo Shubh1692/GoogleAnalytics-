@@ -3,10 +3,10 @@ angular.module('googleAnalyticsModule')
     .filter('liveUserSort', _liveUserSort)
     .filter('dateMenuSort', _dateMenuSort);
 
-_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT', 'GOAL_COMPLETE_ICON_PATH', '$filter', 'GOAL_EVENT_NAME', 'NODE_WEB_API_DEMO', 'DEFAULT_D3CIRCLE_CONSTRAINT', 'socketAalytics'];
+_googleAnalyticsController.$inject = ['$timeout', 'googleAnalyticsService', '$window', '$document', 'NODE_WEB_API', '$interval', 'VIEWING_BY_SOURCE', 'dataPassingService', 'VIEWING_BY_TIME', 'REAL_TIME_API_TIME_INTERVAL', 'SCALING_INDEX', 'MAX_MENU_COUNT', 'GOAL_COMPLETE_ICON_PATH', '$filter', 'GOAL_EVENT_NAME', 'NODE_WEB_API_DEMO', 'DEFAULT_D3CIRCLE_CONSTRAINT', 'socketAalytics', '$sce'];
 _liveUserSort.$inject = ['_'];
 
-function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT, GOAL_COMPLETE_ICON_PATH, $filter, GOAL_EVENT_NAME, NODE_WEB_API_DEMO, DEFAULT_D3CIRCLE_CONSTRAINT, socketAalytics) {
+function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $document, NODE_WEB_API, $interval, VIEWING_BY_SOURCE, dataPassingService, VIEWING_BY_TIME, REAL_TIME_API_TIME_INTERVAL, SCALING_INDEX, MAX_MENU_COUNT, GOAL_COMPLETE_ICON_PATH, $filter, GOAL_EVENT_NAME, NODE_WEB_API_DEMO, DEFAULT_D3CIRCLE_CONSTRAINT, socketAalytics, $sce) {
     var googleAnalyticsCtrl = this,
         padding = 1,
         clusterPadding = 0,
@@ -76,6 +76,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     googleAnalyticsCtrl.userDataForRightMenu = {};
     googleAnalyticsCtrl.demoApiFlag = NODE_WEB_API_DEMO.DUMMY_API_DEFAULT_FLAG;
     googleAnalyticsCtrl.speed = DEFAULT_D3CIRCLE_CONSTRAINT.speed;
+    googleAnalyticsCtrl.hostList = [];
     //Init Functions or Variables
     var forceInterVal = $interval(force.start, 1);
     menuObjectInstanceName = VIEWING_BY_SOURCE[0].name;
@@ -220,6 +221,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         else
             usrInfo.id = row[2];
         if (svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0].length === 0 && row[1] === 'onload') {
+            googleAnalyticsCtrl.onsiteUser ++;
             dataPassingService.menuObj[menuObjectInstanceName][row[0]]['data'].push({ name: row[0], color: dataPassingService.menuObj[menuObjectInstanceName][row[0]]['color'], userId: row[2] });
             dataPassingService.menuObj[menuObjectInstanceName][row[0]]['display'] = true;
             var menuIndex = _.findIndex($filter('liveUserSort')(googleAnalyticsCtrl.menuList), ['name', row[0]]);
@@ -333,18 +335,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
                 .transition()
                 .each("end", function (e) {
                     var user = (parseInt(mergeNode[0][0].getAttribute("user")) + 1);
-                    _updateMenuNodeRadious(e.name, user)
-                    // var mergeNode = svg.selectAll("circle[name='" + e.name + "']");
-
-                    // var mergeNodeIndex = _.findIndex(nodes, function (obj) {
-                    //     return obj.menuName === e.name;
-                    // });
-                    // mergeNode.attr("r", function (d) {
-                    //     nodes[mergeNodeIndex].radius = Math.log(user) * 4 + 4;
-                    //     return Math.log(user) * 4 + 4;
-                    // });
-                    // mergeNode.attr("user", user);
-                    // removeNodeObj.remove = true;
+                    _updateMenuNodeRadious(e.name, user);
                 })
                 .attr("transform", "translate(" + -(removeNodeObj.x - parseFloat(mergeNode[0][0].getAttribute("cx"))) + "," + -(removeNodeObj.y - parseFloat(mergeNode[0][0].getAttribute("cy"))) + ")") //scale(0)
                 .duration(1600)
@@ -363,15 +354,18 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             return Math.log(user) * 4 + 4;
         });
         mergeNode.attr("user", user);
+        googleAnalyticsCtrl.onsiteUser --;
     }
     // Exit All users on Menu Selection
     function _exitAllUser() {
+        console.log('exit')
         if (nodes.length !== 0) {
             force.stop();
             nodes.splice(0, 1);
             node = node.data(nodes);
             node.exit().remove();
             _exitAllUser();
+            googleAnalyticsCtrl.onsiteUser = 0;
         } else {
             googleAnalyticsCtrl.getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
         }
@@ -379,11 +373,14 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
 
     // For All Time Data API Calling
     function _getAnalyticsDataByTime(selectedTime) {
+        console.log(googleAnalyticsCtrl.renderRightMenu)
+        console.log(googleAnalyticsCtrl.selectHost)
         googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API, 'POST', {
             startDate: selectedTime.time.startDate,
             endDate: selectedTime.time.endDate,
             dimensionsId: googleAnalyticsCtrl.selectedSource.gaValue,
-            socketId: dataPassingService.socketId
+            socketId: dataPassingService.socketId,
+            host: googleAnalyticsCtrl.selectHost.host
         })
             .then(_setAllTimeAPIData);
     }
@@ -411,8 +408,10 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         })
         _enterSubUser(resultWeb.rows, googleAnalyticsCtrl.totalUserWithinTime);
         googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
-        angular.forEach(resultWeb.onlineUserData, function(onlineUser){
-            _createOrUpdateOnlineUser(onlineUser);
+        angular.forEach(resultWeb.onlineUserData, function (onlineUser) {
+            console.log(onlineUser)
+            if (googleAnalyticsCtrl.selectHost && onlineUser[11] === googleAnalyticsCtrl.selectHost.host)
+                _createOrUpdateOnlineUser(onlineUser);
         });
     }
     // For Create Menu Nodes of DD selection
@@ -506,7 +505,12 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
     // Socket Ready Event For Controller
     function _socketReadyEvent() {
-        _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
+        googleAnalyticsService.serverRequest('getInputConfiguration', 'POST', {})
+            .then(function (hostData) {
+                googleAnalyticsCtrl.hostList = hostData;
+                googleAnalyticsCtrl.selectHost = hostData[0];
+                _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
+            });
     }
 
     // Create online user 
@@ -524,7 +528,9 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     // Socket Events
     // User Come Event
     socketAalytics.on('new-user', function (newUser) {
-        _createOrUpdateOnlineUser(newUser)
+        console.log(newUser, googleAnalyticsCtrl.selectHost)
+        if (googleAnalyticsCtrl.selectHost && newUser[11] === googleAnalyticsCtrl.selectHost.host)
+            _createOrUpdateOnlineUser(newUser)
     });
     // User Disconnect Event
     socketAalytics.on('disconnect-user', function (exitUser) {
@@ -532,10 +538,13 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     });
     // User Goal Completation Event
     socketAalytics.on('goal-complete', function (goalComplete) {
-        _createOrUpdateOnlineUser(goalComplete)
+        if (googleAnalyticsCtrl.selectHost && newUser[11] === googleAnalyticsCtrl.selectHost.host)
+            _createOrUpdateOnlineUser(goalComplete)
     });
     dataPassingService.socketReadyEvent = _socketReadyEvent;
     $timeout(_rightSideBarConfig, 100);
+
+
 }
 
 function _liveUserSort(_) {

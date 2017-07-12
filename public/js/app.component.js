@@ -15,13 +15,22 @@ angular.module('googleAnalyticsModule')
             speed: '=',
             chargeRangeChange: '=',
             frictionRangeChange: '=',
-            showUserNotification : '='
+            showUserNotification : '=',
+            selectHost : '=',
+            renderRightMenu : '='
         }
     })
     .component('d3control', {
         templateUrl: 'views/d3control.html',
         controller: 'd3Controller',
         controllerAs: 'd3Ctrl',
+        bindings: {
+        }
+    })
+    .component('adminSiteConfigureComponent', {
+        templateUrl: 'views/adminSiteConfigureComponent.html',
+        controller: 'adminSiteConfigureController',
+        controllerAs: 'adminSiteConfigureCtrl',
         bindings: {
         }
     });

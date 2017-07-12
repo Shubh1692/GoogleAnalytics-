@@ -7,8 +7,9 @@ function _socketAnalytics(socketFactory, SOCKET_CONFIG, dataPassingService) {
         ioSocket: myIoSocket
     });
     mySocket.on('connect', function (data) {
-       dataPassingService.socketId = myIoSocket.id;
-       dataPassingService.socketReadyEvent();
+        dataPassingService.socketId = myIoSocket.id;
+        if (angular.isFunction(dataPassingService.socketReadyEvent))
+            dataPassingService.socketReadyEvent();
     });
     return mySocket;
 }
