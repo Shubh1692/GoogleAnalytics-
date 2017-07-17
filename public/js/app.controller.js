@@ -538,7 +538,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     });
     // User Goal Completation Event
     socketAalytics.on('goal-complete', function (goalComplete) {
-        if (googleAnalyticsCtrl.selectHost && newUser[11] === googleAnalyticsCtrl.selectHost.host)
+        if (googleAnalyticsCtrl.selectHost && goalComplete[11] === googleAnalyticsCtrl.selectHost.host)
             _createOrUpdateOnlineUser(goalComplete)
     });
     dataPassingService.socketReadyEvent = _socketReadyEvent;

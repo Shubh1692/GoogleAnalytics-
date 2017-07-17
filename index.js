@@ -391,7 +391,7 @@ io.sockets.on('connection', function (socket) {
             user_info: goalData.userData,
             current_event_name: goalData.eventName,
         });
-        io.emit('goal-complete', [goalData.eventName, goalData.userData, goalData.country, goalData.browser, goalData.device, 'NEW', goalData.country_name, 'No Set', goalData.os, new Date().getHours(), new Date().getMinutes(), connectStateData.host])
+        io.emit('goal-complete', [goalData.eventName, goalData.userData, goalData.country, goalData.browser, goalData.device, 'NEW', goalData.country_name, 'No Set', goalData.os, new Date().getHours(), new Date().getMinutes(), goalData.host])
     });
 
     socket.on('send-configuration', function(configurationData) {
