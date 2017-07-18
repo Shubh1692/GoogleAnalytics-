@@ -17,7 +17,7 @@ angular.module('googleAnalyticsModule')
             frictionRangeChange: '=',
             showUserNotification : '=',
             selectHost : '=',
-            renderRightMenu : '='
+            renderRightMenu: '='
         }
     })
     .component('d3control', {

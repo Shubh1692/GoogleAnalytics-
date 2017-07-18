@@ -64,9 +64,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     googleAnalyticsCtrl.displayTime = {};
     googleAnalyticsCtrl.menuList = [];
     googleAnalyticsCtrl.sourceArray = VIEWING_BY_SOURCE;
-    googleAnalyticsCtrl.selectedSource = VIEWING_BY_SOURCE[0];
     googleAnalyticsCtrl.timeArray = VIEWING_BY_TIME;
-    googleAnalyticsCtrl.selectedTime = VIEWING_BY_TIME[0];
     googleAnalyticsCtrl.sourceSelection = _sourceSelection;
     googleAnalyticsCtrl.getAnalyticsDataByTime = _getAnalyticsDataByTime;
     googleAnalyticsCtrl.goalOneDivWidth = mainSvgWidth - (mainSvgWidth * 0.7);
@@ -221,7 +219,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         else
             usrInfo.id = row[2];
         if (svg.selectAll('circle[userId="' + usrInfo.id + '"]')[0].length === 0 && row[1] === 'onload') {
-            googleAnalyticsCtrl.onsiteUser ++;
+            googleAnalyticsCtrl.onsiteUser++;
             dataPassingService.menuObj[menuObjectInstanceName][row[0]]['data'].push({ name: row[0], color: dataPassingService.menuObj[menuObjectInstanceName][row[0]]['color'], userId: row[2] });
             dataPassingService.menuObj[menuObjectInstanceName][row[0]]['display'] = true;
             var menuIndex = _.findIndex($filter('liveUserSort')(googleAnalyticsCtrl.menuList), ['name', row[0]]);
@@ -354,7 +352,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             return Math.log(user) * 4 + 4;
         });
         mergeNode.attr("user", user);
-        googleAnalyticsCtrl.onsiteUser --;
+        googleAnalyticsCtrl.onsiteUser--;
     }
     // Exit All users on Menu Selection
     function _exitAllUser() {
@@ -373,8 +371,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
 
     // For All Time Data API Calling
     function _getAnalyticsDataByTime(selectedTime) {
-        console.log(googleAnalyticsCtrl.renderRightMenu)
-        console.log(googleAnalyticsCtrl.selectHost)
         googleAnalyticsService.serverRequest(NODE_WEB_API.ALL_TIME_DATA_API, 'POST', {
             startDate: selectedTime.time.startDate,
             endDate: selectedTime.time.endDate,
@@ -409,7 +405,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
         _enterSubUser(resultWeb.rows, googleAnalyticsCtrl.totalUserWithinTime);
         googleAnalyticsCtrl.menuList = dataPassingService.menuObj[menuObjectInstanceName];
         angular.forEach(resultWeb.onlineUserData, function (onlineUser) {
-            console.log(onlineUser)
             if (googleAnalyticsCtrl.selectHost && onlineUser[11] === googleAnalyticsCtrl.selectHost.host)
                 _createOrUpdateOnlineUser(onlineUser);
         });
@@ -505,11 +500,19 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     }
     // Socket Ready Event For Controller
     function _socketReadyEvent() {
+        console.log('_socketReadyEvent')
         googleAnalyticsService.serverRequest('getInputConfiguration', 'POST', {})
             .then(function (hostData) {
                 googleAnalyticsCtrl.hostList = hostData;
                 googleAnalyticsCtrl.selectHost = hostData[0];
-                _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
+                googleAnalyticsService.selectHost = googleAnalyticsCtrl.selectHost;
+                if (hostData.length > 0) {
+                    console.log(googleAnalyticsCtrl)
+                    $timeout(googleAnalyticsService.renderRightMenu, 100);
+                    googleAnalyticsCtrl.selectedSource = VIEWING_BY_SOURCE[0];
+                    googleAnalyticsCtrl.selectedTime = VIEWING_BY_TIME[0];
+                    _getAnalyticsDataByTime(googleAnalyticsCtrl.selectedTime);
+                }
             });
     }
 
@@ -528,7 +531,6 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
     // Socket Events
     // User Come Event
     socketAalytics.on('new-user', function (newUser) {
-        console.log(newUser, googleAnalyticsCtrl.selectHost)
         if (googleAnalyticsCtrl.selectHost && newUser[11] === googleAnalyticsCtrl.selectHost.host)
             _createOrUpdateOnlineUser(newUser)
     });
@@ -542,9 +544,7 @@ function _googleAnalyticsController($timeout, googleAnalyticsService, $window, $
             _createOrUpdateOnlineUser(goalComplete)
     });
     dataPassingService.socketReadyEvent = _socketReadyEvent;
-    $timeout(_rightSideBarConfig, 100);
-
-
+    _rightSideBarConfig();
 }
 
 function _liveUserSort(_) {

@@ -1,5 +1,5 @@
 // Connect Socket For Get Real Time Data
-var socket = io.connect('http://104.154.138.192:8080');
+var socket = io.connect('http://192.168.88.23:8080');
 // Configure Variables
 var osConfig = [{
     name: 'Windows Phone',
@@ -90,7 +90,8 @@ var configuration,
 /* Socket Connected Event */
 socket.on('connect', function () {
     /* Create Real Time Connection */
-    _getInputConfiguration();
+    if (!_inIframe())
+        _getInputConfiguration();
 });
 
 document.onclick = function (event) {
@@ -265,15 +266,18 @@ function _getInputConfiguration() {
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             if (JSON.parse(xhttp.responseText).successMessage) {
-                configuration = JSON.parse(xhttp.responseText).data[0].site_configuration;
-                _createAndSendClientInfo('connect-state', 'onload', socket.id);
-                _connectToGA();
+                if (JSON.parse(xhttp.responseText).data && JSON.parse(xhttp.responseText).data.length > 0) {
+                    configuration = JSON.parse(xhttp.responseText).data[0].site_configuration;
+                    _createAndSendClientInfo('connect-state', 'onload', socket.id);
+                    _connectToGA();
+                }
+
             } else {
                 console.log(JSON.parse(xhttp.responseText))
             }
         }
     };
-    xhttp.open("POST", "http://104.154.138.192:8080/getInputConfiguration", true);
+    xhttp.open("POST", "http://192.168.88.23:8080/getInputConfiguration", true);
     xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhttp.send(JSON.stringify({
         host: window.location.hostname
