@@ -1,5 +1,5 @@
 // Connect Socket For Get Real Time Data
-var socket = io.connect('http://192.168.88.23:8080');
+var socket = io.connect('http://104.154.138.192:8080');
 // Configure Variables
 var osConfig = [{
     name: 'Windows Phone',
@@ -277,7 +277,7 @@ function _getInputConfiguration() {
             }
         }
     };
-    xhttp.open("POST", "http://192.168.88.23:8080/getInputConfiguration", true);
+    xhttp.open("POST", "http://104.154.138.192:8080/getInputConfiguration", true);
     xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhttp.send(JSON.stringify({
         host: window.location.hostname
